@@ -16,10 +16,10 @@ import { Uri, workspace } from 'vscode';
 import { StateMachine } from "../../stateMachine";
 
 const config = workspace.getConfiguration('ballerina');
-export const BACKEND_URL : string = config.get('rootUrl') || "https://dev-tools.wso2.com/ballerina-copilot/v2.0";
-export const AUTH_ORG : string = config.get('authOrg') || "ballerinacopilot";
-export const AUTH_CLIENT_ID : string = config.get('authClientID') || "9rKng8hSZd0VkeA45Lt4LOfCp9Aa";
-export const AUTH_REDIRECT_URL : string = config.get('authRedirectURL') || "https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev";
+export const BACKEND_URL : string = process.env.ROOT_URL || config.get('rootUrl');
+export const AUTH_ORG : string = process.env.BALLERINA_AUTH_ORG || config.get('authOrg') ;
+export const AUTH_CLIENT_ID : string = process.env.BALLERINA_AUTH_CLIENT_ID || config.get('authClientID');
+export const AUTH_REDIRECT_URL : string = process.env.AUTH_REDIRECT_URL || config.get('authRedirectURL');
 
 export async function closeAllBallerinaFiles(dirPath: string): Promise<void> {
     // Check if the directory exists

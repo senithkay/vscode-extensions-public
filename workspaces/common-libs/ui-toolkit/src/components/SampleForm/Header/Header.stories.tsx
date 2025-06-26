@@ -6,13 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Header as HeaderWrapper, HeaderContainerProps } from "./Header";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Header as HeaderWrapper } from "./Header";
 
-const Template: ComponentStory<typeof HeaderWrapper> = (args: HeaderContainerProps) => <HeaderWrapper {...args} />;
+const meta = {
+    component: HeaderWrapper,
+    title: "Sample Form",
+} satisfies Meta<typeof HeaderWrapper>;
+export default meta;
 
-export const Header = Template.bind();
-Header.args = { sx: { width: 600 } };
+type Story = StoryObj<typeof HeaderWrapper>;
 
-export default { component: Header, title: "Sample Form" };
+export const Header: Story = {
+    args: { sx: { width: 600 } }
+};

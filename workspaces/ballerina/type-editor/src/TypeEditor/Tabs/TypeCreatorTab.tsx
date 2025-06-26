@@ -106,6 +106,7 @@ interface TypeCreatorTabProps {
     onTypeSave: (type: Type) => Promise<void>;
     isSaving: boolean;
     setIsSaving: (isSaving: boolean) => void;
+    onTypeChange: (type: Type, rename?: boolean) => void;
 }
 
 export function TypeCreatorTab(props: TypeCreatorTabProps) {
@@ -116,7 +117,8 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
         initialTypeKind,
         onTypeSave,
         isSaving,
-        setIsSaving
+        setIsSaving,
+        onTypeChange
     } = props;
 
     const [type, setType] = useState<Type>(editingType);
@@ -284,7 +286,7 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
                 newName: tempName
             });
 
-            setType({
+            const renamedType = {
                 ...type,
                 name: tempName,
                 properties: {
@@ -294,8 +296,10 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
                         value: tempName
                     }
                 }
-            });
+            };
 
+            setType(renamedType);
+            onTypeChange(renamedType, true);
             cancelEditing();
         } catch (error) {
             console.error('Error renaming service class:', error);
@@ -484,14 +488,14 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
                                 <TextFieldWrapper>
                                     <TextField
                                         id={type.name}
-                                        label={type.properties["name"].metadata.label}
+                                        label={type.properties["name"]?.metadata.label}
                                         value={tempName}
                                         errorMsg={nameError}
                                         onBlur={handleOnBlur}
                                         onFocus={handleOnFieldFocus}
                                         onChange={(e) => handleOnTypeNameUpdate(e.target.value)}
-                                        description={type.properties["name"].metadata.description}
-                                        required={!type.properties["name"].optional}
+                                        description={type.properties["name"]?.metadata.description}
+                                        required={!type.properties["name"]?.optional}
                                         autoFocus
                                     />
                                 </TextFieldWrapper>

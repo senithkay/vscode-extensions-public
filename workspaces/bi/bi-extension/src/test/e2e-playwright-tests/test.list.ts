@@ -15,6 +15,7 @@ const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
 
 import service from './service/service.spec';
 import automation from './automation/automation.spec';
+import configuration from './configuration/configuration.spec';
 
 test.describe.configure({ mode: 'default' });
 
@@ -27,6 +28,7 @@ test.beforeAll(async () => {
 
 test.describe(service);
 test.describe(automation);
+test.describe(configuration);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);

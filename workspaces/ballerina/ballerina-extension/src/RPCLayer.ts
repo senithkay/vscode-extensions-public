@@ -121,6 +121,7 @@ async function getContext(): Promise<VisualizerLocation> {
             serviceType: context.serviceType,
             type: context.type,
             isGraphql: context.isGraphql,
+            addType: context.addType,
             focusFlowDiagramView: context.focusFlowDiagramView,
             metadata: {
                 isBISupported: context.isBISupported,

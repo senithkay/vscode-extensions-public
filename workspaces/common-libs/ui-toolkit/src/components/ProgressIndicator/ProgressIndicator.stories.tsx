@@ -6,16 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { ProgressIndicator, ProgressBarProps } from "./ProgressIndicator";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ProgressIndicator } from "./ProgressIndicator";
 
-const Template: ComponentStory<typeof ProgressIndicator> = (args: ProgressBarProps) => <ProgressIndicator {...args} />;
+const meta = {
+    component: ProgressIndicator,
+    title: "ProgressIndicator",
+} satisfies Meta<typeof ProgressIndicator>;
+export default meta;
 
-export const ProgressBar = Template.bind();
-ProgressBar.args = { 
-    id: "progress-bar",
-    barWidth: 2
+type Story = StoryObj<typeof ProgressIndicator>;
+
+export const ProgressBar: Story = {
+    args: {
+        id: "progress-bar",
+        barWidth: 2
+    }
 };
-
-export default { component: ProgressBar, title: "ProgressIndicator" };

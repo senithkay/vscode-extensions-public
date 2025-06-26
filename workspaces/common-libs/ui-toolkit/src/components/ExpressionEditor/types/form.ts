@@ -56,6 +56,7 @@ export type FormExpressionEditorElProps = FormExpressionEditorElBaseProps & {
 export type FormExpressionEditorProps = FormExpressionEditorElBaseProps & {
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
+    ariaLabel?: string;
     expressionEditorIconName?: string;
     enableExIcon?: boolean;
     codeActions?: ReactNode[];

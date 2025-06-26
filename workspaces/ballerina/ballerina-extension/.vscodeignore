@@ -65,9 +65,9 @@ cypress.json
 **/tsconfig.json
 **/*.zip
 .trivyignore
-ballerina-low-code-editor/
 **/*.deb
 *.code-workspace
 .rush/
 config/
 **/*.log
+.env

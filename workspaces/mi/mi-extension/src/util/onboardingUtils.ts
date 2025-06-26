@@ -30,7 +30,15 @@ const miDownloadUrls: { [key: string]: string } = {
     '4.4.0': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0.zip',
     '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
-const miUpdateVersionCheckUrl = 'https://mi-distribution.wso2.com/versions.json';
+
+// Move MI update version check URL to VS Code config
+const config = vscode.workspace.getConfiguration('MI');
+export const miUpdateVersionCheckUrl: string =
+    process.env.MI_UPDATE_VERSION_CHECK_URL || config.get<string>('miUpdateVersionCheckUrl') || 'https://mi-distribution.wso2.com/versions.json';
+export const ADOPTIUM_API_BASE_URL: string =
+    process.env.MI_ADOPTIUM_API_BASE_URL ||
+    config.get<string>('adoptiumApiBaseUrl') ||
+    '';
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
 
@@ -45,7 +53,7 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
         );
         if (!isOldProject) {
             if (wrapperFiles.length === 0) {
-                copyMavenWrapper(
+                await copyMavenWrapper(
                     extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')),
                     projectUri
                 );
@@ -55,6 +63,11 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
         const { miVersionFromPom } = await getProjectSetupDetails(projectUri);
         if (!miVersionFromPom) {
             return false;
+        }
+        const versions: string[] = ["4.0.0", "4.1.0", "4.2.0", "4.3.0"];
+        if (miVersionFromPom && versions.includes(miVersionFromPom)) {
+            const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+            await config.update("LEGACY_EXPRESSION_ENABLED", true, vscode.ConfigurationTarget.Workspace);
         }
         const isMISet = await isMISetup(projectUri, miVersionFromPom);
         const isJavaSet = await isJavaSetup(projectUri, miVersionFromPom);
@@ -418,7 +431,7 @@ export async function downloadJavaFromMI(projectUri: string, miVersion: string):
             fs.mkdirSync(javaPath, { recursive: true });
         }
 
-        const apiUrl = `https://api.adoptium.net/v3/assets/feature_releases/${javaVersion}/ga?architecture=${archName}&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=${osName}&project=jdk&vendor=eclipse`;
+        const apiUrl = `${ADOPTIUM_API_BASE_URL}/${javaVersion}/ga?architecture=${archName}&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=${osName}&project=jdk&vendor=eclipse`;
 
         const response = await axios.get<AdoptiumApiResponse[]>(apiUrl);
         if (response.data.length === 0) {
@@ -508,7 +521,7 @@ function getJavaVersion(javaBinPath: string): string | null {
     if (result.error || result.status !== 0) {
         return null;
     }
-    const versionMatch = result.stderr.match(/(\d+)(\.\d+)*(\.\d+)*/);
+    const versionMatch = result.stderr.match(/(\d+\.\d+\.\d+)/);
     return versionMatch ? versionMatch[0].split('.')[0] : null;
 }
 function getMIVersion(miPath: string): string | null {

@@ -136,9 +136,9 @@ export default function createTests() {
                 await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "http_connection" + testAttempt]);
             });
 
-            // ToDo: Uncomment the following section to test importing a connector
-            // await test.step('Import Connector', async () => {
-            //     console.log('Importing connector: bookservice');
+            // TODO: Need to investigate why these tests are failing. Fix this after https://github.com/wso2/mi-vscode/issues/1149.
+            // await test.step('Import proto Connector', async () => {
+            //     console.log('Importing connector: order-new.proto');
             //     const overviewPage = new Overview(page.page);
             //     await overviewPage.init();
             //     await overviewPage.goToAddArtifact();
@@ -151,11 +151,9 @@ export default function createTests() {
             //     await connectorStore.init();
 
             //     console.log('importing connector');
-            //     await connectorStore.importConnector('bookservice-1.0.0.zip', true);
-
-            //     await connectorStore.search('Bookservice');
-            //     await connectorStore.selectOperation('BOOKSERVICE');
-
+            //     await connectorStore.importConnector('order-new.proto', 'proto');
+            //     await connectorStore.search('OrderService');
+            //     await connectorStore.selectOperation('ORDERSERVICE');
             //     const connectionForm = new Form(page.page, 'Connector Store Form');
             //     await connectionForm.switchToFormView();
             //     console.log('Filling out connection form');
@@ -163,7 +161,7 @@ export default function createTests() {
             //         values: {
             //             'Connection Name*': {
             //                 type: 'input',
-            //                 value: 'bookservice_connection' + testAttempt,
+            //                 value: 'order_connection' + testAttempt,
             //             },
             //             'Server URL*': {
             //                 type: 'expression',
@@ -176,10 +174,45 @@ export default function createTests() {
             //         }
             //     });
             //     await connectionForm.submit('Add');
+            //     console.log('Finding created connection in Project Explorer');
             //     const projectExplorer = new ProjectExplorer(page.page);
-            //     await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "bookservice_connection" + testAttempt]);
-
+            //     await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "order_connection" + testAttempt]);            
             //     console.log('Connection tests completed');
+            // });
+
+            // await test.step('Import openapi Connector', async () => {
+            //     console.log('Importing connector: openapi-connector');
+            //     const overviewPage = new Overview(page.page);
+            //     await overviewPage.init();
+            //     await overviewPage.goToAddArtifact();
+
+            //     const addArtifactPage = new AddArtifact(page.page);
+            //     await addArtifactPage.init();
+            //     await addArtifactPage.add('Connections');
+
+            //     const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
+            //     await connectorStore.init();
+
+            //     console.log('importing connector');
+            //     await connectorStore.importConnector('openapi.yaml', 'OpenAPI');
+            //     await connectorStore.search('Swagger_petstore');
+            //     await connectorStore.selectOperation('SWAGGER_PETSTORE');
+
+            //     const connectionForm = new Form(page.page, 'Connector Store Form');
+            //     await connectionForm.switchToFormView();
+            //     console.log('Filling out connection form');
+            //     await connectionForm.fill({
+            //         values: {
+            //             'Connection Name*': {
+            //                 type: 'input',
+            //                 value: 'petstore_connection' + testAttempt,
+            //             }
+            //         }
+            //     });
+            //     await connectionForm.submit('Add');
+            //     console.log('Finding created connection in Project Explorer');
+            //     const projectExplorer = new ProjectExplorer(page.page);
+            //     await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "petstore_connection" + testAttempt]);
             // });
         });
     });

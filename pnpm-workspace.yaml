@@ -5,5 +5,4 @@ packages:
   - 'workspaces/wso2-platform/*'
   - "workspaces/bi/*"
   - 'workspaces/common-libs/*'
-  - 'workspaces/api-chat/*'
   - 'workspaces/mi/*'

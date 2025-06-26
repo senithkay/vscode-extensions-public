@@ -9,9 +9,10 @@
 
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
-
+const fs = require('fs');
 const CopyPlugin = require("copy-webpack-plugin");
 const PermissionsOutputPlugin = require("webpack-permissions-plugin");
+const Dotenv = require('dotenv-webpack');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -79,6 +80,9 @@ const extensionConfig = {
 		],
 	},
 	plugins: [
+		fs.existsSync(path.resolve(__dirname, '.env'))
+			? new Dotenv()
+			: new Dotenv({ systemvars: true }),
 		new CopyPlugin({
 			patterns: [{ from: "src/git/*.sh", to: "[name][ext]" }],
 		}),

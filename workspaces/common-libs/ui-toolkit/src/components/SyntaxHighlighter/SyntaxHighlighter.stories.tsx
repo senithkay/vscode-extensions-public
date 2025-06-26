@@ -6,9 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { SyntaxHighlighter, SyntaxHighlighterProps } from "./SyntaxHighlighter";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { SyntaxHighlighter } from "./SyntaxHighlighter";
 
 const xmlCode = `<note>
 <to city="Colombo">User</to>
@@ -33,21 +32,30 @@ const htmlCode = `<!DOCTYPE html>
 </body>
 </html>`;
 
-const Template: ComponentStory<typeof SyntaxHighlighter> = (args: SyntaxHighlighterProps) => <SyntaxHighlighter {...args} />;
+const meta: Meta<typeof SyntaxHighlighter> = {
+    component: SyntaxHighlighter,
+    title: "Syntax Highlighter",
+};
+export default meta;
 
-export const SampleXML = Template.bind();
-SampleXML.args = { code: xmlCode, language: "xml" };
+type Story = StoryObj<typeof SyntaxHighlighter>;
 
-export const SampleJSON = Template.bind();
-SampleJSON.args = { code: jsonCode, language: "json" };
+export const SampleXML: Story = {
+    args: { code: xmlCode, language: "xml" },
+};
 
-export const SampleJS = Template.bind();
-SampleJS.args = { code: javaScriptCode, language: "javascript" };
+export const SampleJSON: Story = {
+    args: { code: jsonCode, language: "json" },
+};
 
-export const SampleCSS = Template.bind();
-SampleCSS.args = { code: cssCode, language: "css" };
+export const SampleJS: Story = {
+    args: { code: javaScriptCode, language: "javascript" },
+};
 
-export const SampleHTML = Template.bind();
-SampleHTML.args = { code: htmlCode, language: "html" };
+export const SampleCSS: Story = {
+    args: { code: cssCode, language: "css" },
+};
 
-export default { component: SyntaxHighlighter, title: "Syntax Highlighter" };
+export const SampleHTML: Story = {
+    args: { code: htmlCode, language: "html" },
+};

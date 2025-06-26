@@ -11,9 +11,9 @@ import * as vscode from 'vscode';
 import {getPluginConfig} from'../utils/config';
 import * as fs from 'fs';
 import * as path from 'path';
-import { exec } from 'child_process';
 import { isWindows } from './index';
 import type { BallerinaExtension } from '../core/extension';
+import { findHighestVersionJdk } from './server/server';
 
 export const outputChannel = vscode.window.createOutputChannel("Ballerina");
 const logLevelDebug: boolean = getPluginConfig().get('debugLog') === true;
@@ -124,7 +124,7 @@ function logLanguageServerInfo(extension: BallerinaExtension): void {
 
 function logJavaInfo(extension: BallerinaExtension): void {
     try {
-        const ballerinaHome = extension.getBallerinaHome();
+        const ballerinaHome = isWindows() ? fs.realpathSync.native(extension?.getBallerinaHome()) : extension?.getBallerinaHome();
         
         // Get the base ballerina home by removing the distribution part
         const baseHome = ballerinaHome.includes('distributions') 
@@ -136,11 +136,10 @@ function logJavaInfo(extension: BallerinaExtension): void {
         // Check if dependencies directory exists and find JDK
         if (fs.existsSync(dependenciesDir)) {
             try {
-                const files = fs.readdirSync(dependenciesDir);
-                const jdkDir = files.find(file => file.match(/^jdk-.*-jre$/));
+                const jdkDir = findHighestVersionJdk(dependenciesDir);
                 
                 if (jdkDir) {
-                    debug(`JDK Path: ${path.join(dependenciesDir, jdkDir)}`);
+                    debug(`JDK Path: ${jdkDir}`);
                     
                     // Extract Java version from directory name
                     const versionMatch = jdkDir.match(/^jdk-(.+)-jre$/);

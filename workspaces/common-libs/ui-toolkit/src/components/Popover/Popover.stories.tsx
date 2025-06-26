@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { ComponentStory } from "@storybook/react";
-import { Popover, PopoverProps } from "./Popover";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Popover } from "./Popover";
 import styled from "@emotion/styled";
 
 const popOverStyle = {
@@ -28,38 +28,44 @@ const TextContainer = styled.div`
     border: 1px solid black;
 `;
 
-const Template: ComponentStory<typeof Popover> = (args: PopoverProps) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
-    const openPanel = (event: React.MouseEvent<HTMLElement>) => {
-        setIsOpen(true);
-        setAnchorEvent(event.currentTarget);
-    };
-    const closePanel = () => {
-        setIsOpen(false);
-        setAnchorEvent(null);
-    };
-    return (
-        <>
-            <TextContainer onMouseOver={openPanel} onMouseLeave={closePanel}> Hover Over </TextContainer>
-            <Popover {...args} open={isOpen} anchorEl={anchorEvent}>
-                <div>Test Content</div>
-            </Popover>
-        </>
-    );
-};
+const meta = {
+    component: Popover,
+    title: "Popover",
+} satisfies Meta<typeof Popover>;
+export default meta;
 
-export const PopoverDefault = Template.bind();
-PopoverDefault.args = {
-    anchorOrigin: {
-        vertical: "bottom",
-        horizontal: "center",
-    },
-    transformOrigin: {
-        vertical: "center",
-        horizontal: "left",
-    },
-    sx: popOverStyle,
-};
+type Story = StoryObj<typeof Popover>;
 
-export default { component: Popover, title: "Popover" };
+export const PopoverDefault: Story = {
+    args: {
+        anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "center",
+        },
+        transformOrigin: {
+            vertical: "center",
+            horizontal: "left",
+        },
+        sx: popOverStyle,
+    },
+    render: args => {
+        const [isOpen, setIsOpen] = useState(false);
+        const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
+        const openPanel = (event: React.MouseEvent<HTMLElement>) => {
+            setIsOpen(true);
+            setAnchorEvent(event.currentTarget);
+        };
+        const closePanel = () => {
+            setIsOpen(false);
+            setAnchorEvent(null);
+        };
+        return (
+            <>
+                <TextContainer onMouseOver={openPanel} onMouseLeave={closePanel}> Hover Over </TextContainer>
+                <Popover {...args} open={isOpen} anchorEl={anchorEvent}>
+                    <div>Test Content</div>
+                </Popover>
+            </>
+        );
+    },
+};

@@ -434,7 +434,9 @@ export class UnitTest {
         const testExplorer = new ProjectExplorer(this._page, 'Test Explorer');
         await testExplorer.init();
         await testExplorer.findItem([`${this.projectName} (Not yet run)`, `${name} (Not yet run)`], true);
+        console.log(`Expand the explorer to ensure the unit test "${name}" is visible`);
         await this._page.getByRole('button', { name: 'Add test case' }).click();
+        console.log(`Clicked on "Add test case" button for unit test "${name}"`);
     }
 
     private async openEditViewOfUnitTest(name: string) {

@@ -47,7 +47,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
         required,
         autoFocus
     } = props;
-    const { onTypeItemClick, ...rest } = useTypeHelperContext();
+    const { onTypeItemClick, onTypeCreate, ...rest } = useTypeHelperContext();
 
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
@@ -193,6 +193,11 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
         return response.template;
     };
 
+    const handleTypeCreate = (typeName?: string) => {
+        setHelperPaneOpened(false);
+        onTypeCreate?.(typeName);
+    };
+
     /* Track cursor position */
     useEffect(() => {
         const typeField = typeFieldRef.current;
@@ -232,6 +237,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 open={helperPaneOpened}
                 onClose={() => setHelperPaneOpened(false)}
                 onTypeItemClick={handleTypeItemClick}
+                {...onTypeCreate && { onTypeCreate: handleTypeCreate }}
                 {...rest}
             />
         </>

@@ -8,8 +8,8 @@
  */
 
 import React, { useState } from "react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import styled from "@emotion/styled";
-import { ComponentStory } from "@storybook/react";
 import { ClickAwayListener } from "./ClickAwayListener";
 
 const TextContainer = styled.div`
@@ -21,16 +21,22 @@ const TextContainer = styled.div`
     width: 200px;
 `;
 
-const Template: ComponentStory<typeof ClickAwayListener> = () => {
-    const [isOpen, setIsOpen] = useState(true);
-    
-    return (
-        <ClickAwayListener onClickAway={() => setIsOpen(false)}>
-            {isOpen && <TextContainer>Click Away</TextContainer>}
-        </ClickAwayListener>
-    );
+const meta = {
+    component: ClickAwayListener,
+    title: "ClickAwayListener",
+} satisfies Meta<typeof ClickAwayListener>;
+export default meta;
+
+type Story = StoryObj<typeof ClickAwayListener>;
+
+export const Example: Story = {
+    render: () => {
+        const [isOpen, setIsOpen] = useState(true);
+
+        return (
+            <ClickAwayListener onClickAway={() => setIsOpen(false)}>
+                {isOpen && <TextContainer>Click Away</TextContainer>}
+            </ClickAwayListener>
+        );
+    },
 };
-
-export const Example = Template.bind();
-
-export default { component: ClickAwayListener, title: "ClickAwayListener" };

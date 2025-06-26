@@ -29,6 +29,7 @@ import { GetRecipientEPTemplatesArgs, getRecipientEPXml } from './template-engin
 import { GetTemplateEPTemplatesArgs, getTemplateEPXml } from './template-engine/mustach-templates/templateEndpoint';
 import { APIResourceArgs, getAPIResourceXml } from './template-engine/mustach-templates/API';
 import { getDataServiceXml, getDataSourceXml, DataServiceArgs, Datasource } from './template-engine/mustach-templates/DataService';
+import child_process from "child_process";
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -64,13 +65,74 @@ export function copyDockerResources(resourcePath: string, targetPath: string) {
 	fs.copyFileSync(path.join(resourcePath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
 }
 
-export function copyMavenWrapper(resourcePath: string, targetPath: string) {
+export async function copyMavenWrapper(resourcePath: string, targetPath: string) {
 	const mavenWrapperPropertiesPath = path.join(targetPath, '.mvn', 'wrapper');
 
 	fs.mkdirSync(mavenWrapperPropertiesPath, { recursive: true });
 	fs.copyFileSync(path.join(resourcePath, 'maven-wrapper.properties'), path.join(mavenWrapperPropertiesPath, 'maven-wrapper.properties'));
-	fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
-	fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
+	const copyMavenWrapperFiles = () => {
+		fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
+		fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
+	};
+
+	const isMavenInstalled = await isMavenInstalledGlobally();
+	if (isMavenInstalled) {
+		const success = await runMavenWrapperCommand(targetPath);
+		if (!success) {
+			copyMavenWrapperFiles();
+		}
+	} else {
+		copyMavenWrapperFiles();
+	}
+}
+
+/**
+ * Executes the Maven Wrapper initialization command (`mvn -N io.takari:maven:wrapper`)
+ * in the specified target directory.
+ *
+ * @param targetPath - The file system path where the Maven Wrapper command should be executed.
+ * @returns A promise that resolves to `true` if the command completes successfully (exit code 0),
+ *          or `false` if an error occurs or the command fails.
+ */
+async function runMavenWrapperCommand(targetPath: string): Promise<boolean> {
+	return new Promise((resolve) => {
+		const proc = child_process.spawn("mvn", ["-N", "io.takari:maven:wrapper"], {
+			shell: true,
+			cwd: targetPath
+		});
+
+		proc.on("close", (code) => {
+			resolve(code === 0);
+		});
+		proc.on("error", (err) => {
+			console.error("Failed to run mvn wrapper:", err);
+			resolve(false);
+		});
+	});
+}
+
+async function isMavenInstalledGlobally(): Promise<boolean> {
+	return new Promise<boolean>((resolve) => {
+		const proc = child_process.spawn("mvn -version", [], { shell: true });
+		proc.on("error", () => resolve(false));
+		proc.on("exit", (code) => resolve(code === 0));
+	});
+}
+
+export function removeMavenWrapper(targetPath: string) {
+	const mavenWrapperDir = path.join(targetPath, '.mvn');
+	const mvnwCmd = path.join(targetPath, 'mvnw.cmd');
+	const mvnw = path.join(targetPath, 'mvnw');
+
+	if (fs.existsSync(mvnwCmd)) {
+		fs.unlinkSync(mvnwCmd);
+	}
+	if (fs.existsSync(mvnw)) {
+		fs.unlinkSync(mvnw);
+	}
+	if (fs.existsSync(mavenWrapperDir)) {
+		fs.rmSync(mavenWrapperDir, { recursive: true, force: true });
+	}
 }
 
 export function createGitignoreFile(targetPath: string): Promise<void> {

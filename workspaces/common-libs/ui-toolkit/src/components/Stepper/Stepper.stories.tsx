@@ -10,21 +10,32 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Stepper, StepperProps } from "./Stepper";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { Stepper } from "./Stepper";
 
-const defaultSteps = ["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"];
+const defaultSteps = [
+    "Create Test Component",
+    "Add Component",
+    "Select Git Repo",
+    "Verify Information"
+];
 
-const Template: ComponentStory<typeof Stepper> = (args: StepperProps) => <Stepper {...args} />;
+const meta: Meta<typeof Stepper> = {
+    component: Stepper,
+    title: "Stepper",
+};
+export default meta;
 
-export const CenterAligned = Template.bind();
-CenterAligned.args = { steps: defaultSteps, currentStep: 3 };
+type Story = StoryObj<typeof Stepper>;
 
-export const LeftAligned = Template.bind();
-LeftAligned.args = { steps: defaultSteps, currentStep: 0, alignment: "flex-start" };
+export const CenterAligned: Story = {
+    args: { steps: defaultSteps, currentStep: 3 },
+};
 
-export const RightAligned = Template.bind();
-RightAligned.args = { steps: defaultSteps, currentStep: 2, alignment: "flex-end", variant: "bottom" };
+export const LeftAligned: Story = {
+    args: { steps: defaultSteps, currentStep: 0, alignment: "flex-start" },
+};
 
-export default { component: Stepper, title: "Stepper" };
+export const RightAligned: Story = {
+    args: { steps: defaultSteps, currentStep: 2, alignment: "flex-end", variant: "bottom" },
+};
