@@ -156,7 +156,6 @@ jobs:
           bi: ${{ inputs.bi }}
           mi: ${{ inputs.mi }}
           version: ${{ inputs.version }}
-          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
           token: ${{ secrets.PUBLISH_PAT }}
           BALLERINA_AUTH_ORG: ${{ secrets.BALLERINA_AUTH_ORG }}
           BALLERINA_AUTH_CLIENT_ID: ${{ secrets.BALLERINA_AUTH_CLIENT_ID }}
@@ -186,24 +185,6 @@ jobs:
         run: |
           unzip build.zip
           rm build.zip
-
-      - name: Generate .env for ballerina-extension from .env.example
-        run: |
-          if [ -f workspaces/ballerina/ballerina-extension/.env.example ]; then
-            cp workspaces/ballerina/ballerina-extension/.env.example workspaces/ballerina/ballerina-extension/.env
-          fi
-      
-      - name: Generate .env for mi-extension from .env.example
-        run: |
-          if [ -f workspaces/mi/mi-extension/.env.example ]; then
-            cp workspaces/mi/mi-extension/.env.example workspaces/mi/mi-extension/.env
-          fi
-
-      - name: Generate .env for wso2-platform-extension from .env.example
-        run: |
-          if [ -f workspaces/wso2-platform/wso2-platform-extension/.env.example ]; then
-            cp workspaces/wso2-platform/wso2-platform-extension/.env.example workspaces/wso2-platform/wso2-platform-extension/.env
-          fi
 
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
