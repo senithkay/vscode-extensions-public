@@ -1135,7 +1135,8 @@
         "xml-js": "^1.6.11",
         "xstate": "^4.38.3",
         "uuid": "^11.1.0",
-        "jwt-decode": "^4.0.0"
+        "jwt-decode": "^4.0.0",
+        "dotenv": "~16.5.0"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.20.1",
@@ -1172,8 +1173,7 @@
         "webpack-cli": "^4.10.0",
         "webpack-merge-and-include-globally": "^2.3.4",
         "yarn": "^1.22.19",
-        "adm-zip": "^0.5.16",
-        "dotenv-webpack": "~8.1.0"
+        "adm-zip": "^0.5.16"
     },
     "extensionPack": [
         "be5invis.toml"

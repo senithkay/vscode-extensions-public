@@ -476,6 +476,9 @@ importers:
       del-cli:
         specifier: ^5.1.0
         version: 5.1.0
+      dotenv:
+        specifier: ~16.5.0
+        version: 16.5.0
       file-uri-to-path:
         specifier: ^2.0.0
         version: 2.0.0
@@ -3759,6 +3762,9 @@ importers:
       cors-anywhere:
         specifier: ^0.4.4
         version: 0.4.4
+      dotenv:
+        specifier: ~16.5.0
+        version: 16.5.0
       fast-xml-parser:
         specifier: ~5.2.3
         version: 5.2.3
@@ -46406,10 +46412,7 @@ snapshots:
       pretty-format: 25.5.0
       throat: 5.0.0
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - utf-8-validate
 
   jest-jasmine2@27.5.1:
     dependencies:

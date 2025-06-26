@@ -13,7 +13,20 @@
 
 const fs = require('fs');
 const path = require('path');
-const Dotenv = require('dotenv-webpack');
+const dotenv = require('dotenv');
+const webpack = require('webpack');
+
+const envPath = path.resolve(__dirname, '.env');
+const env = fs.existsSync(envPath) ? dotenv.config({ path: envPath }).parsed : {};
+
+const envKeys = env
+  ? Object.fromEntries(
+      Object.entries(env).map(([key, value]) => [
+        `process.env.${key}`,
+        JSON.stringify(value),
+      ])
+    )
+  : {};
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -47,9 +60,7 @@ module.exports = {
     ]
   },
   plugins: [
-    fs.existsSync(path.resolve(__dirname, '.env'))
-      ? new Dotenv()
-      : new Dotenv({ systemvars: true }),
+      new webpack.DefinePlugin(envKeys),
   ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
