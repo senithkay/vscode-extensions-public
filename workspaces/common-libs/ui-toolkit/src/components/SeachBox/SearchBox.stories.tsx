@@ -10,13 +10,22 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { SearchBox, SearchBoxProps } from "./SearchBox";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { SearchBox } from "./SearchBox";
 
-const Template: ComponentStory<typeof SearchBox> = (args: SearchBoxProps) => <SearchBox {...args} />;
+const meta: Meta<typeof SearchBox> = {
+    component: SearchBox,
+    title: "SearchBox",
+};
+export default meta;
 
-export const Default = Template.bind();
-Default.args = { label: "Search", autoFocus: true, placeholder: "placeholder", onChange: (text: string)=> console.log({text}) };
+type Story = StoryObj<typeof SearchBox>;
 
-export default { component: SearchBox, title: "SearchBox" };
+export const Default: Story = {
+    args: {
+        label: "Search",
+        autoFocus: true,
+        placeholder: "placeholder",
+        onChange: (text: string) => console.log({ text }),
+    },
+};

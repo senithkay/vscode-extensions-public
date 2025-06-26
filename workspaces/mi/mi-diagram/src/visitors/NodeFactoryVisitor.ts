@@ -225,6 +225,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
+                const isAfterReturnNode = previousStNode.tag === MEDIATORS.SEND.toLowerCase() || previousStNode.tag === MEDIATORS.RESPOND.toLowerCase();
 
                 let addPosition: NodeAddPosition;
                 if (this.currentAddPosition != undefined) {
@@ -239,7 +240,8 @@ export class NodeFactoryVisitor implements Visitor {
                     addPosition = { position: space.range.end, trailingSpace: space.space };
                 }
 
-                const showAddButton = addPosition !== undefined && !isSequnceConnect &&
+                const showAddButton = addPosition !== undefined && !isSequnceConnect 
+                    && !isAfterReturnNode &&
                     !(previousNode instanceof EmptyNodeModel
                         && !previousNode.visible)
                     && type !== NodeTypes.PLUS_NODE
@@ -1198,6 +1200,8 @@ export class NodeFactoryVisitor implements Visitor {
         sequneceReferenceNode.viewState.y += startNodeDimentions.HEIGHT + NODE_GAP.Y;
         sequneceReferenceNode.viewState.x += (startNodeDimentions.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
         sequneceReferenceNode.viewState.canAddAfter = false;
+        delete sequneceReferenceNode.displayName;
+        sequneceReferenceNode.tag = 'sequence';
         this.currentAddPosition = { position: undefined, trailingSpace: "" };
 
         this.createNodeAndLinks({

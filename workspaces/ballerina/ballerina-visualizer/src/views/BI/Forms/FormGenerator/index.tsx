@@ -707,6 +707,10 @@ export function FormGenerator(props: FormProps) {
         setVisualizableFields(res.visualizableProperties);
     };
 
+    const handleTypeCreate = (typeName?: string) => {
+        setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: typeEditorState.fieldKey });
+    };
+
     // handle if node form
     if (node?.codedata.node === "IF") {
         return (
@@ -821,6 +825,7 @@ export function FormGenerator(props: FormProps) {
                         newTypeValue={typeEditorState.newTypeValue}
                         isGraphql={isGraphql}
                         onTypeChange={onTypeChange}
+                        onTypeCreate={handleTypeCreate}
                     />
                 </PanelContainer>
             )}

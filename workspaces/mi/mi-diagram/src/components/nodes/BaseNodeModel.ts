@@ -247,10 +247,11 @@ export const Body = styled.div<{}>`
 
 interface DescriptionProps {
     selectable?: boolean;
+    isError?: boolean;
 };
 
 export const Description: StyledComponent<any, any, any> = styled.div<DescriptionProps>`
-    color: ${Colors.ON_SURFACE};
+    color: ${(props: DescriptionProps) => props.isError ? Colors.ERROR : Colors.ON_SURFACE};
     max-width: 90px;
     width: 90px;
     overflow: hidden;
@@ -261,10 +262,11 @@ export const Description: StyledComponent<any, any, any> = styled.div<Descriptio
     text-align: left;
     font-family: var(--font-family);
     font-size: var(--type-ramp-minus1-font-size);
+    cursor: ${(props: DescriptionProps) => props.selectable ? 'pointer' : 'default'};
 
     &:hover {
         text-decoration: ${(props: DescriptionProps) => props.selectable ? "underline" : "none"};
-        color: ${(props: DescriptionProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
+        color: ${(props: DescriptionProps) => props.selectable ? Colors.SECONDARY : (props.isError ? Colors.ERROR : Colors.ON_SURFACE)};
     }
 `;
 

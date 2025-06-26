@@ -178,22 +178,25 @@ const ParameterManager = (props: ParameterManagerProps) => {
             {parameters?.map((param: Param, index: number) => (
                 <>
                     <Row key={index}>
-                        <div
-                            style={{
-                                backgroundColor: Colors.PRIMARY,
-                                padding: '5px',
-                                flex: 1,
-                                borderTopLeftRadius: 4,
-                                borderBottomLeftRadius: 4,
-                                height: !param[tableKey as keyof Param] && 15,
-                            }}
-                        >
-                            <Typography
-                                sx={{
-                                    color: Colors.ON_PRIMARY
+                        {getFieldValue(param[tableKey as keyof Param]) &&
+
+                            <div
+                                style={{
+                                    backgroundColor: Colors.PRIMARY,
+                                    padding: '5px',
+                                    flex: 1,
+                                    borderTopLeftRadius: 4,
+                                    borderBottomLeftRadius: 4,
+                                    height: !param[tableKey as keyof Param] && 15,
                                 }}
-                            >{getFieldValue(param[tableKey as keyof Param]) ?? (index + 1)}</Typography>
-                        </div>
+                            >
+                                <Typography
+                                    sx={{
+                                        color: Colors.ON_PRIMARY
+                                    }}
+                                >{getFieldValue(param[tableKey as keyof Param]) ?? (index + 1)}</Typography>
+                            </div>
+                        }
                         <div
                             style={{
                                 backgroundColor: Colors.SURFACE_CONTAINER,
@@ -202,6 +205,8 @@ const ParameterManager = (props: ParameterManagerProps) => {
                                 overflow: 'hidden',
                                 borderTopRightRadius: 4,
                                 borderBottomRightRadius: 4,
+                                borderTopLeftRadius: getFieldValue(param[tableKey as keyof Param]) ? 0 : 4,
+                                borderBottomLeftRadius: getFieldValue(param[tableKey as keyof Param]) ? 0 : 4,
                                 height: !getFieldValue(param[tableValue as keyof Param]) && 15,
                             }}
                         >

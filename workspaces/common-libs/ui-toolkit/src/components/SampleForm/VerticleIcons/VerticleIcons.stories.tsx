@@ -6,19 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { VerticleIcons as IconsWrapper, Props } from "./VerticleIcons";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { VerticleIcons as IconsWrapper } from "./VerticleIcons";
 
-// const FORM_WIDTH = 600;
+const meta = {
+    component: IconsWrapper,
+    title: "Sample Form",
+} satisfies Meta<typeof IconsWrapper>;
+export default meta;
 
-const Template: ComponentStory<typeof IconsWrapper> = (args: Props) => <IconsWrapper {...args} />;
+type Story = StoryObj<typeof IconsWrapper>;
 
 const onClick = (type: string) => {
     console.log("Selected Type", type);
-}
+};
 
-export const VerticleIcons = Template.bind();
-VerticleIcons.args = { sx: { width: `1000px` }, onClick: onClick };
-
-export default { component: VerticleIcons, title: "Sample Form" };
+export const VerticleIcons: Story = {
+    args: {
+        sx: { width: `1000px` },
+        onClick: onClick
+    }
+};

@@ -7,18 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useState } from 'react';
-import styled from '@emotion/styled';
 import React from 'react';
+import styled from '@emotion/styled';
 import Typography from '../Typography/Typography';
-import { storiesOf } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { TreeView } from './TreeView';
 import { TreeViewItem } from './TreeViewItem';
 
-export default {
+const meta: Meta<typeof TreeView> = {
     component: TreeView,
     title: 'TreeView',
 };
+export default meta;
+
+type Story = StoryObj<typeof TreeView>;
 
 interface OperationProps {
     backgroundColor: string;
@@ -35,30 +37,29 @@ const Operation = styled.div<OperationProps>`
     cursor: pointer;
 `;
 
-export const TreeViewStory = () => {
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-    const handleClick = (id: string) => {
-        setSelectedId(id);
-    };
-    
-    return (
-        <TreeView rootTreeView id="1" content={<Typography sx={{margin: 0}} variant="h4">Item 1</Typography>} selectedId={selectedId} onSelect={handleClick}>
-            <TreeViewItem id="1-1">
-                <Operation backgroundColor="#3d7eff" selected={selectedId === "1-1"}>
-                    <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>GET</Typography>
-                </Operation>
-            </TreeViewItem>
-            <TreeViewItem id="1-2">
-                <Operation backgroundColor="#49cc90" selected={selectedId === "1-1"}>
-                    <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>POST</Typography>
-                </Operation>
-            </TreeViewItem>
-            <TreeView id="1-3" content={<Typography sx={{margin: 0}} variant="h4">Item 1.1</Typography>} selectedId={selectedId} onSelect={handleClick}>
-                <TreeViewItem id="1-3-1">Body 1.3.1</TreeViewItem>
+export const TreeViewStory: Story = {
+    render: () => {
+        const [selectedId, setSelectedId] = React.useState<string | null>(null);
+        const handleClick = (id: string) => {
+            setSelectedId(id);
+        };
+        return (
+            <TreeView rootTreeView id="1" content={<Typography sx={{margin: 0}} variant="h4">Item 1</Typography>} selectedId={selectedId} onSelect={handleClick}>
+                <TreeViewItem id="1-1">
+                    <Operation backgroundColor="#3d7eff" selected={selectedId === "1-1"}>
+                        <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>GET</Typography>
+                    </Operation>
+                </TreeViewItem>
+                <TreeViewItem id="1-2">
+                    <Operation backgroundColor="#49cc90" selected={selectedId === "1-1"}>
+                        <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>POST</Typography>
+                    </Operation>
+                </TreeViewItem>
+                <TreeView id="1-3" content={<Typography sx={{margin: 0}} variant="h4">Item 1.1</Typography>} selectedId={selectedId} onSelect={handleClick}>
+                    <TreeViewItem id="1-3-1">Body 1.3.1</TreeViewItem>
+                </TreeView>
+                <TreeView id="1-4" content={<Typography sx={{margin: 0}} variant="h4">Item 1.2</Typography>} />
             </TreeView>
-            <TreeView id="1-4" content={<Typography sx={{margin: 0}} variant="h4">Item 1.2</Typography>} />
-        </TreeView>
-    );
+        );
+    },
 };
-
-storiesOf("TreeView").add("TreeViewStory", () => <TreeViewStory />);

@@ -6,13 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Divider, DeviderProps } from "./Divider";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Divider } from "./Divider";
 
-const Template: ComponentStory<typeof Divider> = (args: DeviderProps) => <Divider {...args} />;
+const meta = {
+    component: Divider,
+    title: "Divider",
+} satisfies Meta<typeof Divider>;
+export default meta;
 
-export const DividerComp = Template.bind();
-DividerComp.args = {};
+type Story = StoryObj<typeof Divider>;
 
-export default { component: DividerComp, title: "Divider" };
+export const DividerComp: Story = {
+    args: {},
+};

@@ -7,43 +7,50 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { ComponentStory } from "@storybook/react";
-import { Confirm, ConfirmProps } from "./Confirm";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Confirm } from "./Confirm";
 import { Button } from "../Button/Button";
 
-const Template: ComponentStory<typeof Confirm> = (args: ConfirmProps) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
-    const openPanel = (event: React.MouseEvent<HTMLElement>) => {
-        setIsOpen(true);
-        setAnchorEvent(event.currentTarget);
-    };
+const meta = {
+    component: Confirm,
+    title: "Confirm",
+} satisfies Meta<typeof Confirm>;
+export default meta;
 
-    const handleConfirm = (status: boolean) => {
-        console.log(status);
-        setIsOpen(false);
-        setAnchorEvent(null);
-    }
-    return (
-        <>
-            <Button onClick={(e: any) => openPanel(e)}> Confirm Me! </Button>
-            <Confirm {...args} isOpen={isOpen} anchorEl={anchorEvent} onConfirm={handleConfirm} />
-        </>
-    );
-};
+type Story = StoryObj<typeof Confirm>;
 
-export const ConfirmDefault = Template.bind();
-ConfirmDefault.args = {
-    message: "Modifying the output type will reset the function body. Are you sure you want to proceed?",
-    confirmText: "Okay",
-    anchorOrigin: {
-        vertical: "bottom",
-        horizontal: "right",
+export const ConfirmDefault: Story = {
+    args: {
+        message: "Modifying the output type will reset the function body. Are you sure you want to proceed?",
+        confirmText: "Okay",
+        anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+        },
+        transformOrigin: {
+            vertical: "top",
+            horizontal: "left",
+        },
     },
-    transformOrigin: {
-        vertical: "top",
-        horizontal: "left",
+    render: args => {
+        const [isOpen, setIsOpen] = useState(false);
+        const [anchorEvent, setAnchorEvent] = useState<null | HTMLElement>(null);
+        const openPanel = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+            setIsOpen(true);
+            setAnchorEvent(event.currentTarget as HTMLElement);
+        };
+
+        const handleConfirm = (status: boolean) => {
+            console.log(status);
+            setIsOpen(false);
+            setAnchorEvent(null);
+        };
+
+        return (
+            <>
+                <Button onClick={e => openPanel(e)}> Confirm Me! </Button>
+                <Confirm {...args} isOpen={isOpen} anchorEl={anchorEvent} onConfirm={handleConfirm} />
+            </>
+        );
     },
 };
-
-export default { component: Confirm, title: "Confirm" };

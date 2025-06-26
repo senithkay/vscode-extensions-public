@@ -11,13 +11,12 @@
 
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
-//@ts-check
-/** @typedef {import('webpack').Configuration} WebpackConfig **/
-
-/** @type WebpackConfig */
-const extensionConfig = {
+/** @type {import('webpack').Configuration} */
+module.exports = {
   target: 'node',
 	mode: 'none',
 
@@ -47,9 +46,13 @@ const extensionConfig = {
       }
     ]
   },
+  plugins: [
+    fs.existsSync(path.resolve(__dirname, '.env'))
+      ? new Dotenv()
+      : new Dotenv({ systemvars: true }),
+  ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
     level: "log",
   },
 };
-module.exports = [ extensionConfig ];

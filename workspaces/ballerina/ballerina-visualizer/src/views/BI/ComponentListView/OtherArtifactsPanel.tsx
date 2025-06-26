@@ -45,6 +45,7 @@ export function OtherArtifactsPanel(props: OtherArtifactsPanelProps) {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.TypeDiagram,
+                    addType: true
                 },
             });
         } else if (key === DIRECTORY_MAP.CONFIGURABLE) {

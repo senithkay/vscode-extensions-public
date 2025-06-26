@@ -6,75 +6,68 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
+import React from "react";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { Switch } from "./Swich";
 import { Codicon } from "../Codicon/Codicon";
 
 const checkedIcon = <Codicon name="star-full"/>;
 const unCheckedIcon = <Codicon name="star-empty"/>;
 
-const SwichWithIcon = () => {
-    const [checked, unChecked] = useState(false);
-    const toggleSelection = () => {
-        unChecked(!checked);
-    };
-    return (
-        <>
+const meta: Meta<typeof Switch> = {
+    component: Switch,
+    title: "Swich",
+};
+export default meta;
+
+type Story = StoryObj<typeof Switch>;
+
+export const WithIcon: Story = {
+    render: () => {
+        const [checked, setChecked] = React.useState(false);
+        const toggleSelection = () => setChecked(!checked);
+        return (
             <Switch leftLabel="OFF" rightLabel="ON" checked={checked} checkedIcon={checkedIcon} uncheckedIcon={unCheckedIcon} onChange={toggleSelection}/>
-        </>
-    );
+        );
+    },
 };
-storiesOf("Swich").add("Swich With Icon", () => <SwichWithIcon />);
 
-const TransitionEnabledSwichWithIcon = () => {
-    const [checked, unChecked] = useState(false);
-    const toggleSelection = () => {
-        unChecked(!checked);
-    };
-    return (
-        <>
+export const TransitionEnabledWithIcon: Story = {
+    render: () => {
+        const [checked, setChecked] = React.useState(false);
+        const toggleSelection = () => setChecked(!checked);
+        return (
             <Switch leftLabel="OFF" rightLabel="ON" checked={checked} checkedIcon={checkedIcon} uncheckedIcon={unCheckedIcon} enableTransition onChange={toggleSelection}/>
-        </>
-    );
+        );
+    },
 };
-storiesOf("Swich").add("Transition Enabled Swich With Icon", () => <TransitionEnabledSwichWithIcon />);
 
-const SwichWithoutIcon = () => {
-    const [checked, unChecked] = useState(false);
-    const toggleSelection = () => {
-        unChecked(!checked);
-    };
-    return (
-        <>
+export const WithoutIcon: Story = {
+    render: () => {
+        const [checked, setChecked] = React.useState(false);
+        const toggleSelection = () => setChecked(!checked);
+        return (
             <Switch leftLabel="OFF" rightLabel="ON" checked={checked} onChange={toggleSelection}/>
-        </>
-    );
+        );
+    },
 };
-storiesOf("Swich").add("Swich Without Icon", () => <SwichWithoutIcon />);
 
-const SwichWithDifferentColor = () => {
-    const [checked, unChecked] = useState(false);
-    const toggleSelection = () => {
-        unChecked(!checked);
-    };
-    return (
-        <>
+export const WithDifferentColor: Story = {
+    render: () => {
+        const [checked, setChecked] = React.useState(false);
+        const toggleSelection = () => setChecked(!checked);
+        return (
             <Switch leftLabel="OFF" rightLabel="ON" checked={checked} checkedColor="var(--vscode-button-background)" onChange={toggleSelection}/>
-        </>
-    );
+        );
+    },
 };
-storiesOf("Swich").add("Swich With Different Color", () => <SwichWithDifferentColor />);
 
-const SwichWithDifferentColorWithIcon = () => {
-    const [checked, unChecked] = useState(false);
-    const toggleSelection = () => {
-        unChecked(!checked);
-    };
-    return (
-        <>
+export const WithDifferentColorWithIcon: Story = {
+    render: () => {
+        const [checked, setChecked] = React.useState(false);
+        const toggleSelection = () => setChecked(!checked);
+        return (
             <Switch leftLabel="OFF" rightLabel="ON" checked={checked} checkedColor="var(--vscode-button-background)" checkedIcon={checkedIcon} uncheckedIcon={unCheckedIcon} onChange={toggleSelection}/>
-        </>
-    );
+        );
+    },
 };
-storiesOf("Swich").add("Swich With Different Color With Icon", () => <SwichWithDifferentColorWithIcon />);

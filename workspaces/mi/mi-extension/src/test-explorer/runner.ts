@@ -17,7 +17,7 @@ import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
 import path = require("path");
 import { getProjectRoot } from "./helper";
-import { getServerPath } from "../debugger/debugHelper";
+import { getServerPath, setJavaHomeInEnvironmentAndPath } from "../debugger/debugHelper";
 import { TestRunnerConfig } from "./config";
 import { ChildProcess } from "child_process";
 import treeKill = require("tree-kill");
@@ -272,7 +272,7 @@ function printToOutput(runner: TestRun, line: string, isError: boolean = false) 
 
 async function compileProject(projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
+        const mvnCmd = process.platform === "win32" ? ".\\mvnw.cmd" : "./mvnw";
         const testRunCmd = `${mvnCmd} compile`;
 
         let finished = false;
@@ -302,7 +302,7 @@ async function compileProject(projectRoot: string, printToOutput?: (line: string
 
 async function runTests(testNames: string, projectRoot: string, triggerId: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
+        const mvnCmd = process.platform === "win32" ? ".\\mvnw.cmd" : "./mvnw";
         const testLevel = triggerId.endsWith(".xml") ? "unitTest" : triggerId.includes(".xml") ? "testCase" : "testSuite";
         const basicTestCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
 
@@ -346,7 +346,11 @@ export function runCommand(command, pathToRun?: string,
         if (pathToRun) {
             command = `cd "${pathToRun}" && ${command}`
         }
-        const cp = child_process.spawn(command, [], { shell: true });
+        const envVariables = {
+            ...process.env,
+            ...(pathToRun ? setJavaHomeInEnvironmentAndPath(pathToRun) : {})
+        };
+        const cp = child_process.spawn(command, [], { shell: true, env: envVariables });
 
         if (typeof onData === 'function') {
             cp.stdout.setEncoding('utf8');

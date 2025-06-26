@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button, Divider } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button, Divider, Icon, DropdownButton } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
@@ -86,7 +86,6 @@ const SampleGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    marginBottom
 `;
 
 const SearchStyle = {
@@ -123,15 +122,20 @@ const connectorCardStyle = {
 };
 
 const IconWrapper = styled.div`
-    height: 20px;
+    height: 18px;
     width: 20px;
 `;
 
 const TextWrapper = styled.div`
+    @media (max-width: 600px) {
+        display: none;
+    }
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    font-size: 13px;
+    font-weight: 200;
 `;
 
 const BrowseBtnStyles = {
@@ -149,6 +153,19 @@ export interface ConnectionStoreProps {
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
+const option1 = (
+    <div>
+        <Typography sx={{margin: '0 0 10px 0'}} variant="h4">For REST (OpenAPI)</Typography>
+        <Typography sx={{margin: 0, fontSize: 12, justifyItems: "center", fontWeight: "lighter"}} variant="body3">This option allows you to import connections from OpenAPI specifications.</Typography>
+    </div>
+);
+const option2 = (
+    <div>
+        <Typography sx={{margin: '0 0 10px 0'}} variant="h4">For gRPC (Proto)</Typography>
+        <Typography sx={{margin: 0, fontSize: 12, justifyItems: "center", fontWeight: "lighter"}} variant="body3">This option allows you to import connections from gRPC (Proto) specifications.</Typography>
+    </div>
+);
+
 export function ConnectionWizard(props: ConnectionStoreProps) {
     const { rpcClient } = useVisualizerContext();
     const { allowedConnectionTypes } = props;
@@ -163,6 +180,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     const [selectedConnectionType, setSelectedConnectionType] = useState<any>(undefined);
     const [searchValue, setSearchValue] = useState<string>('');
     const [isFailedDownload, setIsFailedDownload] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<string>("openapi");
 
     const fetchLocalConnectorData = async () => {
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: "" });
@@ -546,6 +564,23 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         );
     }
 
+    const buttonContent = (
+        <div style={{ display: "flex", flexDirection: "row", gap: 4, alignItems: "center" }}>
+            <IconWrapper>
+                <Icon name="import" iconSx={{ fontSize: 20, fontWeight: 200 }} />
+            </IconWrapper>
+            <TextWrapper>Import ({selectedItem})</TextWrapper>
+        </div>
+    );
+    
+    const handleOnDropdownButtonClick = (selectedOption: string) => {
+        if (selectedOption === "openapi") {
+            handleImportConnectionFromOpenAPI();
+        } else if (selectedOption === "proto") {
+            handleImportConnectionFromProto();
+        }
+    };
+
     return (
         <>
             {
@@ -574,24 +609,27 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <span>Please select a connector to create a connection.</span>
                                 {!conOnconfirmation && !allowedConnectionTypes &&
-                                    <>
-                                        <Button appearance="secondary" onClick={() => handleImportConnectionFromOpenAPI()}>
-                                            <div style={BrowseBtnStyles}>
-                                                <IconWrapper>
-                                                    <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
-                                                </IconWrapper>
-                                                <TextWrapper>For REST (OpenAPI)</TextWrapper>
-                                            </div>
-                                        </Button>
-                                        <Button appearance="secondary" onClick={() => handleImportConnectionFromProto()}>
-                                            <div style={BrowseBtnStyles}>
-                                                <IconWrapper>
-                                                    <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
-                                                </IconWrapper>
-                                                <TextWrapper>For gRPC (Proto)</TextWrapper>
-                                            </div>
-                                        </Button>
-                                    </>
+                                    <DropdownButton
+                                        tooltip="Import a connection"
+                                        dropDownAlign="bottom"
+                                        dropdownSx={{ right: 0, minWidth: 300 }}
+                                        buttonContent={buttonContent}
+                                        selecteOption={selectedItem}
+                                        options={[
+                                            {
+                                                content: option1,
+                                                value: "openapi",
+                                            },
+                                            {
+                                                content: option2,
+                                                value: "proto",
+                                            }
+                                        ]}
+                                        optionButtonSx={{height: 28}}
+                                        onOptionChange={(value: string) => setSelectedItem(value)}
+                                        onClick={handleOnDropdownButtonClick}
+                                    />
+
                                 }
                             </div>
                             {isGeneratingForm ? (

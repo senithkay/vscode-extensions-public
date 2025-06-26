@@ -113,7 +113,7 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
                 value={json}
                 onChange={onJsonChange}
                 errorMsg={error}
-                placeholder="Paste or type your JSON here..."
+                placeholder="Paste your JSON here..."
             />
             {/* <CheckBox label="Is Closed" checked={isClosed} onChange={setIsClosed} />
             <CheckBox label="Is Separate Definitions" checked={isSeparateDefinitions} onChange={setIsSeparateDefinitions} /> */}

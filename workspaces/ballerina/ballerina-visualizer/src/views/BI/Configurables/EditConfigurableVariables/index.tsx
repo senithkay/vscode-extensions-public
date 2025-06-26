@@ -13,6 +13,7 @@ import { ConfigVariable, EVENT_TYPE, FlowNode, MACHINE_VIEW } from '@wso2-enterp
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGenerator from '../../Forms/FormGenerator';
+import { useState } from 'react';
 
 namespace S {
     export const FormContainer = styled.div`
@@ -36,10 +37,12 @@ export interface ConfigFormProps {
 
 export function EditForm(props: ConfigFormProps) {
     const { isOpen, onClose, onSubmit, variable, title, filename } = props;
+    const [isSaving, setIsSaving] = useState(false);
 
     const { rpcClient } = useRpcContext();
 
     const handleSave = async (data: FlowNode) => {
+        setIsSaving(true);
         // update the variable with the previous variable name value if modified
         if (data?.properties?.variable?.modified) {
             data = {
@@ -60,10 +63,10 @@ export function EditForm(props: ConfigFormProps) {
             packageName: props.packageName,
             moduleName: props.moduleName,
         }).finally(() => {
-            if (onClose) {
-                onSubmit();
-            }
+            onSubmit();
         });
+        setIsSaving(false);
+        onClose();
     };
 
     const goToViewConfig = () => {
@@ -90,6 +93,7 @@ export function EditForm(props: ConfigFormProps) {
                         endLine: variable.codedata?.lineRange?.endLine
                     }}
                     onSubmit={handleSave}
+                    showProgressIndicator={isSaving}
                 />
             </PanelContainer>
         </>

@@ -30,6 +30,7 @@ import { IdentifierEditor } from "./IdentifierEditor";
 import { ReadonlyField } from "./ReadonlyField";
 import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
 import { IdentifierField } from "./IdentifierField";
+import { PathEditor } from "./PathEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -136,16 +137,18 @@ export const EditorFactory = (props: FormFieldEditorProps) => {
     } else if (field.type === "REPEATABLE_PROPERTY") {
         return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else if (field.type === "IDENTIFIER" && !field.editable && field?.lineRange) {
-        return <IdentifierEditor 
-            field={field} 
-            handleOnFieldFocus={handleOnFieldFocus} 
-            autoFocus={autoFocus} 
+        return <IdentifierEditor
+            field={field}
+            handleOnFieldFocus={handleOnFieldFocus}
+            autoFocus={autoFocus}
             onEditingStateChange={onIdentifierEditingStateChange}
         />;
     } else if (field.type !== "IDENTIFIER" && !field.editable) {
         return <ReadonlyField field={field} />;
     } else if (field.type === "IDENTIFIER" && field.editable) {
         return <IdentifierField field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
+    } else if (field.type === "SERVICE_PATH" || field.type === "ACTION_PATH") {
+        return <PathEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

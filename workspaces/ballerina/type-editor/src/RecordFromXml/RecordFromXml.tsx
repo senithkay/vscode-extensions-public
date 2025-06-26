@@ -106,7 +106,7 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
                 value={xml}
                 onChange={onXmlChange}
                 errorMsg={error}
-                placeholder='Paste or type your XML here...'
+                placeholder='Paste your XML here...'
             />
             <S.Footer>
                 <Button onClick={importXmlAsRecord} disabled={!!error || !xml.trim() || isSaving}>

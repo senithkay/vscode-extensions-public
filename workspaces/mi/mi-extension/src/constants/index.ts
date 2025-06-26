@@ -8,9 +8,17 @@
  */
 
 import * as path from 'path';
+import { workspace } from "vscode";
 
-export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
-export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
+// Move SAMPLE_ICONS_GITHUB_URL to config
+const config = workspace.getConfiguration('MI');
+export const SAMPLE_ICONS_GITHUB_URL: string =
+    process.env.SAMPLE_ICONS_GITHUB_URL ||
+    config.get<string>('sampleIconsGithubUrl') || '';
+
+export const MI_COPILOT_BACKEND_URL: string = 
+    process.env.MI_COPILOT_BACKEND_URL || config.get<string>('miCopilotBackendUrl')!;
+
 export const USER_CHECK_BACKEND_URL = '/user/usage';
 export const DATAMAP_BACKEND_URL = '/data-mapper/map';
 

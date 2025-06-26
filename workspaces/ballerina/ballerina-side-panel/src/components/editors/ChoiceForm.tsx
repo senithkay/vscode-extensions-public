@@ -44,7 +44,7 @@ const FormSection = styled.div`
 export function ChoiceForm(props: ChoiceFormProps) {
     const { field, recordTypeFields } = props;
     const { form } = useFormContext();
-    const { setValue } = form;
+    const { setValue, clearErrors } = form;
 
     const [selectedOption, setSelectedOption] = useState<number>(1);
 
@@ -110,6 +110,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
                         const realValue = checkedValue - 1;
                         setSelectedOption(checkedValue);
                         setValue(field.key, realValue);
+                        clearErrors();
                     }}
                 />
             </ChoiceSection>
