@@ -46,7 +46,7 @@ async function checkForServiceClassFunctions(documentUri: string, position: Node
             if (dir.path === documentUri && isPositionWithinBlock(position, dir.position)) {
                 const req = getSTByRangeReq(documentUri, position);
                 const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-                if (node.parseSuccess && STKindChecker.isObjectMethodDefinition(node.syntaxTree)) {
+                if (node.parseSuccess && (STKindChecker.isObjectMethodDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree))) {
                     return true;
                 }
             }
