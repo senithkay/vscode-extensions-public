@@ -229,22 +229,6 @@
             "preLaunchTask": "watch-mi-tests"
         },
         {
-            "name": "APIChat Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "env": {
-                "WEB_VIEW_DEV_MODE": "false",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js"
-            },
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/api-chat/extension"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/workspaces/api-chat/extension/dist/**/*.js"
-            ],
-            "preLaunchTask": "npm: watch-api-chat"
-        },
-        {
             "name": "APK Extension",
             "type": "extensionHost",
             "request": "launch",

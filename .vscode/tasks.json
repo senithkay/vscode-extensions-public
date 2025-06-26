@@ -186,20 +186,6 @@
 			}
 		},
         {
-			"type": "npm",
-			"script": "watch-api-chat",
-            "path": "workspaces/api-chat/extension",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never"
-			},
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-		},
-        {
             "label": "compile:ballerina-tests",
             "type": "npm",
             "path": "workspaces/ballerina/ballerina-extension",

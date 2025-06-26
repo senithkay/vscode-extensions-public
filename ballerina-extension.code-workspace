@@ -31,12 +31,6 @@
 			"path": "workspaces/ballerina/ballerina-core"
 		},
 		{
-			"path": "workspaces/ballerina/low-code-editor-commons"
-		},
-		{
-			"path": "workspaces/ballerina/low-code-ui-components"
-		},
-		{
 			"path": "workspaces/ballerina/ballerina-rpc-client"
 		}
 	],

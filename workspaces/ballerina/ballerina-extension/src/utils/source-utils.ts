@@ -53,7 +53,6 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
             for (const edit of edits) {
                 await applyBallerinaTomlEdit(fileUri, edit);
             }
-            StateMachine.setReadyMode();
             continue;
         }
 
@@ -119,6 +118,7 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
 
         return new Promise((resolve, reject) => {
             if (tomlFilesUpdated) {
+                StateMachine.setReadyMode();
                 resolve([]);
                 return;
             }

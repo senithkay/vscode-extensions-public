@@ -11,21 +11,13 @@ on:
         description: "Select the package to release"
         required: true
         options:
-          - 'ballerina/ballerina-languageclient'
           - 'ballerina/data-mapper'
-          - 'ballerina/expression-editor'
-          - 'ballerina/lang-service'
           - 'ballerina/low-code-diagram'
-          - 'ballerina/low-code-distribution'
           - 'ballerina/low-code-editor'
-          - 'ballerina/low-code-editor-commons'
           - 'ballerina/low-code-integration-tests'
-          - 'ballerina/low-code-ui-components'
           - 'ballerina/statement-editor'
           - 'ballerina/syntax-tree'
-          - 'ballerina/project-design-diagrams'
-          - 'choreo/cell-diagram'                                                                               
-          - 'configurable-editor'
+          - 'ballerina/project-design-diagrams'                                                                          
           - 'common-libs/ui-toolkit'
           - 'common-libs/font-wso2-vscode'
       version:
