@@ -96,7 +96,7 @@ export async function copyMavenWrapper(resourcePath: string, targetPath: string)
  */
 async function runMavenWrapperCommand(targetPath: string): Promise<boolean> {
 	return new Promise((resolve) => {
-		const proc = child_process.spawn("mvn", ["-N", "io.takari:maven:wrapper"], {
+		const proc = child_process.spawn("mvn wrapper:wrapper", [], {
 			shell: true,
 			cwd: targetPath
 		});
