@@ -85,6 +85,16 @@ To add a new package:
 - `rush check`: Checks dependency consistency across packages.
 - `rush purge`: Cleans up temporary files and folders.
 
+## Contribution Guidelines
+
+If you are planning on contributing to the development efforts of WSO2 API Manager or related extensions, you can do so by checking out the latest development version. The `master` branch holds the latest unreleased source code.
+
+Please follow the detailed instructions available here: [https://wso2.github.io](https://wso2.github.io)
+
+- Fork the repository before making changes.
+- Follow the structure and conventions outlined in this document.
+- Submit pull requests with clear descriptions and reference related issues if applicable.
+
 ## License
 
 By downloading and using any of the Visual Studio Code extensions in this repository, you agree to the [license terms](https://wso2.com/licenses/ballerina-vscode-plugin-2021-05-25/) and [privacy statement](https://wso2.com/privacy-policy).
