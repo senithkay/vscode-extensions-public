@@ -4,18 +4,19 @@
 
 ### Developer Guide
 
-> Avoid working directly on `wso2-enterprise/ballerina-low-code-editor`, fork this repositoty to your account first.
+
+>  **fork** the https://github.com/wso2-enterprise/vscode-extensions repository to your GitHub account and **clone** your fork locally.
 
 ```
-git clone https://github.com/<your-username>/ballerina-low-code-editor.git
-cd ballerina-low-code-editor/syntax-tree
-npm install
+git clone https://github.com/<your-username>/vscode-extensions.git
+cd vscode-extensions
+rush update
 ```
 
 #### For local development
 
 You need to run `npm link` inside `syntax-tree/` directory to test `syntax-tree` library with `choreo-console` and `low-code-editor` in local environment.
-
+s
 ```
 cd wso2-enterprise/ballerina-low-code-editor
 npm link
