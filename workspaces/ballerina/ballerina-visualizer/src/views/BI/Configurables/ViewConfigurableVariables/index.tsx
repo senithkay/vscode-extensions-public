@@ -553,7 +553,13 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                         <ErrorBanner errorMsg={"Error fetching config variables"} />
                                         : searchValue && filteredCategoriesWithModules.length === 0 ?
                                             <EmptyReadmeContainer>
-                                                <Icon name="searchIcon" sx={{ fontSize: '3em', color: 'var(--vscode-descriptionForeground)', marginBottom: '10px' }} />
+                                                <Icon
+                                                    name="searchIcon"
+                                                    sx={{
+                                                        fontSize: '3em',
+                                                        color: 'var(--vscode-descriptionForeground)',
+                                                        marginBottom: '10px'
+                                                    }} />
                                                 <Description variant="body2">
                                                     No configurable variables found matching "{searchValue}" in any module
                                                 </Description>
@@ -562,9 +568,20 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                 </Button>
                                             </EmptyReadmeContainer>
                                             : <>
-                                                <div id="TitleDiv" style={{ position: "sticky", top: 0, color: "var(--vscode-editor-foreground)", backgroundColor: "var(--vscode-editor-background)" }}>
+                                                <div
+                                                    id="TitleDiv"
+                                                    style={{
+                                                        position: "sticky", top: 0, color: "var(--vscode-editor-foreground)",
+                                                        backgroundColor: "var(--vscode-editor-background)"
+                                                    }}>
                                                     <TitleContent>
-                                                        <Typography variant="h2" sx={{ padding: "0px 0 0 20px", margin: "10px 0px", color: "var(--vscode-foreground)" }}>
+                                                        <Typography
+                                                            variant="h2"
+                                                            sx={{
+                                                                padding: "0px 0 0 20px",
+                                                                margin: "10px 0px",
+                                                                color: "var(--vscode-foreground)"
+                                                            }}>
                                                             {title}
                                                         </Typography>
                                                         {/* Only show Add Config button at the top when the module has configurations */}
@@ -610,8 +627,11 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                                 <Description variant="body2">
                                                                                     No configurable variables found in this module
                                                                                 </Description>
-                                                                                <Button appearance="primary" onClick={handleAddConfigVariableFormOpen}>
-                                                                                    <Codicon name="add" sx={{ marginRight: 5 }} />Add Config
+                                                                                <Button
+                                                                                    appearance="primary"
+                                                                                    onClick={handleAddConfigVariableFormOpen}>
+                                                                                    <Codicon name="add" sx={{ marginRight: 5 }} />
+                                                                                    Add Config
                                                                                 </Button>
                                                                             </EmptyReadmeContainer>
                                                                         )}
