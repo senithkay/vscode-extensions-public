@@ -323,7 +323,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             <TopNavigationBar />
             <TitleBar title="Configurable Variables" subtitle="View and manage configurable variables" actions={
                 <Button appearance="secondary" onClick={handleOpenConfigFile}>
-                    <Icon sx={{ marginRight: 5, paddingTop: '2px' }} name="editIcon" />Edit in config.toml
+                    <Icon sx={{ marginRight: 5, paddingTop: '2px' }} name="editIcon" />Edit in Config.toml
                 </Button>
             } />
             {isAddConfigVariableFormOpen && <Overlay data-testid="config-overlay" />}
