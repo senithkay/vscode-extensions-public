@@ -157,6 +157,9 @@ importers:
       del-cli:
         specifier: ^5.1.0
         version: 5.1.0
+      dotenv:
+        specifier: ~16.5.0
+        version: 16.5.0
       file-uri-to-path:
         specifier: ^2.0.0
         version: 2.0.0
@@ -269,9 +272,6 @@ importers:
       decache:
         specifier: ^4.6.2
         version: 4.6.2
-      dotenv-webpack:
-        specifier: ~8.1.0
-        version: 8.1.0(webpack@5.99.9)
       express:
         specifier: ^4.18.2
         version: 4.21.2
@@ -3443,6 +3443,9 @@ importers:
       cors-anywhere:
         specifier: ^0.4.4
         version: 0.4.4
+      dotenv:
+        specifier: ~16.5.0
+        version: 16.5.0
       fast-xml-parser:
         specifier: ~5.2.3
         version: 5.2.5
@@ -3558,9 +3561,6 @@ importers:
       await-notify:
         specifier: ^1.0.1
         version: 1.0.1
-      dotenv-webpack:
-        specifier: ~8.1.0
-        version: 8.1.0(webpack@5.99.9)
       eslint:
         specifier: ^9.27.0
         version: 9.27.0(jiti@2.4.2)
@@ -4025,9 +4025,6 @@ importers:
       del-cli:
         specifier: ^6.0.0
         version: 6.0.0
-      dotenv-webpack:
-        specifier: ~8.1.0
-        version: 8.1.0(webpack@5.99.9)
       mocha:
         specifier: ^11.5.0
         version: 11.7.0
@@ -12723,9 +12720,6 @@ packages:
   dot-prop@4.2.1:
     resolution: {integrity: sha512-l0p4+mIuJIua0mhxGoh4a+iNL9bmeK5DvnSVQa6T0OhrVmaEa1XScX5Etc673FePCJOArq/4Pa2cLGODUWTPOQ==}
     engines: {node: '>=4'}
-
-  dotenv-defaults@2.0.2:
-    resolution: {integrity: sha512-iOIzovWfsUHU91L5i8bJce3NYK5JXeAwH50Jh6+ARUdLiiGlYWfGw6UkzsYqaXZH/hjE/eCd/PlfM/qqyK0AMg==}
 
   dotenv-expand@10.0.0:
     resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
@@ -37799,10 +37793,6 @@ snapshots:
   dot-prop@4.2.1:
     dependencies:
       is-obj: 1.0.1
-
-  dotenv-defaults@2.0.2:
-    dependencies:
-      dotenv: 8.6.0
 
   dotenv-expand@10.0.0: {}
 

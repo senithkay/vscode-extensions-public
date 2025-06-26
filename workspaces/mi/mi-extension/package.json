@@ -980,8 +980,7 @@
     "await-notify": "^1.0.1",
     "yaml": "~2.8.0",
     "@playwright/test": "~1.52.0",
-    "playwright-core": "~1.52.0",
-    "dotenv-webpack": "~8.1.0"
+    "playwright-core": "~1.52.0"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
@@ -1031,6 +1030,7 @@
     "adm-zip": "~0.5.16",
     "@wso2-enterprise/mi-diagram": "workspace:*",
     "upath": "~2.0.1",
-    "find-process": "~1.4.10"
+    "find-process": "~1.4.10",
+    "dotenv": "~16.5.0"
   }
 }

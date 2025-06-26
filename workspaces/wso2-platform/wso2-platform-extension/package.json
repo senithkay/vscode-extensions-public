@@ -12,7 +12,7 @@
   "repository": "https://github.com/wso2/choreo-vscode",
   "icon": "resources/icons/wso2-logo.png",
   "engines": {
-    "vscode": "1.100.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Other"
@@ -367,8 +367,7 @@
     "webpack-permissions-plugin": "^1.0.10",
     "copy-webpack-plugin": "^13.0.0",
     "@biomejs/biome": "^1.9.4",
-    "terser-webpack-plugin": "^5.3.14",
-    "dotenv-webpack": "~8.1.0"
+    "terser-webpack-plugin": "^5.3.14"
   },
   "dependencies": {
     "@vscode-logging/logger": "^2.0.0",
