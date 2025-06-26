@@ -17,6 +17,7 @@ module.exports = {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     testMatch: ['**/?(*.)+(spec|test).ts?(x)'],
     moduleNameMapper: {
+        '^@vscode/codicons/dist/codicon.css$': 'identity-obj-proxy',
         '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
         "^react$": "<rootDir>/node_modules/react/index.js",
     },
