@@ -241,6 +241,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={() => getDefaultCompletion(value)}
                             value={value}
+                            ariaLabel={field.label}
                             onChange={async (updatedValue: string, updatedCursorPosition: number) => {
                                 if (updatedValue === value) {
                                     return;
