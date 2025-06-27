@@ -574,9 +574,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
+    const targetTypeField = formFields.find((field) => field.codedata?.kind === "PARAM_FOR_TYPE_INFER");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
-    const prioritizedNodes = ["VARIABLE", "CONFIG_VARIABLE"]
-    const prioritizeVariableField = (variableField || typeField) && !dataMapperField && (prioritizedNodes.includes(selectedNode));
+    const prioritizedNodes = ["VARIABLE", "CONFIG_VARIABLE"]; // these node type form fields will rearrange based on priority
+    const prioritizeVariableField = (variableField || typeField || targetTypeField) && !dataMapperField && (prioritizedNodes.includes(selectedNode));
+    
+    const isPrioritizedField = (field: FormField) => {
+        return field.key === "variable" || field.key === "type" || field.codedata?.kind === "PARAM_FOR_TYPE_INFER";
+    };
+
+    const regularNodes = ["PARAM_FOR_TYPE_INFER"]; // these node type form fields won't rearrange based on priority
+    const isRegularNode = regularNodes.includes(selectedNode);
 
     const contextValue: FormContext = {
         form: {
@@ -720,11 +728,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         .sort((a, b) => b.groupNo - a.groupNo)
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
-                            if (
-                                ((field.key === "variable" || field.key === "type") && variableField) ||
-                                field.advanced ||
-                                field.hidden
-                            ) {
+                            if (!isRegularNode && (isPrioritizedField(field) || field.advanced || field.hidden)) {
                                 return;
                             }
                             const updatedField = updateFormFieldWithImports(field, formImports);
@@ -749,7 +753,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         })}
                     {hasAdvanceFields && (
                         <S.Row>
-                            Advanced Configurations
+                            Optional Configurations
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
@@ -818,6 +822,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
+                                visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
+                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
+                            />
+                        )}
+                        {targetTypeField && (
+                            <EditorFactory
+                                field={targetTypeField}
+                                handleOnFieldFocus={handleOnFieldFocus}
                                 visualizableFields={visualizableFields}
                                 recordTypeFields={recordTypeFields}
                                 onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
