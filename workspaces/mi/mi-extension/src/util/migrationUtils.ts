@@ -1357,14 +1357,6 @@ function processArtifactForWrite(artifact: Artifact): void {
                 collection.directory = parts[parts.length - 1];
             }
             });
-            collections.forEach(collection => {
-                if (collection.path && typeof collection.path === 'string') {
-                    const lastSlashIndex = collection.path.lastIndexOf('/');
-                    if (lastSlashIndex !== -1) {
-                        collection.path = collection.path.substring(0, lastSlashIndex);
-                    }
-                }
-            });
             artifact.collection = Array.isArray(artifact.collection) ? collections : collections[0];
         }
     }
@@ -1716,6 +1708,11 @@ function copy(source: string, target: string) {
         const destinationItemPath = path.join(target, file);
         if (!fs.statSync(sourceItemPath).isDirectory()) {
             copyFile(sourceItemPath, destinationItemPath);
+        } else {
+            if (!fs.existsSync(destinationItemPath)) {
+                fs.mkdirSync(destinationItemPath, { recursive: true });
+            }
+            copy(sourceItemPath, destinationItemPath);
         }
     });
 }
