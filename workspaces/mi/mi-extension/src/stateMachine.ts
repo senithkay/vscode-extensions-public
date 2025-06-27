@@ -661,6 +661,15 @@ async function checkIfMiProject() {
                     isOldProject = true;
                     log("Integration Studio project detected");
                 }
+            } else {
+                if (pomFiles.length > 0) {
+                    const oldProjectNatureInPom = '<projectnature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</projectnature>'
+                    const rootPomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
+                    if (rootPomContent.getText().includes(oldProjectNatureInPom)) {
+                        isOldProject = true;
+                        log("Integration Studio project detected");
+                    }
+                }
             }
         }
     } catch (err) {
