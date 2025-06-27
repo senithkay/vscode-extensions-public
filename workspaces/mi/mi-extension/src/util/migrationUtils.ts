@@ -1708,7 +1708,12 @@ function copy(source: string, target: string) {
         const destinationItemPath = path.join(target, file);
         if (!fs.statSync(sourceItemPath).isDirectory()) {
             copyFile(sourceItemPath, destinationItemPath);
-        } 
+        } else {
+            if (!fs.existsSync(destinationItemPath)) {
+                fs.mkdirSync(destinationItemPath, { recursive: true });
+            }
+            copy(sourceItemPath, destinationItemPath);
+        }
     });
 }
 
