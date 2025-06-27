@@ -2,6 +2,17 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.3.3] - 2025-06-27
+
+### Fixed
+
+Fixed: Issue with artifacts saved in the registry appearing multiple times ([#802](https://github.com/wso2/mi-vscode/issues/802)) 
+Fixed: Error handling nested artifact structure during migration ([#1154](https://github.com/wso2/mi-vscode/issues/1154))   
+Fixed: Error handling artifacts with OS-specific paths in artifact.xml ([#1155](https://github.com/wso2/mi-vscode/issues/1155))  
+Fixed: Issue with incorrect collection path in artifact.xml after migration ([#1157](https://github.com/wso2/mi-vscode/issues/1157))  
+Fixed: Error migrating directories within a colleciton ([#1158](https://github.com/wso2/mi-vscode/issues/1158))  
+Fixed: Issue identifying projects created with Integration Studio ([#1159](https://github.com/wso2/mi-vscode/issues/1159))  
+
 ## [2.3.2] - 2025-06-24
 
 ### Fixed
