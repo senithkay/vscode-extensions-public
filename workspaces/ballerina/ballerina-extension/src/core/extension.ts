@@ -24,7 +24,7 @@ import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../utils/server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION, isSupportedSLVersion, logExtensionInitInfo } from '../utils';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION, isSupportedSLVersion } from '../utils';
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
@@ -270,11 +270,19 @@ export class BallerinaExtension {
 
             // Validate the ballerina version.
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
+                debug("=".repeat(60));
                 this.ballerinaVersion = runtimeVersion;
+                log(`Plugin version: ${this.getVersion()}`);
+                log(`Ballerina version: ${this.ballerinaVersion}`);
+
                 this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
                 this.isNPSupported = isSupportedSLVersion(this, 2201130) && this.enabledExperimentalFeatures(); // Minimum supported requirements for NP
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
+                debug(`Ballerina Home: ${this.ballerinaHome}`);
+                debug(`Plugin Dev Mode: ${this.overrideBallerinaHome()}`);
+                debug(`Debug Mode: ${this.enableLSDebug()}`);
+                debug(`Feature flags - Experimental: ${this.enabledExperimentalFeatures()}, BI: ${this.biSupported}, NP: ${this.isNPSupported}`);
 
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
                     !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
@@ -294,6 +302,7 @@ export class BallerinaExtension {
                 _onBeforeInit(this.langClient);
 
                 await this.langClient.start();
+                debug(`Language Server Started`);
 
                 // Following was put in to handle server startup failures.
                 if (this.langClient.state === LS_STATE.Stopped) {
@@ -304,14 +313,13 @@ export class BallerinaExtension {
                 } else if (this.langClient.state === LS_STATE.Running) {
                     await this.langClient?.registerExtendedAPICapabilities();
                     this.updateStatusBar(this.ballerinaVersion);
-                    logExtensionInitInfo(this);
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
                 commands.registerCommand('ballerina.stopLangServer', () => {
                     this.langClient.stop();
                 });
-
+                debug("=".repeat(60));
             }, (reason) => {
                 sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
                 this.showMessageInstallBallerina();
@@ -1994,13 +2002,6 @@ export class BallerinaExtension {
             const freshEnv = await getShellEnvironment();
             debug('Syncing process environment with shell environment');
             updateProcessEnv(freshEnv);
-
-            // Show some debug info for PATH
-            if (isWindows()) {
-                debug(`Updated PATH: ${process.env.Path}`);
-            } else {
-                debug(`Updated PATH: ${process.env.PATH}`);
-            }
         } catch (error) {
             debug(`Failed to sync environment: ${error}`);
         }
@@ -2116,8 +2117,6 @@ function updateProcessEnv(newEnv: NodeJS.ProcessEnv): void {
             process.env[key] = newEnv[key];
         }
     }
-
-    debug(`Process environment updated with fresh PATH: ${isWindows() ? process.env.Path : process.env.PATH}`);
 }
 
 function getShellEnvironment(): Promise<NodeJS.ProcessEnv> {
