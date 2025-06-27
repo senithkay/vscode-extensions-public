@@ -11,7 +11,7 @@ const webpack = require('webpack');
 const envPath = path.resolve(__dirname, '.env');
 const env = fs.existsSync(envPath) ? dotenv.config({ path: envPath }).parsed : {};
 
-const mergedEnv = { ...process.env, ...env };
+const mergedEnv = { ...env, ...process.env };
 
 const envKeys = Object.fromEntries(
   Object.entries(mergedEnv).map(([key, value]) => [
