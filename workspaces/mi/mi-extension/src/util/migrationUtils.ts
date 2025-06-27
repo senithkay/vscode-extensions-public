@@ -145,13 +145,15 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         moveFiles(source, destinationFolderPath);
         deleteEmptyFoldersInPath(source);
 
+        const projectDirsWithType = getProjectDirectoriesWithType(destinationFolderPath);
         const projectDirToResolvedPomMap = await generateProjectDirToResolvedPomMap(destinationFolderPath);
 
         const createdProjectCount = await createFolderStructuresForDistributionProjects(
             destinationFolderPath,
             directory,
             projectUuid,
-            projectDirToResolvedPomMap
+            projectDirToResolvedPomMap,
+            projectDirsWithType
         );
         // If no folder structure was created, create one in the given directory
         if (createdProjectCount == 0) {
@@ -161,7 +163,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
             console.log("Created project structure for project: " + projectName);
         }
 
-        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap, createdProjectCount);
+        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap, projectDirsWithType, createdProjectCount);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -194,45 +196,43 @@ async function createFolderStructuresForDistributionProjects(
     destinationFolderPath: string,
     directory: string,
     projectUuid: string,
-    projectDirToResolvedPomMap: Map<string, string>
+    projectDirToResolvedPomMap: Map<string, string>,
+    projectDirsWithType: { projectDir: string, projectType: Nature }[]
 ): Promise<number> {
     let distributionProjectCount = 0;
-    async function checkAndCreateFolderStructures(currentPath: string) {
-        let items: fs.Dirent[];
-        try {
-            items = fs.readdirSync(currentPath, { withFileTypes: true });
-        } catch (err) {
-            console.error(`Failed to read directory ${currentPath}:`, err);
-            return;
-        }
-        for (const item of items) {
-            if (item.isDirectory()) {
-                const projectPath = path.join(currentPath, item.name);
-                const projectType = determineProjectType(projectPath);
-                if (projectType === Nature.DISTRIBUTION) {
-                    const relativeDir = path.relative(destinationFolderPath, projectPath);
-                    const newProjectDir = path.join(directory, relativeDir);
-                    try {
-                        fs.mkdirSync(newProjectDir, { recursive: true });
-                        let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(projectPath, projectDirToResolvedPomMap);
-                        if (projectName && groupId && artifactId && version) {
-                            const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
-                            await createFolderStructure(newProjectDir, newFolderStructure);
-                            copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
-                            console.log("Created project structure for project: " + projectName);
-                        }
-                    } catch (err) {
-                        console.error(`Failed to create folder structure at ${newProjectDir}:`, err);
-                    }
-                    distributionProjectCount++;
-                } else {
-                    // Recurse into subdirectories
-                    await checkAndCreateFolderStructures(projectPath);
+
+    for (const { projectDir, projectType } of projectDirsWithType) {
+        if (projectType === Nature.DISTRIBUTION) {
+            const relativeDir = path.relative(destinationFolderPath, projectDir);
+            const newProjectDir = path.join(directory, relativeDir);
+            try {
+                fs.mkdirSync(newProjectDir, { recursive: true });
+                let { projectName, groupId, artifactId, version, runtimeVersion } =
+                    getProjectDetails(projectDir, projectDirToResolvedPomMap);
+
+                if (projectName && groupId && artifactId && version) {
+                    const newFolderStructure = getFolderStructure(
+                        projectName,
+                        groupId,
+                        artifactId,
+                        projectUuid,
+                        version,
+                        runtimeVersion ?? LATEST_MI_VERSION
+                    );
+                    await createFolderStructure(newProjectDir, newFolderStructure);
+                    copyDockerResources(
+                        extension.context.asAbsolutePath(path.join("resources", "docker-resources")),
+                        newProjectDir
+                    );
+                    console.log("Created project structure for project: " + projectName);
                 }
+            } catch (err) {
+                console.error(`Failed to create folder structure at ${newProjectDir}:`, err);
             }
+            distributionProjectCount++;
         }
     }
-    await checkAndCreateFolderStructures(destinationFolderPath);
+
     return distributionProjectCount;
 }
 
@@ -351,50 +351,45 @@ export function getProjectDir(filePath: string): string {
     return path.dirname(normalizedPath);
 }
 
-export async function migrateConfigs(projectUri: string, source: string, target: string, projectDirToResolvedPomMap: Map<string, string>, createdProjectCount: number): Promise<void> {
+export async function migrateConfigs(
+    projectUri: string,
+    source: string,
+    target: string,
+    projectDirToResolvedPomMap: Map<string, string>,
+    projectDirsWithType: { projectDir: string, projectType: Nature }[],
+    createdProjectCount: number
+): Promise<void> {
     // determine the project type here
     const projectType = determineProjectType(source);
     let hasClassMediatorModule = false;
 
     if (projectType === Nature.MULTIMODULE) {
-        const items = fs.readdirSync(source, { withFileTypes: true });
-        const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(source, items, projectDirToResolvedPomMap);
-        const { configToTests, configToMockServices } = generateConfigToTestAndMockServiceMaps(source, items);
-        const projectDirToMetaFilesMap = generateProjectDirToMetaFilesMap(source, items);
+        const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(projectDirToResolvedPomMap, projectDirsWithType);
+        const { configToTests, configToMockServices } = generateConfigToTestAndMockServiceMaps(source, projectDirsWithType);
+        const projectDirToMetaFilesMap = generateProjectDirToMetaFilesMap(projectDirsWithType);
 
         const allUsedDependencyIds = new Set<string>();
 
-        async function processDistributionDirsRecursively(currentSource: string, currentTarget: string) {
-            const items = fs.readdirSync(currentSource, { withFileTypes: true });
-            for (const item of items) {
-                if (!item.isDirectory()) continue;
-
-                const sourcePath = path.join(currentSource, item.name);
-                const targetPath = path.join(currentTarget, item.name);
-
-                const moduleType = determineProjectType(sourcePath);
-
-                if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
-                    const usedDepIds = await processCompositeExporterProject(
-                        sourcePath,
-                        targetPath,
-                        artifactIdToFileInfoMap,
-                        configToTests,
-                        configToMockServices,
-                        projectDirToMetaFilesMap,
-                        projectDirToResolvedPomMap
-                    );
-                    usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
-                    if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
-                        await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
-                    }
-                } else {
-                    // Recurse into subdirectories
-                    await processDistributionDirsRecursively(sourcePath, targetPath);
+        for (const { projectDir, projectType } of projectDirsWithType) {
+            if (projectType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
+                // Compute the relative path from source to projectDir, and map it to the target
+                const relativeDir = path.relative(source, projectDir);
+                const targetPath = path.join(target, relativeDir);
+                const usedDepIds = await processCompositeExporterProject(
+                    projectDir,
+                    targetPath,
+                    artifactIdToFileInfoMap,
+                    configToTests,
+                    configToMockServices,
+                    projectDirToMetaFilesMap,
+                    projectDirToResolvedPomMap
+                );
+                usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
+                if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
+                    await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
                 }
             }
         }
-        await processDistributionDirsRecursively(source, target);
         writeUnusedFileInfos(allUsedDependencyIds, artifactIdToFileInfoMap, source)
         if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
             await commands.executeCommand('workbench.action.closeWindow');
@@ -466,14 +461,29 @@ function writeUnusedFileInfos(
  *   - `projectDir`: The absolute path to the project directory.
  *   - `projectType`: The type of the project as determined by `determineProjectType`.
  */
-function getProjectDirectoriesWithType(source: string, items: fs.Dirent[]) {
-    return items
-        .filter(item => item.isDirectory())
-        .map(item => {
-            const projectDir = path.join(source, item.name);
-            const projectType = determineProjectType(projectDir);
-            return { projectDir, projectType };
-        });
+function getProjectDirectoriesWithType(rootDir: string, items?: fs.Dirent[]): { projectDir: string, projectType: Nature }[] {
+    const results: { projectDir: string, projectType: Nature }[] = [];
+
+    function traverse(dir: string) {
+        const items = fs.readdirSync(dir, { withFileTypes: true });
+
+        for (const item of items) {
+            const fullPath = path.join(dir, item.name);
+
+            if (item.isDirectory()) {
+                const projectType = determineProjectType(fullPath);
+                if (projectType !== undefined) {
+                    results.push({ projectDir: fullPath, projectType });
+                }
+
+                // Recursively check subdirectories
+                traverse(fullPath);
+            }
+        }
+    }
+
+    traverse(rootDir);
+    return results;
 }
 
 /**
@@ -486,40 +496,42 @@ function getProjectDirectoriesWithType(source: string, items: fs.Dirent[]) {
  *
  * @param source - The root directory to scan for project directories and artifacts.
  * @param items - The list of directory entries (files and folders) within the source directory.
- * @param projectDirToResolvedPom - A map that associates project directories with their resolved POM file paths.
+ * @param projectDirToResolvedPom - A map that associates project directories with their resolved POM XML content.
  * @returns A map where each key is an artifact identifier (string) and each value is the corresponding file information.
  */
-function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[], projectDirToResolvedPom: Map<string, string>): Map<string, FileInfo> {
+function generateArtifactIdToFileInfoMap(
+    projectDirToResolvedPom: Map<string, string>,
+    projectDirsWithType: { projectDir: string, projectType: Nature }[]
+): Map<string, FileInfo> {
     const artifactIdToFileInfoMap = new Map<string, FileInfo>();
-    const projectDirs = getProjectDirectoriesWithType(source, items);
 
-    projectDirs.forEach(({ projectDir, projectType }) => {
+    projectDirsWithType.forEach(({ projectDir, projectType }) => {
         const projectId = getPomIdentifier(projectDir, projectDirToResolvedPom);
         if (projectId) {
             artifactIdToFileInfoMap.set(projectId, { path: projectDir, artifact: null, projectType });
         }
-        // Try to get the artifacts from artifact.xml if exists
-        let artifacts: Artifact[] = [];
+
+        // Try to get the artifacts from artifact.xml if it exists
         const artifactXmlPath = path.join(projectDir, 'artifact.xml');
         if (fs.existsSync(artifactXmlPath)) {
             const xml = parseArtifactsXmlFile(artifactXmlPath);
-            if (xml.artifacts && xml.artifacts.artifact) {
-                artifacts = normalizeArtifacts(xml.artifacts.artifact);
+            if (xml.artifacts?.artifact) {
+                const artifacts = normalizeArtifacts(xml.artifacts.artifact);
+                artifacts.forEach((artifact) => {
+                    const artifactId = getPomIdentifierStr(
+                        artifact['@_groupId'],
+                        artifact['@_name'],
+                        artifact['@_version']
+                    );
+                    const fileInfo = getFileInfoForArtifact(artifact, projectDir, projectType);
+                    if (fileInfo) {
+                        artifactIdToFileInfoMap.set(artifactId, fileInfo);
+                    }
+                });
             }
         }
-        // For each artifact in artifacts, map its artifactId to its file path
-        artifacts.forEach(artifact => {
-            const artifactId = getPomIdentifierStr(
-                artifact['@_groupId'],
-                artifact['@_name'],
-                artifact['@_version']
-            );
-            const fileInfo = getFileInfoForArtifact(artifact, projectDir, projectType);
-            if (fileInfo) {
-                artifactIdToFileInfoMap.set(artifactId, fileInfo);
-            }
-        });
     });
+
     return artifactIdToFileInfoMap;
 }
 
@@ -534,16 +546,15 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[], pro
  */
 function generateConfigToTestAndMockServiceMaps(
     source: string,
-    items: fs.Dirent[]
+    projectDirsWithType: { projectDir: string, projectType: Nature }[] 
 ): {
     configToTests: Map<string, string[]>,
     configToMockServices: Map<string, string[]>
 } {
     const configToTests = new Map<string, string[]>();
     const configToMockServices = new Map<string, string[]>();
-    const projectDirs = getProjectDirectoriesWithType(source, items);
 
-    projectDirs.forEach(({ projectDir, projectType }) => {
+    projectDirsWithType.forEach(({ projectDir, projectType }) => {
         if (projectType !== Nature.ESB) return;
         const testDir = path.join(projectDir, TEST);
         if (!fs.existsSync(testDir) || !fs.statSync(testDir).isDirectory()) return;
@@ -593,13 +604,9 @@ function generateConfigToTestAndMockServiceMaps(
  * @param items - Array of fs.Dirent representing directories in the source.
  * @returns Map<string, string[]> where key is projectDir and value is array of absolute file paths in metadata dir.
  */
-function generateProjectDirToMetaFilesMap(
-    source: string,
-    items: fs.Dirent[]
-): Map<string, string[]> {
+function generateProjectDirToMetaFilesMap(projectDirsWithType: { projectDir: string, projectType: Nature }[]): Map<string, string[]> {
     const metaDataMap = new Map<string, string[]>();
-    const projectDirs = getProjectDirectoriesWithType(source, items);
-    projectDirs.forEach(({ projectDir, projectType }) => {
+    projectDirsWithType.forEach(({ projectDir, projectType }) => {
         if (projectType === Nature.ESB) {
             const metadataDir = path.join(projectDir, SRC, MAIN, RESOURCES, METADATA);
             if (fs.existsSync(metadataDir) && fs.statSync(metadataDir).isDirectory()) {
@@ -611,6 +618,21 @@ function generateProjectDirToMetaFilesMap(
         }
     });
     return metaDataMap;
+}
+
+/**
+ * Returns a normalized, joined path from a base path and a relative (or mixed-format) path.
+ *
+ * @param basePath - The base directory path (absolute or relative)
+ * @param relativePath - A relative path that may contain mixed separators
+ * @returns A normalized, platform-safe full path
+ */
+function getNormalizedPath(basePath: string, relativePath: string): string {
+    if (!relativePath) return basePath;
+
+    // Ensure separators are consistent before normalizing
+    const cleanedRelativePath = path.normalize(relativePath.replace(/\\/g, '/'));
+    return path.join(basePath, cleanedRelativePath);
 }
 
 /**
@@ -631,7 +653,7 @@ function getFileInfoForArtifact(
     projectType: Nature | undefined
 ): FileInfo | null {
     if (artifact.file) {
-        const artifactFilePath = path.join(projectFilePath, ...artifact.file.split('/'));
+        const artifactFilePath = getNormalizedPath(projectFilePath, artifact.file);
         if (fs.existsSync(artifactFilePath)) {
             return { path: artifactFilePath, artifact, projectType };
         }
@@ -640,7 +662,7 @@ function getFileInfoForArtifact(
         const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
         const firstItem = items[0];
         if (firstItem && firstItem.file) {
-            const artifactFilePath = path.join(projectFilePath, ...firstItem.file.split('/'));
+            const artifactFilePath = getNormalizedPath(projectFilePath, firstItem.file);
             if (fs.existsSync(artifactFilePath)) {
                 return { path: artifactFilePath, artifact, projectType };
             }
@@ -650,7 +672,7 @@ function getFileInfoForArtifact(
         const collections = Array.isArray(artifact.collection) ? artifact.collection : [artifact.collection];
         const firstCollection = collections[0];
         if (firstCollection && firstCollection.directory) {
-            const artifactPath = path.join(projectFilePath, ...firstCollection.directory.split('/'));
+            const artifactPath =  getNormalizedPath(projectFilePath, firstCollection.directory);
             if (fs.existsSync(artifactPath)) {
                 return { path: artifactPath, artifact, projectType };
             }
@@ -1335,14 +1357,6 @@ function processArtifactForWrite(artifact: Artifact): void {
                 collection.directory = parts[parts.length - 1];
             }
             });
-            collections.forEach(collection => {
-                if (collection.path && typeof collection.path === 'string') {
-                    const lastSlashIndex = collection.path.lastIndexOf('/');
-                    if (lastSlashIndex !== -1) {
-                        collection.path = collection.path.substring(0, lastSlashIndex);
-                    }
-                }
-            });
             artifact.collection = Array.isArray(artifact.collection) ? collections : collections[0];
         }
     }
@@ -1694,6 +1708,11 @@ function copy(source: string, target: string) {
         const destinationItemPath = path.join(target, file);
         if (!fs.statSync(sourceItemPath).isDirectory()) {
             copyFile(sourceItemPath, destinationItemPath);
+        } else {
+            if (!fs.existsSync(destinationItemPath)) {
+                fs.mkdirSync(destinationItemPath, { recursive: true });
+            }
+            copy(sourceItemPath, destinationItemPath);
         }
     });
 }
