@@ -159,7 +159,8 @@ export namespace S {
     `;
 
     export const DefaultValue = styled.span`
-        font-family: monospace;
+        color: var(--vscode-textPreformat-foreground);
+        font-family: var(--vscode-editor-font-family);
         font-size: 12px;
     `;
 
@@ -193,15 +194,24 @@ export namespace S {
         }
 
         code {
-            background-color: unset;
-            color: ${ThemeColors.PRIMARY};
-            font-family: monospace;
+            background-color: var(--vscode-textPreformat-background);
+            border-radius: 3px;
+            padding: 2px 4px;
+            color: var(--vscode-textPreformat-foreground);
+            font-family: var(--vscode-editor-font-family);
             font-size: 12px;
         }
 
         pre {
-            // hide code blocks
-            display: none;
+            background-color: var(--vscode-textPreformat-background);
+            color: var(--vscode-textPreformat-foreground);
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-family: var(--vscode-editor-font-family);
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         ul,
@@ -444,7 +454,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     ];
 
     const defaultValueText = field.defaultValue ?
-        <div>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></div> : null;
+        <S.DefaultValue>Defaults to {field.defaultValue}</S.DefaultValue> : null;
 
     const documentation = field.documentation
         ? field.documentation.endsWith('.')
