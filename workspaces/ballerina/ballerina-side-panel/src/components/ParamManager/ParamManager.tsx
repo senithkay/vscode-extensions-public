@@ -154,7 +154,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
             />
             {hasAdvancedFields && (
                 <Row>
-                    Advanced Configurations
+                    Optional Configurations
                     <ButtonContainer>
                         {!showAdvancedOptions && (
                             <LinkButton
