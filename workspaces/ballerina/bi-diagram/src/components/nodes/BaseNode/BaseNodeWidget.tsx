@@ -60,7 +60,8 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: flex-start;
         gap: 2px;
-        width: 100%;
+        flex: 1;
+        min-width: 0;
         padding: 8px;
     `;
 
@@ -111,13 +112,15 @@ export namespace NodeStyles {
     `;
 
     export const Description = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 80}px;
+        width: 100%;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
+        word-break: break-all;
         color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
         white-space: normal;
