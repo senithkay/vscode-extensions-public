@@ -650,13 +650,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 id: node.codedata,
             })
             .then((response) => {
-                const nodesWithCustomForms = ["IF", "FORK"];
-                if (!response.flowNode.properties && !nodesWithCustomForms.includes(response.flowNode.codedata.node)) {
-                    console.log(">>> Node doesn't have properties. Don't show edit form", response.flowNode);
-                    setShowProgressIndicator(false);
-                    showEditForm.current = false;
-                    return;
-                }
+                // const nodesWithCustomForms = ["IF", "FORK"];
+                // if (!response.flowNode.properties && !nodesWithCustomForms.includes(response.flowNode.codedata.node)) {
+                //     console.log(">>> Node doesn't have properties. Don't show edit form", response.flowNode);
+                //     setShowProgressIndicator(false);
+                //     showEditForm.current = false;
+                //     return;
+                // }
 
                 nodeTemplateRef.current = response.flowNode;
                 showEditForm.current = true;
