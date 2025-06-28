@@ -47,6 +47,7 @@ import {
     hasOptionalParameters,
 } from "./utils";
 import FormDescription from "./FormDescription";
+import TypeHelperText from "./TypeHelperText";
 
 namespace S {
     export const Container = styled(SidePanelBody)<{ nestedForm?: boolean; compact?: boolean }>`
@@ -827,13 +828,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             />
                         )}
                         {targetTypeField && (
-                            <EditorFactory
-                                field={targetTypeField}
-                                handleOnFieldFocus={handleOnFieldFocus}
-                                visualizableFields={visualizableFields}
-                                recordTypeFields={recordTypeFields}
-                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
-                            />
+                            <>
+                                <EditorFactory
+                                    field={targetTypeField}
+                                    handleOnFieldFocus={handleOnFieldFocus}
+                                    visualizableFields={visualizableFields}
+                                    recordTypeFields={recordTypeFields}
+                                    onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
+                                />
+                                {typeField && (
+                                    <TypeHelperText
+                                        targetTypeField={targetTypeField}
+                                        typeField={typeField}
+                                    />
+                                )}
+                            </>
                         )}
                     </S.CategoryRow>
                 )}
