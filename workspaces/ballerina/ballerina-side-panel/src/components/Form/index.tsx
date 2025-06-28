@@ -507,20 +507,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setActiveFormField(key);
     };
 
-    const handleOnUseDataMapper = () => {
-        const viewField = formFields.find((field) => field.key === "view");
-        if (viewField) {
-            const { fileName, startLine, endLine } = viewField.value as any;
-            openView &&
-                openView(projectPath + "/" + fileName, {
-                    startLine: startLine.line,
-                    startColumn: startLine.offset,
-                    endLine: endLine.line,
-                    endColumn: endLine.offset,
-                });
-        }
-    };
-
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
         const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
