@@ -15,7 +15,8 @@
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
-			"preLaunchTask": "${defaultBuildTask}"
+			"preLaunchTask": "${defaultBuildTask}",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
 		},
 		{
 			"name": "Extension Tests",

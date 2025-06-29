@@ -21,6 +21,7 @@
 			],
 			"sourceMaps": true,
 			"preLaunchTask": "${defaultBuildTask}",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
 		},
 		{
 			"name": "Extension Tests",

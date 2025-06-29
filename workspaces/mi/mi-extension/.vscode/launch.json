@@ -23,7 +23,8 @@
             "skipFiles": [
                 "**/node_modules/**"
             ],
-            "preLaunchTask": "npm: watch-mi"
+            "preLaunchTask": "npm: watch-mi",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
 		{
 			"name": "Extension Tests",
