@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProgressRing, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -15,9 +15,7 @@ import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { DownloadPage } from './DownloadPage';
 import { ButtonGroup } from '../commons/ButtonGroup';
-import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
-import { APIS } from '../../../resources/constants';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { OperationsList } from '../modules/OperationsList';
 
@@ -50,7 +48,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             if (value) {
                 try {
                     const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
-                    const response = await fetch(`${APIS.MI_CONNECTOR_STORE_BACKEND_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
+                    const response = await fetch(`${process.env.MI_CONNECTOR_STORE_BACKEND_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
                     setFilteredModules(data);
                 } catch (e) {

@@ -334,13 +334,6 @@ export const DATA_SERVICE = {
     EDIT_SELF_CLOSE_RESOURCE: "edit-self-close-resource",
 }
 
-export const APIS = {
-    MI_CONNECTOR_STORE: process.env.MI_CONNECTOR_STORE as string,
-    MI_CONNECTOR_STORE_BACKEND: process.env.MI_CONNECTOR_STORE_BACKEND as string,
-    MI_CONNECTOR_STORE_BACKEND_SEARCH: process.env.MI_CONNECTOR_STORE_BACKEND_SEARCH as string,
-    MI_CONNECTOR_STORE_BACKEND_GETBYVERSION: process.env.MI_CONNECTOR_STORE_BACKEND_GETBYVERSION as string,
-}
-
 export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
     ERROR_LOADING_TRYOUT: "Error loading tryout data. Please try again.",

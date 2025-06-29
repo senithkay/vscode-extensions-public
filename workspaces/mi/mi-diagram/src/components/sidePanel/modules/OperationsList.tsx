@@ -12,7 +12,6 @@ import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { OperationsWrapper } from '../mediators/ModuleSuggestions';
-import { APIS } from '../../../resources/constants';
 
 interface OperationsListProps {
     connector: any;
@@ -41,7 +40,7 @@ export function OperationsList(props: OperationsListProps) {
                 if (isLatestVersion) {
                     operations = connector.version.operations;
                 } else {
-                    const response = await fetch(`${APIS.MI_CONNECTOR_STORE_BACKEND_GETBYVERSION.replace('${repoName}', connector.repoName).replace('${versionId}', connector.otherVersions[version])}`);
+                    const response = await fetch(`${process.env.MI_CONNECTOR_STORE_BACKEND_GETBYVERSION.replace('${repoName}', connector.repoName).replace('${versionId}', connector.otherVersions[version])}`);
                     const data = await response.json();
                     operations = data.version.operations;
                 }
