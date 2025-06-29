@@ -41,7 +41,7 @@ export function OperationsList(props: OperationsListProps) {
                 if (isLatestVersion) {
                     operations = connector.version.operations;
                 } else {
-                    const response = await fetch(`${APIS.CONNECTOR_VERSION.replace('${repoName}', connector.repoName).replace('${versionId}', connector.otherVersions[version])}`);
+                    const response = await fetch(`${APIS.MI_CONNECTOR_STORE_BACKEND_GETBYVERSION.replace('${repoName}', connector.repoName).replace('${versionId}', connector.otherVersions[version])}`);
                     const data = await response.json();
                     operations = data.version.operations;
                 }

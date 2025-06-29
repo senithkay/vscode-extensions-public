@@ -83,7 +83,8 @@ async function getContext(projectUri: string): Promise<VisualizerLocation> {
             stNode: context.stNode,
             diagnostics: context.diagnostics,
             dataMapperProps: context.dataMapperProps,
-            errors: context.errors
+            errors: context.errors,
+            env: process.env || {},
         });
     });
 }

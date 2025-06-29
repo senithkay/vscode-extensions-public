@@ -13,7 +13,6 @@ import { FormView, Card, Typography, FormActions, Button } from "@wso2-enterpris
 import { EVENT_TYPE, MACHINE_VIEW, DownloadProgressData } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddInboundConnector from "./inboundConnectorForm";
-import { APIS } from "../../../constants";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { InboundEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import path from "path";
@@ -89,8 +88,9 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const fetchConnectors = async () => {
         setIsFetchingConnectors(true);
         try {
+            console.log(process.env)
             const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
-            const response = await fetch(`${APIS.INBOUND_ENDPOINTS.replace('${version}', runtimeVersion.version)}`);
+            const response = await fetch(`${process.env.MI_CONNECTOR_STORE_BACKEND_INBOUND_ENDPOINTS.replace('${version}', runtimeVersion.version)}`);
             const data = await response.json();
 
             const localConnectors = await rpcClient.getMiDiagramRpcClient().getLocalInboundConnectors();

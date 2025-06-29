@@ -15,7 +15,6 @@ import { AiPanelWebview } from './webview';
 import { getAuthUrl, refreshAuthCode } from './auth';
 import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
-import { USER_CHECK_BACKEND_URL } from '../constants';
 import { log } from '../util/logger';
 import { PromptObject } from '@wso2-enterprise/mi-core';
 
@@ -211,8 +210,8 @@ async function checkToken(context, event): Promise<UserToken> {
             const token = await extension.context.secrets.get('MIAIUser');
             if (token) {
                 const config = vscode.workspace.getConfiguration('MI');
-                const ROOT_URL = process.env.ROOT_URL || config.get('rootUrl') as string;
-                const url = ROOT_URL + USER_CHECK_BACKEND_URL;
+                const MI_COPILOT_BACKEND_V2 = process.env.MI_COPILOT_BACKEND_V2 || config.get('rootUrl') as string;
+                const url = MI_COPILOT_BACKEND_V2 + '/user/usage';
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {

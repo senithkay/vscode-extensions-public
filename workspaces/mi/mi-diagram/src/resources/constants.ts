@@ -335,10 +335,10 @@ export const DATA_SERVICE = {
 }
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}",
-    CONNECTOR_VERSION: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/${repoName}/versions/${versionId}?runtimeVersion=4.3.0&product=MI"
+    MI_CONNECTOR_STORE: process.env.MI_CONNECTOR_STORE as string,
+    MI_CONNECTOR_STORE_BACKEND: process.env.MI_CONNECTOR_STORE_BACKEND as string,
+    MI_CONNECTOR_STORE_BACKEND_SEARCH: process.env.MI_CONNECTOR_STORE_BACKEND_SEARCH as string,
+    MI_CONNECTOR_STORE_BACKEND_GETBYVERSION: process.env.MI_CONNECTOR_STORE_BACKEND_GETBYVERSION as string,
 }
 
 export const ERROR_MESSAGES = {

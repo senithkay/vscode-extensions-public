@@ -11,15 +11,12 @@
 import React, { useEffect } from "react";
 import {
     VisualizerLocation, GettingStartedSample,
-    GettingStartedCategory, SampleDownloadRequest,
-    EVENT_TYPE, MACHINE_VIEW
-} from "@wso2-enterprise/mi-core";
+    GettingStartedCategory, SampleDownloadRequest} from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { ComponentCard, Dropdown, Codicon, SearchBox } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, Dropdown, SearchBox } from "@wso2-enterprise/ui-toolkit";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { SAMPLE_ICONS_GITHUB_URL } from "../constants";
 import styled from "@emotion/styled";
-import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { View, ViewContent, ViewHeader } from "../components/View";
 
 const SearchWrapper = styled.div`
@@ -89,7 +86,7 @@ export function SamplesView() {
                 setCategories(samples.categories);
                 let urls = [];
                 for (let i = 0; i < samples.categories.length; i++) {
-                    urls.push(SAMPLE_ICONS_GITHUB_URL + samples.categories[i].icon);
+                    urls.push(process.env.MI_SAMPLE_ICONS_GITHUB_URL + samples.categories[i].icon);
                 }
                 setImages(urls);
             });

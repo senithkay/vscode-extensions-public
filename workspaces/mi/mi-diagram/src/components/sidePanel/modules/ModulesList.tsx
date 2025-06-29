@@ -108,7 +108,7 @@ export function Modules(props: ModuleProps) {
             if (value) {
                 try {
                     const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
-                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
+                    const response = await fetch(`${APIS.MI_CONNECTOR_STORE_BACKEND_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
                     setSearchedModules(data);
                 } catch (e) {
