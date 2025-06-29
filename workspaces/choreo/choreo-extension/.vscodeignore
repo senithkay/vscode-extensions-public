@@ -32,3 +32,7 @@ webview-ui/package-lock.json
 webview-ui/node_modules/**
 
 .env
+.env.example
+scripts/**
+*.log
+rush-logs

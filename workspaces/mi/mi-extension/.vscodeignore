@@ -23,3 +23,7 @@ vsix/**
 test-results/**
 .rush/**
 .env
+.env.example
+scripts/**
+*.log
+rush-logs
