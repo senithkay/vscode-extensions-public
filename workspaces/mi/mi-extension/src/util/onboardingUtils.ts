@@ -36,7 +36,7 @@ const config = vscode.workspace.getConfiguration('MI');
 export const miUpdateVersionCheckUrl: string =
     process.env.MI_UPDATE_VERSION_CHECK_URL || config.get<string>('miUpdateVersionCheckUrl') || 'https://mi-distribution.wso2.com/versions.json';
 export const ADOPTIUM_API_BASE_URL: string =
-    process.env.MI_ADOPTIUM_API_BASE_URL ||
+    process.env.ADOPTIUM_API_BASE_URL ||
     config.get<string>('adoptiumApiBaseUrl') ||
     '';
 

@@ -3129,7 +3129,7 @@ ${endpointAttributes}
     async getAIResponse(params: AIUserInput): Promise<string> {
         let result = '';
         try {
-            const response = await axios.post(APIS.MI_COPILOT_BACKEND_URL, {
+            const response = await axios.post(APIS.MI_COPILOT_BACKEND, {
                 chat_history: params.chat_history,
             }, { responseType: 'stream' });
 
