@@ -99,33 +99,8 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "MI Extension",
+      "title": "Micro Integrator",
       "properties": {
-        "MI.rootUrl": {
-          "type": "string",
-          "default": "",
-          "description": "Root URL for Backend Services"
-        },
-        "MI.enhancedRootUrl": {
-          "type": "string",
-          "default": "",
-          "description": "Enhanced Root URL for Backend Services on Synapse Expressions"
-        },
-        "MI.authOrg": {
-          "type": "string",
-          "default": "",
-          "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
-        },
-        "MI.authClientID": {
-          "type": "string",
-          "default": "",
-          "description": "Client ID of the Asgardeo Organization for Auth Services"
-        },
-        "MI.authRedirectURL": {
-          "type": "string",
-          "default": "",
-          "description": "Redirect URL for Auth Service "
-        },
         "MI.debugger.commandPort": {
           "type": "number",
           "default": 9005,
@@ -176,26 +151,6 @@
           "default": false,
           "description": "Don't show server update notification",
           "scope": "resource"
-        },
-        "MI.miCopilotBackendUrl": {
-          "type": "string",
-          "default": "",
-          "description": "MI Copilot backend URL"
-        },
-        "MI.miUpdateVersionCheckUrl": {
-          "type": "string",
-          "default": "",
-          "description": "URL to check for the latest MI versions."
-        },
-        "MI.sampleIconsGithubUrl": {
-          "type": "string",
-          "default": "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/",
-          "description": "GitHub URL for MI sample icons."
-        },
-        "MI.adoptiumApiBaseUrl": {
-          "type": "string",
-          "default": "https://api.adoptium.net/v3/assets/feature_releases",
-          "description": "Base URL for Adoptium API used to download Java."
         }
       }
     },

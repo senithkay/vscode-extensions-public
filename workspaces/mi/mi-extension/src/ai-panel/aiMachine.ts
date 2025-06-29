@@ -209,8 +209,7 @@ async function checkToken(context, event): Promise<UserToken> {
         try {
             const token = await extension.context.secrets.get('MIAIUser');
             if (token) {
-                const config = vscode.workspace.getConfiguration('MI');
-                const MI_COPILOT_BACKEND_V2 = process.env.MI_COPILOT_BACKEND_V2 || config.get('rootUrl') as string;
+                const MI_COPILOT_BACKEND_V2 = process.env.MI_COPILOT_BACKEND_V2 as string;
                 const url = MI_COPILOT_BACKEND_V2 + '/user/usage';
                 const response = await fetch(url, {
                     method: 'GET',
