@@ -10,7 +10,6 @@
 import { FileStructure } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
 import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
@@ -87,7 +86,7 @@ export async function copyMavenWrapper(resourcePath: string, targetPath: string)
 }
 
 /**
- * Executes the Maven Wrapper initialization command (`mvn -N io.takari:maven:wrapper`)
+ * Executes the Maven Wrapper initialization command (`mvn wrapper:wrapper`)
  * in the specified target directory.
  *
  * @param targetPath - The file system path where the Maven Wrapper command should be executed.
@@ -96,18 +95,39 @@ export async function copyMavenWrapper(resourcePath: string, targetPath: string)
  */
 async function runMavenWrapperCommand(targetPath: string): Promise<boolean> {
 	return new Promise((resolve) => {
-		const proc = child_process.spawn("mvn wrapper:wrapper", [], {
-			shell: true,
-			cwd: targetPath
-		});
+		try {
+			const proc = child_process.spawn("mvn wrapper:wrapper", [], {
+				shell: true,
+				cwd: targetPath
+			});
 
-		proc.on("close", (code) => {
-			resolve(code === 0);
-		});
-		proc.on("error", (err) => {
-			console.error("Failed to run mvn wrapper:", err);
+			proc.on("close", (code) => {
+				resolve(code === 0);
+			});
+
+			proc.on("error", (err) => {
+				console.error("Failed to run mvn wrapper:", err);
+				resolve(false);
+			});
+
+			// Set a timeout to prevent hanging
+			const timeout = setTimeout(() => {
+				console.error("Maven wrapper command timed out");
+				try {
+					proc.kill();
+				} catch (e) {
+					console.error("Failed to kill process:", e);
+				}
+				resolve(false);
+			}, 8000);
+
+			proc.on("exit", () => {
+				clearTimeout(timeout);
+			});
+		} catch (error) {
+			console.error("Exception running Maven wrapper command:", error);
 			resolve(false);
-		});
+		}
 	});
 }
 
