@@ -17,7 +17,6 @@ import {
     ThemeColors,
     SidePanelBody,
     CheckBox,
-    ProgressRing,
     Typography,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
@@ -39,10 +38,19 @@ import {
     RecordTypeField,
 } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
-import { formatJSONLikeString, stripHtmlTags, updateFormFieldWithImports } from "./utils";
+import {
+    formatJSONLikeString,
+    stripHtmlTags,
+    updateFormFieldWithImports,
+    isPrioritizedField,
+    hasRequiredParameters,
+    hasOptionalParameters,
+} from "./utils";
+import FormDescription from "./FormDescription";
+import TypeHelperText from "./TypeHelperText";
 
 namespace S {
-    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean; compact?: boolean }>`
+    export const Container = styled(SidePanelBody)<{ nestedForm?: boolean; compact?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: ${({ compact }) => (compact ? "8px" : "20px")};
@@ -61,7 +69,7 @@ namespace S {
         width: 100%;
     `;
 
-    export const CategoryRow = styled.div<{ bottomBorder?: boolean, topBorder?: boolean }>`
+    export const CategoryRow = styled.div<{ bottomBorder?: boolean; topBorder?: boolean }>`
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -360,7 +368,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         isInferredReturnType,
         concertRequired = true,
         concertMessage,
-        formImports
+        formImports,
     } = props;
 
     const {
@@ -500,20 +508,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setActiveFormField(key);
     };
 
-    const handleOnUseDataMapper = () => {
-        const viewField = formFields.find((field) => field.key === "view");
-        if (viewField) {
-            const { fileName, startLine, endLine } = viewField.value as any;
-            openView &&
-                openView(projectPath + "/" + fileName, {
-                    startLine: startLine.line,
-                    startColumn: startLine.offset,
-                    endLine: endLine.line,
-                    endColumn: endLine.offset,
-                });
-        }
-    };
-
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
         const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
@@ -574,9 +568,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
+    const targetTypeField = formFields.find((field) => field.codedata?.kind === "PARAM_FOR_TYPE_INFER");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
-    const prioritizedNodes = ["VARIABLE", "CONFIG_VARIABLE"]
-    const prioritizeVariableField = (variableField || typeField) && !dataMapperField && (prioritizedNodes.includes(selectedNode));
+    const prioritizedNodes = ["VARIABLE", "CONFIG_VARIABLE"]; // these node type form fields will rearrange based on priority
+    const formHasPriorityFields = (variableField || typeField || targetTypeField) && !dataMapperField && (prioritizedNodes.includes(selectedNode));
+    const hasParameters = hasRequiredParameters(formFields, selectedNode) || hasOptionalParameters(formFields);
+    const regularNodes = ["PARAM_FOR_TYPE_INFER"]; // these node type form fields won't rearrange based on priority
+    const isRegularNode = regularNodes.includes(selectedNode);
 
     const contextValue: FormContext = {
         form: {
@@ -660,7 +658,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
         }
     };
 
-    // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
             <S.Container nestedForm={nestedForm} compact={compact} className="side-panel-body">
@@ -687,7 +684,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         )}
                     </S.MarkdownWrapper>
                 )}
-                {prioritizeVariableField && (variableField || typeField) && (
+                <FormDescription formFields={formFields} selectedNode={selectedNode} />
+                {formHasPriorityFields && (variableField || typeField) && (
                     <S.CategoryRow bottomBorder={!compact}>
                         {variableField && (
                             <EditorFactory
@@ -715,72 +713,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         )}
                     </S.CategoryRow>
                 )}
-                <S.CategoryRow bottomBorder={false}>
-                    {formFields
-                        .sort((a, b) => b.groupNo - a.groupNo)
-                        .filter((field) => field.type !== "VIEW")
-                        .map((field) => {
-                            if (
-                                ((field.key === "variable" || field.key === "type") && variableField) ||
-                                field.advanced ||
-                                field.hidden
-                            ) {
-                                return;
-                            }
-                            const updatedField = updateFormFieldWithImports(field, formImports);
-                            return (
-                                <S.Row key={updatedField.key}>
-                                    <EditorFactory
-                                        field={updatedField}
-                                        selectedNode={selectedNode}
-                                        openRecordEditor={
-                                            openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, updatedField))
-                                        }
-                                        openSubPanel={handleOpenSubPanel}
-                                        subPanelView={subPanelView}
-                                        handleOnFieldFocus={handleOnFieldFocus}
-                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(updatedField)}
-                                        visualizableFields={visualizableFields}
-                                        recordTypeFields={recordTypeFields}
-                                        onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
-                                    />
-                                </S.Row>
-                            );
-                        })}
-                    {hasAdvanceFields && (
-                        <S.Row>
-                            Advanced Configurations
-                            <S.ButtonContainer>
-                                {!showAdvancedOptions && (
-                                    <LinkButton
-                                        onClick={handleOnShowAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
-                                    >
-                                        <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                                        Expand
-                                    </LinkButton>
-                                )}
-                                {showAdvancedOptions && (
-                                    <LinkButton
-                                        onClick={handleOnHideAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
-                                    >
-                                        <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                                        Collapsed
-                                    </LinkButton>
-                                )}
-                            </S.ButtonContainer>
-                        </S.Row>
-                    )}
-                    {hasAdvanceFields &&
-                        showAdvancedOptions &&
-                        formFields.map((field) => {
-                            if (field.advanced) {
+                {hasParameters && (
+                    <S.CategoryRow bottomBorder={false}>
+                        {formFields
+                            .sort((a, b) => b.groupNo - a.groupNo)
+                            .filter((field) => field.type !== "VIEW")
+                            .map((field) => {
+                                if (!isRegularNode && (isPrioritizedField(field) || field.advanced || field.hidden)) {
+                                    return;
+                                }
                                 const updatedField = updateFormFieldWithImports(field, formImports);
                                 return (
                                     <S.Row key={updatedField.key}>
                                         <EditorFactory
                                             field={updatedField}
+                                            selectedNode={selectedNode}
                                             openRecordEditor={
                                                 openRecordEditor &&
                                                 ((open: boolean) => handleOpenRecordEditor(open, updatedField))
@@ -788,18 +735,75 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
+                                            autoFocus={firstEditableFieldIndex === formFields.indexOf(updatedField)}
                                             visualizableFields={visualizableFields}
                                             recordTypeFields={recordTypeFields}
                                             onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
                                         />
                                     </S.Row>
                                 );
-                            }
-                        })}
-                </S.CategoryRow>
-
-                {!prioritizeVariableField && (variableField || typeField) && (
-                    <S.CategoryRow topBorder={!compact}>
+                            })}
+                        {hasAdvanceFields && (
+                            <S.Row>
+                                Optional Configurations
+                                <S.ButtonContainer>
+                                    {!showAdvancedOptions && (
+                                        <LinkButton
+                                            onClick={handleOnShowAdvancedOptions}
+                                            sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
+                                        >
+                                            <Codicon
+                                                name={"chevron-down"}
+                                                iconSx={{ fontSize: 12 }}
+                                                sx={{ height: 12 }}
+                                            />
+                                            Expand
+                                        </LinkButton>
+                                    )}
+                                    {showAdvancedOptions && (
+                                        <LinkButton
+                                            onClick={handleOnHideAdvancedOptions}
+                                            sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
+                                        >
+                                            <Codicon
+                                                name={"chevron-up"}
+                                                iconSx={{ fontSize: 12 }}
+                                                sx={{ height: 12 }}
+                                            />
+                                            Collapsed
+                                        </LinkButton>
+                                    )}
+                                </S.ButtonContainer>
+                            </S.Row>
+                        )}
+                        {hasAdvanceFields &&
+                            showAdvancedOptions &&
+                            formFields.map((field) => {
+                                if (field.advanced) {
+                                    const updatedField = updateFormFieldWithImports(field, formImports);
+                                    return (
+                                        <S.Row key={updatedField.key}>
+                                            <EditorFactory
+                                                field={updatedField}
+                                                openRecordEditor={
+                                                    openRecordEditor &&
+                                                    ((open: boolean) => handleOpenRecordEditor(open, updatedField))
+                                                }
+                                                openSubPanel={handleOpenSubPanel}
+                                                subPanelView={subPanelView}
+                                                handleOnFieldFocus={handleOnFieldFocus}
+                                                visualizableFields={visualizableFields}
+                                                recordTypeFields={recordTypeFields}
+                                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
+                                            />
+                                        </S.Row>
+                                    );
+                                }
+                            })}
+                    </S.CategoryRow>
+                )}
+                {!formHasPriorityFields && (variableField || typeField) && (
+                    <S.CategoryRow topBorder={!compact && hasParameters}>
                         {variableField && (
                             <EditorFactory
                                 field={variableField}
@@ -822,6 +826,23 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 recordTypeFields={recordTypeFields}
                                 onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
                             />
+                        )}
+                        {targetTypeField && (
+                            <>
+                                <EditorFactory
+                                    field={targetTypeField}
+                                    handleOnFieldFocus={handleOnFieldFocus}
+                                    visualizableFields={visualizableFields}
+                                    recordTypeFields={recordTypeFields}
+                                    onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
+                                />
+                                {typeField && (
+                                    <TypeHelperText
+                                        targetTypeField={targetTypeField}
+                                        typeField={typeField}
+                                    />
+                                )}
+                            </>
                         )}
                     </S.CategoryRow>
                 )}
