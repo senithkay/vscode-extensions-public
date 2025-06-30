@@ -251,7 +251,7 @@
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/api-designer/api-designer-extension && pnpm run copyVSIXToRoot"
+      // "cd workspaces/api-designer/api-designer-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
