@@ -275,7 +275,7 @@ function getServerOptionsUsingJava(extension: BallerinaExtension): ServerOptions
         }
     }
 
-    const jarName = path.basename(configuredLangServerPath);
+    const jarName = path.basename(configuredLangServerPath || ballerinaLanguageServerJar);
     const versionMatch = jarName.match(/ballerina-language-server-(.+)\.jar$/);
     if (versionMatch) {
         log(`Language Server Version: ${versionMatch[1]}`);

@@ -11,7 +11,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, Tooltip, TreeView, TreeViewItem, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { AddForm } from "../AddConfigurableVariables";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 import { TitleBar } from "../../../../components/TitleBar";
@@ -126,6 +126,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
 
     const { rpcClient } = useRpcContext();
     const [configVariables, setConfigVariables] = useState<ConfigVariablesState>({});
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
     const [searchValue, setSearchValue] = React.useState<string>('');
     const [categoriesWithModules, setCategoriesWithModules] = useState<CategoryWithModules[]>([]);
@@ -282,15 +283,18 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const getConfigVariables = async () => {
 
         let data: ConfigVariablesState = {};
+        let errorMsg: string = '';
 
         await rpcClient
             .getBIDiagramRpcClient()
             .getConfigVariablesV2()
             .then((variables) => {
                 data = (variables as any).configVariables;
+                errorMsg = (variables as any).errorMsg;
             });
 
         setConfigVariables(data);
+        setErrorMessage(errorMsg);
 
         // Only set initial selected module if none is selected
         if (!selectedModule) {
@@ -310,6 +314,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         }
     };
 
+    const updateErrorMessage = (message: string) => {
+        setErrorMessage(message);
+    };
+
     const categoryDisplay = selectedModule?.category === integrationCategory ? 'Integration' : selectedModule?.category;
     const title = selectedModule?.module ? `${categoryDisplay} : ${selectedModule?.module}` : categoryDisplay;
 
@@ -322,9 +330,24 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         <View>
             <TopNavigationBar />
             <TitleBar title="Configurable Variables" subtitle="View and manage configurable variables" actions={
-                <Button appearance="secondary" onClick={handleOpenConfigFile}>
-                    <Icon sx={{ marginRight: 5, paddingTop: '2px' }} name="editIcon" />Edit in config.toml
-                </Button>
+                <div style={{ display: "flex", gap: '12px', alignItems: 'center' }}>
+                    {errorMessage &&
+                        <Tooltip content={errorMessage}>
+                            <Codicon name="error"
+                                sx={{
+                                    marginLeft: 5,
+                                    color: 'var(--vscode-editorError-foreground)'
+                                }}
+                                iconSx={{
+                                    fontSize: '16px'
+                                }}
+                            />
+                        </Tooltip>
+                    }
+                    <Button appearance="secondary" onClick={handleOpenConfigFile}>
+                        <Icon sx={{ marginRight: 5, paddingTop: '2px' }} name="editIcon" />Edit in Config.toml
+                    </Button>
+                </div>
             } />
             {isAddConfigVariableFormOpen && <Overlay data-testid="config-overlay" />}
             <ViewContent padding>
@@ -619,6 +642,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                                     fileName={props.fileName}
                                                                                     onDeleteConfigVariable={handleOnDeleteConfigVariable}
                                                                                     onFormSubmit={handleFormSubmit}
+                                                                                    updateErrorMessage={updateErrorMessage}
                                                                                 />
                                                                             ))
                                                                         ) : (

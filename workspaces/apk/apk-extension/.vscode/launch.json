@@ -16,7 +16,7 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/apk/apk-extension/.env"
 		},
 		{
 			"name": "Extension Tests",

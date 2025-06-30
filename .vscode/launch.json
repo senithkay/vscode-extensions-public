@@ -41,7 +41,7 @@
                 "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
             "preLaunchTask": "watch-all",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/ballerina/ballerina-extension/.env"
         },
         {
             "name": "BI Extension",
@@ -62,7 +62,7 @@
                 "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
             "preLaunchTask": "watch-bi",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/bi/bi-extension/.env"
         },
         {
             "name": "Ballerina Extension",
@@ -83,7 +83,7 @@
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
             "preLaunchTask": "watch-ballerina",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/ballerina/ballerina-extension/.env"
         },
         {
             "name": "Ballerina Extension Tests",
@@ -120,7 +120,7 @@
                 "${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension/dist/**/*.js"
             ],
             "preLaunchTask": "npm: watch-wso2-platform",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension/.env"
         },
         {
             "name": "Choreo Extension",
@@ -139,7 +139,7 @@
                 "${workspaceFolder}/workspaces/choreo/choreo-extension/dist/**/*.js"
             ],
             "preLaunchTask": "npm: watch-choreo",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/choreo/choreo-extension/.env"
         },
         {
             "name": "Debug Ballerina UI Tests",

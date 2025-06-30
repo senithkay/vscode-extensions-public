@@ -24,7 +24,7 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "npm: watch-bi",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/bi/bi-extension/.env"
 		},
 		{
 			"name": "Run Extension",
