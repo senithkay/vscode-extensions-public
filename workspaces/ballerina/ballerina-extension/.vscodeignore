@@ -71,3 +71,7 @@ cypress.json
 config/
 **/*.log
 .env
+.env.example
+scripts/**
+*.log
+rush-logs

@@ -31,14 +31,8 @@ const miDownloadUrls: { [key: string]: string } = {
     '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
 
-// Move MI update version check URL to VS Code config
-const config = vscode.workspace.getConfiguration('MI');
-export const miUpdateVersionCheckUrl: string =
-    process.env.MI_UPDATE_VERSION_CHECK_URL || config.get<string>('miUpdateVersionCheckUrl') || 'https://mi-distribution.wso2.com/versions.json';
-export const ADOPTIUM_API_BASE_URL: string =
-    process.env.MI_ADOPTIUM_API_BASE_URL ||
-    config.get<string>('adoptiumApiBaseUrl') ||
-    '';
+export const miUpdateVersionCheckUrl: string = process.env.MI_UPDATE_VERSION_CHECK_URL as string;
+export const ADOPTIUM_API_BASE_URL: string = process.env.ADOPTIUM_API_BASE_URL as string;
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
 
@@ -1034,7 +1028,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string, isBallerinaIn
             progress.report({ increment: 10, message: "Pull dependencies..." });
             const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
 
-                runCommand(isBallerinaInstalled ? 'bal tool pull mi-module-gen' : `${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
+            runCommand(isBallerinaInstalled ? 'bal tool pull mi-module-gen' : `${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
 
             let isModuleAlreadyInstalled = false, commandFailed = false;
             function onData(data: string) {
@@ -1065,13 +1059,13 @@ async function runBallerinaBuildsWithProgress(projectPath: string, isBallerinaIn
                 commandFailed = false;
                 progress.report({ increment: 40, message: "Generating module..." });
 
-                    if (!ballerinaOutputChannel) {
-                        ballerinaOutputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
-                    }
-                    ballerinaOutputChannel.clear();
-                    runBasicCommand(isBallerinaInstalled ? 'bal mi-module-gen -i .' : `${balHome}${path.sep}bal mi-module-gen -i .`, `${projectPath}`,
-                        onData, onError, onComplete, ballerinaOutputChannel
-                    );
+                if (!ballerinaOutputChannel) {
+                    ballerinaOutputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
+                }
+                ballerinaOutputChannel.clear();
+                runBasicCommand(isBallerinaInstalled ? 'bal mi-module-gen -i .' : `${balHome}${path.sep}bal mi-module-gen -i .`, `${projectPath}`,
+                    onData, onError, onComplete, ballerinaOutputChannel
+                );
 
                 async function onComplete() {
                     try {

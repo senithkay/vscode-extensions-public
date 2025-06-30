@@ -176,6 +176,7 @@ export interface VisualizerLocation {
     type?: string;
     connectorData?: any[];
     previousContext?: any;
+    env?: { [key: string]: string | undefined };
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

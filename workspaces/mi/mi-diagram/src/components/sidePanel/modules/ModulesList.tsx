@@ -7,16 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AutoComplete, Codicon, ProgressRing, TextField, Typography, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ProgressRing, TextField, Typography, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage, sidepanelGoBack } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { ButtonGroup } from '../commons/ButtonGroup';
-import { APIS, ERROR_MESSAGES } from '../../../resources/constants';
-import { OperationsWrapper } from '../mediators/ModuleSuggestions';
 import { DownloadPage } from '../mediators/DownloadPage';
 import { debounce } from 'lodash';
 import styled from '@emotion/styled';
@@ -108,7 +105,7 @@ export function Modules(props: ModuleProps) {
             if (value) {
                 try {
                     const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
-                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
+                    const response = await fetch(`${process.env.MI_CONNECTOR_STORE_BACKEND_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
                     setSearchedModules(data);
                 } catch (e) {

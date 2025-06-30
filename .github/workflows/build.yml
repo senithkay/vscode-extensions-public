@@ -156,8 +156,17 @@ jobs:
           bi: ${{ inputs.bi }}
           mi: ${{ inputs.mi }}
           version: ${{ inputs.version }}
-          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
           token: ${{ secrets.PUBLISH_PAT }}
+          BALLERINA_AUTH_ORG: ${{ secrets.BALLERINA_AUTH_ORG }}
+          BALLERINA_AUTH_CLIENT_ID: ${{ secrets.BALLERINA_AUTH_CLIENT_ID }}
+          MI_AUTH_ORG: ${{ secrets.MI_AUTH_ORG }}
+          MI_AUTH_CLIENT_ID: ${{ secrets.MI_AUTH_CLIENT_ID }}
+          PLATFORM_DEFAULT_GHAPP_CLIENT_ID: ${{ secrets.PLATFORM_DEFAULT_GHAPP_CLIENT_ID }}
+          PLATFORM_DEFAULT_DEVANT_ASGUADEO_CLIENT_ID: ${{ secrets.PLATFORM_DEFAULT_DEVANT_ASGUADEO_CLIENT_ID }}
+          PLATFORM_STAGE_GHAPP_CLIENT_ID: ${{ secrets.PLATFORM_STAGE_GHAPP_CLIENT_ID }}
+          PLATFORM_STAGE_DEVANT_ASGUADEO_CLIENT_ID: ${{ secrets.PLATFORM_STAGE_DEVANT_ASGUADEO_CLIENT_ID }}
+          PLATFORM_DEV_GHAPP_CLIENT_ID: ${{ secrets.PLATFORM_DEV_GHAPP_CLIENT_ID }}
+          PLATFORM_DEV_DEVANT_ASGUADEO_CLIENT_ID: ${{ secrets.PLATFORM_DEV_DEVANT_ASGUADEO_CLIENT_ID }}
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
@@ -176,24 +185,6 @@ jobs:
         run: |
           unzip build.zip
           rm build.zip
-
-      - name: Generate .env for ballerina-extension from .env.example
-        run: |
-          if [ -f workspaces/ballerina/ballerina-extension/.env.example ]; then
-            cp workspaces/ballerina/ballerina-extension/.env.example workspaces/ballerina/ballerina-extension/.env
-          fi
-      
-      - name: Generate .env for mi-extension from .env.example
-        run: |
-          if [ -f workspaces/mi/mi-extension/.env.example ]; then
-            cp workspaces/mi/mi-extension/.env.example workspaces/mi/mi-extension/.env
-          fi
-
-      - name: Generate .env for wso2-platform-extension from .env.example
-        run: |
-          if [ -f workspaces/wso2-platform/wso2-platform-extension/.env.example ]; then
-            cp workspaces/wso2-platform/wso2-platform-extension/.env.example workspaces/wso2-platform/wso2-platform-extension/.env
-          fi
 
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
@@ -442,6 +433,21 @@ jobs:
           node: 22.x
           rush-install: true
 
+      - name: Check for previous test results
+        if: github.run_attempt > 1
+        run: |
+          PREVIOUS_ATTEMPT=$((${{ github.run_attempt }} - 1))
+          echo "PREVIOUS_ATTEMPT=$PREVIOUS_ATTEMPT" >> $GITHUB_ENV
+        
+      - name: Download previous test results
+        id: check-results
+        if: github.run_attempt > 1
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: MI-e2e-test-results-${{ matrix.group }}-${{ env.PREVIOUS_ATTEMPT }}
+          path: workspaces/mi/mi-extension/test-results
+
       - name: install packages
         run: |
           sudo apt-get update
@@ -452,12 +458,21 @@ jobs:
           sudo apt install dbus-x11
           cd workspaces/mi/mi-extension && npx playwright install
           
-      - name: Run Test
+      - name: Run Tests (First Attempt)
+        if: github.run_attempt == 1
         run: |
           export $(dbus-launch)
           export DISPLAY=:98.0
           cd workspaces/mi/mi-extension
           xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" bash -c "ffmpeg -f x11grab -r 30 -s 1920x1080 -i :98.0 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -movflags +faststart -hide_banner -loglevel error record.mp4 & npx playwright test --grep ${{ matrix.group }}"
+
+      - name: Run Failed Tests (Re-run)
+        if: github.run_attempt > 1 && steps.check-results.outcome == 'success'
+        run: |
+          export $(dbus-launch)
+          export DISPLAY=:98.0
+          cd workspaces/mi/mi-extension
+          xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" bash -c "ffmpeg -f x11grab -r 30 -s 1920x1080 -i :98.0 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -movflags +faststart -hide_banner -loglevel error record.mp4 & npx playwright test --grep ${{ matrix.group }} --last-failed"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -466,6 +481,7 @@ jobs:
           name: MI-e2e-test-results-${{ matrix.group }}-${{ github.run_attempt }}
           path: workspaces/mi/mi-extension/test-results/**
           retention-days: 5
+          include-hidden-files: true
           
       - name: Upload recordings
         uses: actions/upload-artifact@v4

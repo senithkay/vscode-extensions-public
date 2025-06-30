@@ -285,7 +285,7 @@ import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_ICON, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_ICON, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { getStateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -3129,7 +3129,7 @@ ${endpointAttributes}
     async getAIResponse(params: AIUserInput): Promise<string> {
         let result = '';
         try {
-            const response = await axios.post(MI_COPILOT_BACKEND_URL, {
+            const response = await axios.post(APIS.MI_COPILOT_BACKEND, {
                 chat_history: params.chat_history,
             }, { responseType: 'stream' });
 
@@ -3898,15 +3898,14 @@ ${endpointAttributes}
     }
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
-        const config = vscode.workspace.getConfiguration('MI');
-        const ROOT_URL = process.env.ROOT_URL || config.get('rootUrl') as string;
-        const ENHANCED_ROOT_URL = process.env.ENHANCED_ROOT_URL || config.get('enhancedRootUrl') as string;
+        const MI_COPILOT_BACKEND_V2 = process.env.MI_COPILOT_BACKEND_V2 as string;
+        const MI_COPILOT_BACKEND_V3 = process.env.MI_COPILOT_BACKEND_V3 as string;
         const RUNTIME_THRESHOLD_VERSION = RUNTIME_VERSION_440;
         const runtimeVersion = await getMIVersionFromPom();
 
         const isVersionThresholdReached = runtimeVersion ? compareVersions(runtimeVersion, RUNTIME_THRESHOLD_VERSION) : -1;
 
-        return isVersionThresholdReached < 0 ? { url: ROOT_URL } : { url: ENHANCED_ROOT_URL };
+        return isVersionThresholdReached < 0 ? { url: MI_COPILOT_BACKEND_V2 } : { url: MI_COPILOT_BACKEND_V3 };
     }
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
@@ -3988,8 +3987,8 @@ ${endpointAttributes}
                 }
                 const runtimeVersion = miVersion ? miVersion : await getMIVersionFromPom();
 
-                const response = await fetch(APIS.CONNECTOR);
-                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+                const response = await fetch(APIS.MI_CONNECTOR_STORE);
+                const connectorStoreResponse = await fetch(APIS.MI_CONNECTOR_STORE_BACKEND.replace('${version}', runtimeVersion ?? ''));
                 const data = await response.json();
                 const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
@@ -4282,7 +4281,6 @@ ${keyValuesXML}`;
     }
 
     async logoutFromMIAccount(): Promise<void> {
-        const config = vscode.workspace.getConfiguration('MI');
         const confirm = await vscode.window.showWarningMessage(
             'Are you sure you want to logout?',
             { modal: true },
@@ -4290,8 +4288,8 @@ ${keyValuesXML}`;
         );
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
-            const clientId = process.env.MI_AUTH_CLIENT_ID || config.get('authClientID') as string;
-            const authOrg = process.env.MI_AUTH_ORG || config.get('authOrg') as string;
+            const clientId = process.env.MI_AUTH_CLIENT_ID as string;
+            const authOrg = process.env.MI_AUTH_ORG as string;
 
             let response = await fetch(`https://api.asgardeo.io/t/${authOrg}/oauth2/revoke`, {
                 method: 'POST',
@@ -4474,9 +4472,8 @@ ${keyValuesXML}`;
             'Accept': 'application/json'
         };
         const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
-        const config = vscode.workspace.getConfiguration('MI');
-        const AUTH_ORG = process.env.MI_AUTH_ORG || config.get('authOrg') as string;
-        const AUTH_CLIENT_ID = process.env.MI_AUTH_CLIENT_ID || config.get('authClientID') as string;
+        const AUTH_ORG = process.env.MI_AUTH_ORG as string;
+        const AUTH_CLIENT_ID = process.env.MI_AUTH_CLIENT_ID as string;
         if (!refresh_token) {
             throw new Error("Refresh token is not available.");
         } else {
@@ -5550,7 +5547,7 @@ ${keyValuesXML}`;
     async fetchConnectors(name, operation: 'add' | 'remove') {
         const runtimeVersion = await getMIVersionFromPom();
 
-        const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+        const connectorStoreResponse = await fetch(APIS.MI_CONNECTOR_STORE_BACKEND.replace('${version}', runtimeVersion ?? ''));
         const connectorStoreData = await connectorStoreResponse.json();
 
         const searchMavenArtifactIdConnector = name.startsWith('mi-connector-') ? name : `mi-connector-${name}`;

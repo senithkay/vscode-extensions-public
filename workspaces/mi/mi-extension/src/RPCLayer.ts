@@ -83,7 +83,23 @@ async function getContext(projectUri: string): Promise<VisualizerLocation> {
             stNode: context.stNode,
             diagnostics: context.diagnostics,
             dataMapperProps: context.dataMapperProps,
-            errors: context.errors
+            errors: context.errors,
+            env: {
+                MI_AUTH_ORG: process.env.MI_AUTH_ORG || '',
+                MI_AUTH_CLIENT_ID: process.env.MI_AUTH_CLIENT_ID || '',
+                MI_COPILOT_BACKEND_V2: process.env.MI_COPILOT_BACKEND_V2 || '',
+                MI_COPILOT_BACKEND_V3: process.env.MI_COPILOT_BACKEND_V3 || '',
+                MI_AUTH_REDIRECT_URL: process.env.MI_AUTH_REDIRECT_URL || '',
+                MI_UPDATE_VERSION_CHECK_URL: process.env.MI_UPDATE_VERSION_CHECK_URL || '',
+                MI_COPILOT_BACKEND: process.env.MI_COPILOT_BACKEND || '',
+                MI_SAMPLE_ICONS_GITHUB_URL: process.env.MI_SAMPLE_ICONS_GITHUB_URL || '',
+                MI_CONNECTOR_STORE: process.env.MI_CONNECTOR_STORE || '',
+                MI_CONNECTOR_STORE_BACKEND: process.env.MI_CONNECTOR_STORE_BACKEND || '',
+                MI_CONNECTOR_STORE_BACKEND_SEARCH: process.env.MI_CONNECTOR_STORE_BACKEND_SEARCH || '',
+                MI_CONNECTOR_STORE_BACKEND_INBOUND_ENDPOINTS: process.env.MI_CONNECTOR_STORE_BACKEND_INBOUND_ENDPOINTS || '',
+                MI_CONNECTOR_STORE_BACKEND_GETBYVERSION: process.env.MI_CONNECTOR_STORE_BACKEND_GETBYVERSION || '',
+                ADOPTIUM_API_BASE_URL: process.env.ADOPTIUM_API_BASE_URL || ''
+            },
         });
     });
 }

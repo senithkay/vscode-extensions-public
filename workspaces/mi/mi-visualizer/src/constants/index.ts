@@ -9,8 +9,6 @@
 
 //add the rpc client to the context
 
-export const SAMPLE_ICONS_GITHUB_URL = "https://mi-connectors.wso2.com/samples/icons/";
-
 export const MI_COPILOT_BACKEND_URL = `/chat/copilot`;
 export const MI_ARTIFACT_GENERATION_BACKEND_URL = `/chat/artifact-generation`;
 export const MI_ARTIFACT_EDIT_BACKEND_URL = `/chat/artifact-editing`;
@@ -116,12 +114,6 @@ export enum InboundEndpointTypes {
     CUSTOM = "CUSTOM",
     RABBITMQ = "rabbit-mq"
 };
-export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}",
-    INBOUND_ENDPOINTS: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=inbound&runtimeVersion=${version}"
-}
 
 export const connectorFailoverIconUrl = "https://mi-connectors.wso2.com/icons/wordpress.gif";
 export const RUNTIME_VERSION_440 = "4.4.0";
