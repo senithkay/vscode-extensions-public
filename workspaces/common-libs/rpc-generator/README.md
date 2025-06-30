@@ -2,13 +2,16 @@
 
 ## Installation
 
-Run below inside the rpc-generator if you are using this first time.
+> **Note:** This package is part of the [wso2-enterprise/vscode-extensions](https://github.com/wso2-enterprise/vscode-extensions) Rush monorepo.  
+> Always use Rush commands for dependency management and builds.
+
+To install dependencies for the first time, run from the monorepo root:
 
 ```bash
-npm install
+rush install
 ```
 
-## How to generate the RPC Layer Code
+## How to Generate the RPC Layer Code
 
 First you have to setup the extension project as follows,
 
