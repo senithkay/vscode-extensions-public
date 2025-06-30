@@ -108,6 +108,7 @@ import {
     UpdateConfigVariableRequest,
     UpdateConfigVariableRequestV2,
     UpdateConfigVariableResponse,
+    UpdateConfigVariableResponseV2,
     UpdateImportsRequest,
     UpdateImportsResponse,
     UpdateRecordConfigRequest,
@@ -120,6 +121,8 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
+    DeleteConfigVariableRequestV2,
+    DeleteConfigVariableResponseV2,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import * as path from 'path';
@@ -603,22 +606,22 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequestV2 = params;
             if (!fs.existsSync(params.configFilePath)) {
                 // Create config.bal if it doesn't exist
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
-            const response = await StateMachine.langClient().updateConfigVariablesV2(req) as BISourceCodeResponse;
+            const response = await StateMachine.langClient().updateConfigVariablesV2(req) as UpdateConfigVariableResponseV2;
             await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
             resolve(response);
         });
     }
 
-    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+    async deleteConfigVariableV2(params: DeleteConfigVariableRequestV2): Promise<DeleteConfigVariableResponseV2> {
         return new Promise(async (resolve) => {
-            const req: UpdateConfigVariableRequestV2 = params;
+            const req: DeleteConfigVariableRequestV2 = params;
             if (!fs.existsSync(params.configFilePath)) {
                 // Create config.bal if it doesn't exist
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");

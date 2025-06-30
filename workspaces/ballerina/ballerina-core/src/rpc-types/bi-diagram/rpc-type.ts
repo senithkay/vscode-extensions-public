@@ -76,7 +76,9 @@ import {
     OpenConfigTomlRequest,
     UpdateConfigVariableRequestV2,
     GetConfigVariableNodeTemplateRequest,
-    BISourceCodeResponse
+    UpdateConfigVariableResponseV2,
+    DeleteConfigVariableRequestV2,
+    DeleteConfigVariableResponseV2
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -122,8 +124,8 @@ export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest,
 export const getConfigVariables: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariables` };
 export const updateConfigVariables: RequestType<UpdateConfigVariableRequest, UpdateConfigVariableResponse> = { method: `${_preFix}/updateConfigVariables` };
 export const getConfigVariablesV2: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariablesV2` };
-export const updateConfigVariablesV2: RequestType<UpdateConfigVariableRequestV2, BISourceCodeResponse> = { method: `${_preFix}/updateConfigVariablesV2` };
-export const deleteConfigVariableV2: RequestType<UpdateConfigVariableRequestV2, BISourceCodeResponse> = { method: `${_preFix}/deleteConfigVariableV2` };
+export const updateConfigVariablesV2: RequestType<UpdateConfigVariableRequestV2, UpdateConfigVariableResponseV2> = { method: `${_preFix}/updateConfigVariablesV2` };
+export const deleteConfigVariableV2: RequestType<DeleteConfigVariableRequestV2, DeleteConfigVariableResponseV2> = { method: `${_preFix}/deleteConfigVariableV2` };
 export const getConfigVariableNodeTemplate: RequestType<GetConfigVariableNodeTemplateRequest, BINodeTemplateResponse> = { method: `${_preFix}/getConfigVariableNodeTemplate` };
 export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };

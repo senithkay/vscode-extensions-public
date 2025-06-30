@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -87,6 +87,7 @@ interface ConfigurableItemProps {
     fileName: string;
     onDeleteConfigVariable?: (index: number) => void;
     onFormSubmit: () => void;
+    updateErrorMessage?: (message: string) => void;
 }
 
 export function ConfigurableItem(props: ConfigurableItemProps) {
@@ -98,13 +99,14 @@ export function ConfigurableItem(props: ConfigurableItemProps) {
         index,
         fileName,
         onDeleteConfigVariable,
-        onFormSubmit
+        onFormSubmit,
+        updateErrorMessage
     } = props;
     const { rpcClient } = useRpcContext();
     const [configVariable, setConfigVariable] = useState<ConfigVariable>(variable);
     const [isEditConfigVariableFormOpen, setEditConfigVariableFormOpen] = useState<boolean>(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         setConfigVariable(variable);
     }, [variable]);
 
@@ -125,12 +127,14 @@ export function ConfigurableItem(props: ConfigurableItemProps) {
             }
         };
 
-        await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
+        const response = await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
             configFilePath: fileName,
             configVariable: newConfigVarNode,
             packageName: packageName,
             moduleName: moduleName,
         });
+
+        updateErrorMessage(response?.errorMsg || '');
 
         // Update the configVariables state with the new value
         setConfigVariable(prevState => {
