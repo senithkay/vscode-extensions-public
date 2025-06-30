@@ -800,6 +800,20 @@ export type UpdateConfigVariableResponseV2 = {
     errorMsg?: any;
 };
 
+export interface DeleteConfigVariableRequestV2 {
+    configFilePath: string;
+    configVariable: FlowNode | FunctionNode;
+    packageName: string;
+    moduleName: string;
+}
+
+export type DeleteConfigVariableResponseV2 = {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: any;
+};
+
 export interface GetConfigVariableNodeTemplateRequest {
     isNew: boolean;
 }
@@ -1534,7 +1548,7 @@ export interface BIInterface extends BaseLangClientInterface {
     updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getConfigVariablesV2: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
     updateConfigVariablesV2: (params: UpdateConfigVariableRequestV2) => Promise<UpdateConfigVariableResponseV2>;
-    deleteConfigVariableV2: (params: UpdateConfigVariableRequestV2) => Promise<UpdateConfigVariableResponseV2>;
+    deleteConfigVariableV2: (params: DeleteConfigVariableRequestV2) => Promise<DeleteConfigVariableResponseV2>;
     getConfigVariableNodeTemplate: (params: GetConfigVariableNodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;

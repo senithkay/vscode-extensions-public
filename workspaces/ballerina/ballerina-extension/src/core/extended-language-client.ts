@@ -211,7 +211,9 @@ import {
     OpenConfigTomlRequest,
     UpdateConfigVariableRequestV2,
     GetConfigVariableNodeTemplateRequest,
-    UpdateConfigVariableResponseV2
+    UpdateConfigVariableResponseV2,
+    DeleteConfigVariableRequestV2,
+    DeleteConfigVariableResponseV2
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug, handlePullModuleProgress } from "../utils";
@@ -873,7 +875,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<UpdateConfigVariableResponseV2>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES_V2, params);
     }
 
-    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
+    async deleteConfigVariableV2(params: DeleteConfigVariableRequestV2): Promise<DeleteConfigVariableResponseV2> {
         return this.sendRequest<UpdateConfigVariableResponseV2>(EXTENDED_APIS.DELETE_CONFIG_VARIABLE_V2, params);
     }
 
