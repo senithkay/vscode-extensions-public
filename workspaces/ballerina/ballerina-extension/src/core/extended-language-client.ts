@@ -876,7 +876,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async deleteConfigVariableV2(params: DeleteConfigVariableRequestV2): Promise<DeleteConfigVariableResponseV2> {
-        return this.sendRequest<UpdateConfigVariableResponseV2>(EXTENDED_APIS.DELETE_CONFIG_VARIABLE_V2, params);
+        return this.sendRequest<DeleteConfigVariableResponseV2>(EXTENDED_APIS.DELETE_CONFIG_VARIABLE_V2, params);
     }
 
     async getConfigVariableNodeTemplate(params: GetConfigVariableNodeTemplateRequest): Promise<BINodeTemplateResponse> {
