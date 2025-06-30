@@ -88,6 +88,7 @@ import {
     UpdateConfigVariableRequest,
     UpdateConfigVariableRequestV2,
     UpdateConfigVariableResponse,
+    UpdateConfigVariableResponseV2,
     UpdateImportsRequest,
     UpdateImportsResponse,
     UpdateRecordConfigRequest,
@@ -251,11 +252,11 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getConfigVariablesV2, HOST_EXTENSION);
     }
     
-    updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+    updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
         return this._messenger.sendRequest(updateConfigVariablesV2, HOST_EXTENSION, params);
     }
 
-    deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+    deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
         return this._messenger.sendRequest(deleteConfigVariableV2, HOST_EXTENSION, params);
     }
 

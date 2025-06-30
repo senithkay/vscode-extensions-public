@@ -108,6 +108,7 @@ import {
     UpdateConfigVariableRequest,
     UpdateConfigVariableRequestV2,
     UpdateConfigVariableResponse,
+    UpdateConfigVariableResponseV2,
     UpdateImportsRequest,
     UpdateImportsResponse,
     UpdateRecordConfigRequest,
@@ -603,14 +604,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequestV2 = params;
             if (!fs.existsSync(params.configFilePath)) {
                 // Create config.bal if it doesn't exist
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
-            const response = await StateMachine.langClient().updateConfigVariablesV2(req) as BISourceCodeResponse;
+            const response = await StateMachine.langClient().updateConfigVariablesV2(req) as UpdateConfigVariableResponseV2;
             await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
             resolve(response);
         });

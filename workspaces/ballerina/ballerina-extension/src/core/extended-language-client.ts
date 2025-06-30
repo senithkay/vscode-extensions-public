@@ -210,7 +210,8 @@ import {
     ArtifactsNotification,
     OpenConfigTomlRequest,
     UpdateConfigVariableRequestV2,
-    GetConfigVariableNodeTemplateRequest
+    GetConfigVariableNodeTemplateRequest,
+    UpdateConfigVariableResponseV2
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug, handlePullModuleProgress } from "../utils";
@@ -868,12 +869,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ConfigVariableResponse>(EXTENDED_APIS.VIEW_CONFIG_VARIABLES_V2, params);
     }
 
-    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
-        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES_V2, params);
+    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
+        return this.sendRequest<UpdateConfigVariableResponseV2>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES_V2, params);
     }
 
-    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
-        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.DELETE_CONFIG_VARIABLE_V2, params);
+    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<UpdateConfigVariableResponseV2> {
+        return this.sendRequest<UpdateConfigVariableResponseV2>(EXTENDED_APIS.DELETE_CONFIG_VARIABLE_V2, params);
     }
 
     async getConfigVariableNodeTemplate(params: GetConfigVariableNodeTemplateRequest): Promise<BINodeTemplateResponse> {

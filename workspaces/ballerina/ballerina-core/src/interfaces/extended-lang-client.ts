@@ -774,6 +774,7 @@ export interface ConfigVariableRequest {
 
 export type ConfigVariableResponse = {
     configVariables: ConfigVariable[];
+    errorMsg?: any;
 }
 
 export interface UpdateConfigVariableRequest {
@@ -791,6 +792,13 @@ export interface UpdateConfigVariableRequestV2 {
     packageName: string;
     moduleName: string;
 }
+
+export type UpdateConfigVariableResponseV2 = {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: any;
+};
 
 export interface GetConfigVariableNodeTemplateRequest {
     isNew: boolean;
@@ -1516,7 +1524,7 @@ export interface BaseLangClientInterface {
 export interface BIInterface extends BaseLangClientInterface {
     getSTByRange: (params: BallerinaSTParams) => Promise<SyntaxTree | NOT_SUPPORTED_TYPE>;
     getFlowModel: (params: BIFlowModelRequest) => Promise<BIFlowModelResponse>;
-    getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
+    getSourceCode: (params: BISourceCodeRequest) => Promise<UpdateConfigVariableResponseV2>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
@@ -1525,8 +1533,8 @@ export interface BIInterface extends BaseLangClientInterface {
     getConfigVariables: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
     updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getConfigVariablesV2: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
-    updateConfigVariablesV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
-    deleteConfigVariableV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
+    updateConfigVariablesV2: (params: UpdateConfigVariableRequestV2) => Promise<UpdateConfigVariableResponseV2>;
+    deleteConfigVariableV2: (params: UpdateConfigVariableRequestV2) => Promise<UpdateConfigVariableResponseV2>;
     getConfigVariableNodeTemplate: (params: GetConfigVariableNodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
