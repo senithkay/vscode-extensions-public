@@ -67,9 +67,6 @@ module.exports = {
       }
     ]
   },
-  optimization: {
-    minimize: false
-  },
   stats: 'normal',
   plugins: [
     new webpack.DefinePlugin(envKeys),
