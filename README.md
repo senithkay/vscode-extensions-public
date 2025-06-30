@@ -105,3 +105,7 @@ Some extensions use additional components licensed separately. For example:
 - The Ballerina extension pack includes [TOML Language Support](https://marketplace.visualstudio.com/items?itemName=be5invis.toml).
 
 Please refer to each extension's documentation for more details on licensing and dependencies.
+
+## Source Organization Document
+
+For organization-wide standards and additional information, see [SOURCE_ORG.md](./SOURCE_ORG.md).
