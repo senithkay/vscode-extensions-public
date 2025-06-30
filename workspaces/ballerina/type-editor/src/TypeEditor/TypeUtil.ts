@@ -13,7 +13,7 @@
  * 
  */
 
-import { Type } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2/ballerina-core';
 
 //@ts-ignore
 export const parseType = (type: string): string | Type => {

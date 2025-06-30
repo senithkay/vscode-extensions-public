@@ -1,27 +1,36 @@
-/*
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContextMenu, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, ComponentCard, ContextMenu, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { getMockServiceXML } from "../../../../utils/template-engine/mustache-templates/TestSuite";
 import path from "path";
-import { MockResourceHeader, MockService, MockServiceResource } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { MockResourceHeader, MockService, MockServiceResource } from "@wso2/mi-syntax-tree/lib/src";
 import { AccordionContainer, verticalIconStyles } from "../TestSuiteForm";
 import styled from "@emotion/styled";
-import { getColorByMethod } from "@wso2-enterprise/service-designer/lib/components/ResourceAccordion/ResourceAccordion";
+import { getColorByMethod } from "@wso2/service-designer/lib/components/ResourceAccordion/ResourceAccordion";
 import { MockResourceEntry, MockResourceForm } from "./MockResourceForm";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup } from "@wso2/mi-diagram";
 
 export interface MockServiceFormProps {
     filePath?: string;

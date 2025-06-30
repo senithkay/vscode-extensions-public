@@ -1,5 +1,5 @@
 {
-    "name": "@wso2-enterprise/type-editor",
+    "name": "@wso2/type-editor",
     "version": "1.0.0",
     "description": "Type Editor for WSO2 Integrator: BI",
     "files": [
@@ -16,14 +16,14 @@
     "dependencies": {
         "react": "18.2.0",
         "react-dom": "18.2.0",
-        "@wso2-enterprise/ballerina-core": "workspace:*",
-        "@wso2-enterprise/syntax-tree": "workspace:*",
-        "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
-        "@wso2-enterprise/ballerina-statement-editor": "workspace:*",
+        "@wso2/ballerina-core": "workspace:*",
+        "@wso2/syntax-tree": "workspace:*",
+        "@wso2/ballerina-rpc-client": "workspace:*",
+        "@wso2/ballerina-statement-editor": "workspace:*",
         "@emotion/react": "~11.14.0",
         "@emotion/styled": "~11.14.0",
         "@emotion/css": "~11.13.5",
-        "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "@wso2/ui-toolkit": "workspace:*",
         "react-intl": "^7.1.11",
         "@headlessui/react": "~1.7.18",
         "@tanstack/react-query": "5.76.1",
@@ -49,7 +49,7 @@
     "license": "UNLICENSED",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+        "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
     },
     "publishConfig": {
         "registry": "https://npm.pkg.github.com/"

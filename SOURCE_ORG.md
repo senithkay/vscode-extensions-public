@@ -75,6 +75,6 @@ Make sure you are using a compatible Node.js version for development and builds.
 
 ## Contact
 
-For questions or support, please open an issue in the [GitHub repository](https://github.com/wso2-enterprise/vscode-extensions) or contact the WSO2 developer team.
+For questions or support, please open an issue in the [GitHub repository](https://github.com/wso2/vscode-extensions) or contact the WSO2 developer team.
 
 ---

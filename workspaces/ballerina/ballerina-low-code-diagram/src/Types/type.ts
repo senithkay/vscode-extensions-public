@@ -1,4 +1,4 @@
-import { VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { VisibleEndpoint } from "@wso2/syntax-tree";
 
 import { StatementViewState } from "../ViewState";
 

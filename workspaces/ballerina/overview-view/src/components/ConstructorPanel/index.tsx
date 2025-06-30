@@ -2,7 +2,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Button, Codicon, Divider, SidePanel, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Divider, SidePanel, Typography } from "@wso2/ui-toolkit";
 
 interface ConstructorPanelProps {
     isPanelOpen: boolean;

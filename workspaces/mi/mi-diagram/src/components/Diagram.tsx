@@ -1,10 +1,19 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -14,7 +23,7 @@ import {
     STNode,
     DiagramService,
     Proxy
-} from "@wso2-enterprise/mi-syntax-tree/lib/src";
+} from "@wso2/mi-syntax-tree/lib/src";
 import { DiagramDimensions, SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
@@ -23,15 +32,15 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { clearSidePanelState, DefaultSidePanelState, SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
-import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
+import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
 import { CANVAS_PADDING, Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
-import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
-import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { APIResource } from "@wso2/mi-syntax-tree/src";
+import { GetBreakpointsResponse } from "@wso2/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import { debounce } from "lodash";
 import { Navigator } from "./Navigator/Navigator";

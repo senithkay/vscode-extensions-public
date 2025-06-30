@@ -1,8 +1,8 @@
 {
-  "name": "@wso2-enterprise/service-designer",
+  "name": "@wso2/service-designer",
   "version": "2.0.0",
   "description": "WSO2 Service Designer",
-  "homepage": "http://wso2-enterprise.github.io/vscode-extensions.git",
+  "homepage": "http://wso2.github.io/vscode-extensions.git",
   "files": [
     "lib"
   ],
@@ -12,7 +12,7 @@
   "scripts": {
     "prebuild": "pnpm run lint",
     "watch": "tsc --pretty --watch",
-    "copy-font": "copyfiles -u 1 node_modules/@wso2-enterprise/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
+    "copy-font": "copyfiles -u 1 node_modules/@wso2/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
     "build": "tsc --pretty && npm run copy-font",
     "storybook": "sb dev --port 6008",
     "build-storybook": "sb build",
@@ -26,9 +26,9 @@
     "@emotion/styled": "^11.10.5",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@vscode/codicons": "0.0.33",
-    "@wso2-enterprise/syntax-tree": "workspace:*",
-    "@wso2-enterprise/ui-toolkit": "workspace:*",
-    "@wso2-enterprise/font-wso2-vscode": "workspace:*"
+    "@wso2/syntax-tree": "workspace:*",
+    "@wso2/ui-toolkit": "workspace:*",
+    "@wso2/font-wso2-vscode": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=17.0.2",
@@ -56,7 +56,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

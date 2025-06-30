@@ -14,11 +14,11 @@
 import React, { ReactNode } from "react";
 
 import { css } from "@emotion/css";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { TreeContainer } from "../commons/Tree/Tree";
-import { Divider, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Divider, Icon } from "@wso2/ui-toolkit";
 
 interface UnsupportedIOProp {
     children: ReactNode

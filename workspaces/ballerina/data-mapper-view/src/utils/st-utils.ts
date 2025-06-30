@@ -1,4 +1,4 @@
-import { LinePosition } from "@wso2-enterprise/ballerina-core";
+import { LinePosition } from "@wso2/ballerina-core";
 import {
     CaptureBindingPattern,
     LetExpression,
@@ -6,14 +6,14 @@ import {
     NodePosition,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import {
     Location,
     LocationLink
 } from "vscode-languageserver-types";
 
 import { FnDefInfo } from "../components/Diagram/utils/fn-definition-store";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 
 export interface FunctionInfo {
     fnDefInfo: FnDefInfo;

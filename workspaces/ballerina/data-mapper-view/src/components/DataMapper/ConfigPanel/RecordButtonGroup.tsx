@@ -1,6 +1,6 @@
 
 import styled from "@emotion/styled";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 import React from "react";
 
 export interface RecordButtonGroupProps {

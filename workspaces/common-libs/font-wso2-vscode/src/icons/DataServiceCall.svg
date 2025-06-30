@@ -1,10 +1,19 @@
 <!--
- ~   Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- ~   
- ~   This software is the property of WSO2 LLC. and its suppliers, if any.
- ~   Dissemination of any information or reproduction of any material contained
- ~   herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- ~   You may not alter or remove any copyright or other notice from copies of this content.
+ ~ Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ ~
+ ~ WSO2 LLC. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied. See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
 -->
 <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4.79977 7.18479C4.80762 7.19752 4.83294 7.22932 4.9045 7.27744C5.03377 7.36436 5.24864 7.45653 5.55404 7.53875C6.15912 7.70166 7.02157 7.8 8.00005 7.8C8.43521 7.8 8.79779 7.77583 9.06384 7.75164C9.19703 7.73953 9.30609 7.72742 9.39025 7.71807C9.39678 7.71735 9.40351 7.71659 9.41039 7.71582C9.4745 7.70863 9.55146 7.7 9.60005 7.7C9.82096 7.7 10 7.87909 10 8.1C10 8.32091 9.82096 8.5 9.60005 8.5C9.60162 8.5 9.59843 8.50033 9.58692 8.50152C9.57068 8.5032 9.5373 8.50666 9.47801 8.51324C9.39347 8.52264 9.27774 8.5355 9.13626 8.54836C8.85231 8.57417 8.46488 8.6 8.00005 8.6C6.97852 8.6 6.04097 8.49834 5.34606 8.31125C5.00146 8.21847 4.69133 8.09814 4.4581 7.94131C4.23276 7.78979 4.00005 7.54708 4.00005 7.2C4.00005 6.97909 4.17913 6.8 4.40005 6.8C4.61587 6.8 4.79177 6.97092 4.79977 7.18479Z" fill="black"/>

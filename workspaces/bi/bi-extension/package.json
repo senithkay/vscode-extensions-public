@@ -158,7 +158,7 @@
         "test": "node ./out/test/runTest.js",
         "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
         "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-        "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
+        "copyFonts": "copyfiles -f ./node_modules/@wso2/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
         "copyVSIX": "copyfiles *.vsix ./vsix",
@@ -168,8 +168,8 @@
         "e2e-test": "pnpm run copy-balerina-ext && pnpm run compile-tests && pnpm exec playwright test"
     },
     "dependencies": {
-        "@wso2-enterprise/ballerina-core": "workspace:*",
-        "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+        "@wso2/ballerina-core": "workspace:*",
+        "@wso2/font-wso2-vscode": "workspace:*",
         "xstate": "^4.38.3"
     },
     "devDependencies": {
@@ -192,6 +192,6 @@
         "webpack-cli": "^6.0.1",
         "webpack-permissions-plugin": "^1.0.9",
         "@playwright/test": "~1.52.0",
-        "@wso2-enterprise/playwright-vscode-tester": "workspace:*"
+        "@wso2/playwright-vscode-tester": "workspace:*"
     }
 }

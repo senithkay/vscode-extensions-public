@@ -1,5 +1,5 @@
 {
-    "name": "@wso2-enterprise/mi-component-diagram",
+    "name": "@wso2/mi-component-diagram",
     "version": "1.0.0",
     "description": "",
     "files": [
@@ -31,7 +31,7 @@
         "@projectstorm/react-diagrams-routing": "^6.7.4",
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.10.5",
-        "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "@wso2/ui-toolkit": "workspace:*",
         "dagre": "~0.8.5",
         "lodash": "~4.17.21"
     },

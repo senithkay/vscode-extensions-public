@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/api-designer-core",
+  "name": "@wso2/api-designer-core",
   "version": "1.0.0",
   "description": "Contains models related to API Designer APIs",
   "main": "lib/index.js",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

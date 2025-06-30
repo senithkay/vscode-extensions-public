@@ -1,4 +1,4 @@
-import { NodePosition, RemoteMethodCallAction, STKindChecker, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RemoteMethodCallAction, STKindChecker, STNode, traversNode, VisibleEndpoint } from "@wso2/syntax-tree";
 
 import { CLIENT_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";

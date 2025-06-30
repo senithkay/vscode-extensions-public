@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/choreo-core",
+  "name": "@wso2/choreo-core",
   "version": "1.0.2",
   "description": "Contains models related to Choreo APIs",
   "main": "lib/index.js",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

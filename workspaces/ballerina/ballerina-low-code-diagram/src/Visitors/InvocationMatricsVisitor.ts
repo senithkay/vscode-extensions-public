@@ -1,4 +1,4 @@
-import { RemoteMethodCallAction, STNode, Visitor } from '@wso2-enterprise/syntax-tree'
+import { RemoteMethodCallAction, STNode, Visitor } from '@wso2/syntax-tree'
 export class InvocationMetricsVisitor implements Visitor {
     public invocations: STNode[] = [];
 

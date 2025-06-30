@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/wso2-platform-vscode-webviews",
+  "name": "@wso2/wso2-platform-vscode-webviews",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -16,8 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.4.0",
-    "@wso2-enterprise/wso2-platform-core": "workspace:*",
-    "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2/wso2-platform-core": "workspace:*",
+    "@wso2/ui-toolkit": "workspace:*",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "vscode-messenger-common": "^0.5.1",

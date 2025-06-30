@@ -1,4 +1,4 @@
-# @wso2-enterprise/syntax-tree-generator
+# @wso2/syntax-tree-generator
 
 ## Getting Started 
 

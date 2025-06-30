@@ -2,7 +2,7 @@
 
 ## Installation
 
-> **Note:** This package is part of the [wso2-enterprise/vscode-extensions](https://github.com/wso2-enterprise/vscode-extensions) Rush monorepo.  
+> **Note:** This package is part of the [wso2/vscode-extensions](https://github.com/wso2/vscode-extensions) Rush monorepo.  
 > Always use Rush commands for dependency management and builds.
 
 To install dependencies for the first time, run from the monorepo root:
