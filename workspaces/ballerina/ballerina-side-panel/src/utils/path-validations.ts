@@ -170,16 +170,30 @@ export function readUnquoted(content: string, pos: number, offset: number) {
     let value = '';
     const initial = content[pos];
 
-    if (!isValidInitial(initial)) {
-        return {
-            value: null as string | null,
-            newPos: pos + 1,
-            error: { position: pos + offset, message: `Invalid initial character: ${initial}` }
-        };
+    if (initial === '\\') {
+        const nextChar = content[pos + 1];
+        if (nextChar === '-' || nextChar === '\'' || nextChar === '\\' || nextChar === '.') {
+            value += initial;
+            value += nextChar;
+            pos += 2;
+        } else {
+            return {
+                value: null,
+                newPos: pos + 1,
+                error: { position: pos + offset, message: 'Backslash is not allowed' }
+            };
+        }
+    } else {
+        if (!isValidInitial(initial)) {
+                return {
+                    value: null as string | null,
+                    newPos: pos + 1,
+                    error: { position: pos + offset, message: `Invalid initial character: ${initial}` }
+                };
+            }
+        value += initial;
+        pos++;
     }
-
-    value += initial;
-    pos++;
 
     while (pos < content.length) {
         const c = content[pos];
@@ -192,7 +206,7 @@ export function readUnquoted(content: string, pos: number, offset: number) {
         const nextChar = content[pos + 1];
 
         if (c === '\\') {
-            if (nextChar === '-' || nextChar === '\\' || nextChar === '.') {
+            if (nextChar === '-' || nextChar === '\'' || nextChar === '\\' || nextChar === '.') {
                 value += c;
                 value += nextChar;
                 pos += 2;
@@ -217,7 +231,7 @@ export function readUnquoted(content: string, pos: number, offset: number) {
 
 function isValidInitial(c: string): boolean {
     // Allow ASCII letters, underscores, and Unicode identifier characters
-    return /^[a-zA-Z_]$/.test(c) || isUnicodeIdentifierChar(c);
+    return /^[a-zA-Z_']$/.test(c) || isUnicodeIdentifierChar(c);
 }
 
 function isValidFollowing(c: string): boolean {
@@ -293,8 +307,8 @@ export function parseBasePath(input: string): ParseResult {
                 position: segment.start,
                 message: `usage of reserved keyword "${segment.value}"`
             });
+            return result;
         }
-        return result;
     }
     return result;
 }
@@ -333,8 +347,8 @@ export function parseResourceActionPath(input: string): ParseResult {
                 position: segment.start,
                 message: `usage of reserved keyword "${segment.value}"`
             });
+            return result;
         }
-        return result;
     }
 
     result.valid = result.errors.length === 0;

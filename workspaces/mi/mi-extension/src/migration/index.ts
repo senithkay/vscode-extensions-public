@@ -20,6 +20,7 @@ export function activateMigrationSupport(context: vscode.ExtensionContext) {
         }
         if (source) {
             importProject({ source, directory: source, open: true });
+            vscode.commands.executeCommand('setContext', 'MI.migrationStatus', 'migrating');
         }
         return;
     });

@@ -7,13 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as path from 'path';
-
-export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
-export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
-export const USER_CHECK_BACKEND_URL = '/user/usage';
-export const DATAMAP_BACKEND_URL = '/data-mapper/map';
-
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
     IMPORT_CAPP: "MI.importCAPP",
@@ -170,9 +163,10 @@ export enum MessageStoreTypes {
 export * from "./swagger";
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=100&offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
+    MI_COPILOT_BACKEND: process.env.MI_COPILOT_BACKEND as string,
+    MI_CONNECTOR_STORE: process.env.MI_CONNECTOR_STORE as string,
+    MI_CONNECTOR_STORE_BACKEND: process.env.MI_CONNECTOR_STORE_BACKEND as string,
+    MI_CONNECTOR_STORE_BACKEND_SEARCH: process.env.MI_CONNECTOR_STORE_BACKEND_SEARCH as string,
 }
 
 export const DM_OPERATORS_FILE_NAME = "dm-utils";

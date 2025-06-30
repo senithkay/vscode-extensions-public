@@ -52,6 +52,7 @@ export function TextAreaEditor(props: TextAreaEditorProps) {
                         <AutoResizeTextArea
                             id={field.key}
                             name={name}
+                            aria-label={field.label}
                             required={!field.optional}
                             placeholder={field.placeholder}
                             readOnly={!field.editable}

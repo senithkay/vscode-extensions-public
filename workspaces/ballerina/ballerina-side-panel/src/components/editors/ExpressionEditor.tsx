@@ -33,6 +33,7 @@ import {
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
+import ReactMarkdown from 'react-markdown';
 
 export type ContextAwareExpressionEditorProps = {
     id?: string;
@@ -158,8 +159,103 @@ export namespace S {
     `;
 
     export const DefaultValue = styled.span`
-        font-family: monospace;
+        color: var(--vscode-textPreformat-foreground);
+        font-family: var(--vscode-editor-font-family);
         font-size: 12px;
+    `;
+
+    export const EditorMdContainer = styled.div`
+        width: 100%;
+        font-size: 13px;
+        font-family: var(--vscode-font-family);
+        color: var(--vscode-list-deemphasizedForeground);
+        border-radius: 4px;
+        margin-bottom: 0;
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 16px 0 8px 0;
+            font-family: var(--vscode-font-family);
+            font-weight: normal;
+            font-size: 13px;
+            color: var(--vscode-list-deemphasizedForeground);
+        }
+
+        p {
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-list-deemphasizedForeground);
+        }
+
+        code {
+            background-color: var(--vscode-textPreformat-background);
+            border-radius: 3px;
+            padding: 2px 4px;
+            color: var(--vscode-textPreformat-foreground);
+            font-family: var(--vscode-editor-font-family);
+            font-size: 12px;
+        }
+
+        pre {
+            background-color: var(--vscode-textPreformat-background);
+            color: var(--vscode-textPreformat-foreground);
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-family: var(--vscode-editor-font-family);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        ul,
+        ol {
+            margin: 8px 0;
+            padding-left: 24px;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        li {
+            margin: 4px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        blockquote {
+            margin: 8px 0;
+            padding-left: 8px;
+            border-left: 4px solid ${ThemeColors.PRIMARY};
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th,
+        td {
+            border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th {
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+        }
     `;
 }
 
@@ -358,38 +454,34 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     ];
 
     const defaultValueText = field.defaultValue ?
-        <div>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></div> : null;
+        <S.DefaultValue>Defaults to {field.defaultValue}</S.DefaultValue> : null;
 
     const documentation = field.documentation
         ? field.documentation.endsWith('.')
             ? field.documentation
             : `${field.documentation}.`
         : '';
-
-    const combinedDescription = (
-        <>
-            {documentation && <span>{documentation} </span>}
-            {defaultValueText}
-        </>
-    );
-
+    
     return (
         <S.Container id={id}>
             {showHeader && (
-                <S.HeaderContainer>
-                    <S.Header>
+                <S.Header>
+                    <S.HeaderContainer>
                         <S.LabelContainer>
                             <S.Label>{field.label}</S.Label>
                             {(required ?? !field.optional) && <RequiredFormInput />}
                         </S.LabelContainer>
-                        <S.Description>{combinedDescription}</S.Description>
+                        {field.valueTypeConstraint && (
+                            <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
+                                {sanitizeType(field.valueTypeConstraint as string)}
+                            </S.Type>
+                        )}
+                    </S.HeaderContainer>
+                        <S.EditorMdContainer>
+                            {documentation && <ReactMarkdown>{documentation}</ReactMarkdown>}
+                            {defaultValueText}
+                        </S.EditorMdContainer>
                     </S.Header>
-                    {field.valueTypeConstraint && (
-                        <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
-                            {sanitizeType(field.valueTypeConstraint as string)}
-                        </S.Type>
-                    )}
-                </S.HeaderContainer>
             )}
             <Controller
                 control={control}
@@ -406,6 +498,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
                             startAdornment={<EditorRibbon onClick={toggleHelperPaneState} />}
+                            ariaLabel={field.label}
                             onChange={async (updatedValue: string, updatedCursorPosition: number) => {
                                 if (updatedValue === value) {
                                     return;

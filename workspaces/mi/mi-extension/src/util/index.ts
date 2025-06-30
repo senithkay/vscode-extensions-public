@@ -10,7 +10,6 @@
 import { FileStructure } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
 import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
@@ -77,16 +76,59 @@ export async function copyMavenWrapper(resourcePath: string, targetPath: string)
 
 	const isMavenInstalled = await isMavenInstalledGlobally();
 	if (isMavenInstalled) {
-		const status = child_process.spawn("mvn -N io.takari:maven:wrapper", [], { shell: true, cwd: targetPath });
-		status.on('close', (code) => {
-			if (code === 0) {
-				return;
-			}
+		const success = await runMavenWrapperCommand(targetPath);
+		if (!success) {
 			copyMavenWrapperFiles();
-		});
+		}
 	} else {
 		copyMavenWrapperFiles();
 	}
+}
+
+/**
+ * Executes the Maven Wrapper initialization command (`mvn wrapper:wrapper`)
+ * in the specified target directory.
+ *
+ * @param targetPath - The file system path where the Maven Wrapper command should be executed.
+ * @returns A promise that resolves to `true` if the command completes successfully (exit code 0),
+ *          or `false` if an error occurs or the command fails.
+ */
+async function runMavenWrapperCommand(targetPath: string): Promise<boolean> {
+	return new Promise((resolve) => {
+		try {
+			const proc = child_process.spawn("mvn wrapper:wrapper", [], {
+				shell: true,
+				cwd: targetPath
+			});
+
+			proc.on("close", (code) => {
+				resolve(code === 0);
+			});
+
+			proc.on("error", (err) => {
+				console.error("Failed to run mvn wrapper:", err);
+				resolve(false);
+			});
+
+			// Set a timeout to prevent hanging
+			const timeout = setTimeout(() => {
+				console.error("Maven wrapper command timed out");
+				try {
+					proc.kill();
+				} catch (e) {
+					console.error("Failed to kill process:", e);
+				}
+				resolve(false);
+			}, 8000);
+
+			proc.on("exit", () => {
+				clearTimeout(timeout);
+			});
+		} catch (error) {
+			console.error("Exception running Maven wrapper command:", error);
+			resolve(false);
+		}
+	});
 }
 
 async function isMavenInstalledGlobally(): Promise<boolean> {
@@ -95,6 +137,22 @@ async function isMavenInstalledGlobally(): Promise<boolean> {
 		proc.on("error", () => resolve(false));
 		proc.on("exit", (code) => resolve(code === 0));
 	});
+}
+
+export function removeMavenWrapper(targetPath: string) {
+	const mavenWrapperDir = path.join(targetPath, '.mvn');
+	const mvnwCmd = path.join(targetPath, 'mvnw.cmd');
+	const mvnw = path.join(targetPath, 'mvnw');
+
+	if (fs.existsSync(mvnwCmd)) {
+		fs.unlinkSync(mvnwCmd);
+	}
+	if (fs.existsSync(mvnw)) {
+		fs.unlinkSync(mvnw);
+	}
+	if (fs.existsSync(mavenWrapperDir)) {
+		fs.rmSync(mavenWrapperDir, { recursive: true, force: true });
+	}
 }
 
 export function createGitignoreFile(targetPath: string): Promise<void> {

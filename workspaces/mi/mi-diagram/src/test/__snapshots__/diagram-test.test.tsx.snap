@@ -30124,33 +30124,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-32"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -32122,33 +32095,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="5,5"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-7"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -35696,33 +35642,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-32"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -67454,33 +67373,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="65"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -67917,33 +67809,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="65"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -72762,33 +72627,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="45"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -73293,33 +73131,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="45"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -79254,33 +79065,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-235"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -80004,33 +79788,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-235"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"
@@ -80132,33 +79889,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-dasharray="0"
                 stroke-width="2"
               />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-235"
-                y="-15"
-              >
-                <div
-                  class="css-104axga"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
               <defs>
                 <marker
                   markerHeight="4"

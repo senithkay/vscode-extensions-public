@@ -2,8 +2,23 @@
 
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
+const dotenv = require('dotenv');
+const webpack = require('webpack');
+
+const envPath = path.resolve(__dirname, '.env');
+const env = dotenv.config({ path: envPath }).parsed;
+
+const mergedEnv = { ...env, ...process.env };
+
+const envKeys = Object.fromEntries(
+  Object.entries(mergedEnv).map(([key, value]) => [
+    `process.env.${key}`,
+    JSON.stringify(value),
+  ])
+);
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -42,8 +57,12 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    minimize: false
+  },
   stats: 'normal',
   plugins: [
+    new webpack.DefinePlugin(envKeys),
     new MergeIntoSingleFile({
       files: {
         [path.join('..', 'resources', 'jslibs', 'webviewCommons.js')]: [

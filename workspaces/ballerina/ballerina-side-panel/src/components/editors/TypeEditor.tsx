@@ -27,6 +27,7 @@ import { S } from "./ExpressionEditor";
 import { sanitizeType } from "./utils";
 import { debounce } from "lodash";
 import styled from "@emotion/styled";
+import ReactMarkdown from "react-markdown";
 
 interface TypeEditorProps {
     field: FormField;
@@ -214,7 +215,9 @@ export function TypeEditor(props: TypeEditorProps) {
                         <S.Label>{field.label}</S.Label>
                         {!field.optional && <RequiredFormInput />}
                     </S.LabelContainer>
-                    <S.Description>{field.documentation}</S.Description>
+                    <S.EditorMdContainer>
+                        {field.documentation && <ReactMarkdown>{field.documentation}</ReactMarkdown>}
+                    </S.EditorMdContainer>
                 </S.Header>
                 {field.valueTypeConstraint && 
                     <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>{sanitizeType(field.valueTypeConstraint as string)}</S.Type>}
@@ -241,6 +244,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={() => getDefaultCompletion(value)}
                             value={value}
+                            ariaLabel={field.label}
                             onChange={async (updatedValue: string, updatedCursorPosition: number) => {
                                 if (updatedValue === value) {
                                     return;

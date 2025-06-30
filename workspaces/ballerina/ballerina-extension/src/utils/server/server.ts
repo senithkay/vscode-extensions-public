@@ -81,15 +81,12 @@ function parseJdkVersion(versionString: string): { parsedVersion: number[], buil
 function extractJdkInfo(fileName: string, directory: string): JdkInfo | null {
     const jdkPattern = /^jdk-(.+)-jre$/;
     const match = fileName.match(jdkPattern);
-    
     if (!match) {
         return null;
     }
     
     const versionString = match[1];
     const { parsedVersion, buildNumber } = parseJdkVersion(versionString);
-    
-    debug(`Found JDK: ${fileName} with version: ${versionString}`);
     
     return {
         name: fileName,
@@ -217,7 +214,7 @@ function getServerOptionsUsingJava(extension: BallerinaExtension): ServerOptions
         debugOpts = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${debugPort}`;
     }
 
-    const ballerinaHome = extension?.getBallerinaHome();
+    const ballerinaHome = isWindows() ? fs.realpathSync.native(extension?.getBallerinaHome()) : extension?.getBallerinaHome();
     // Get the base ballerina home by removing the distribution part
     const baseHome = ballerinaHome.includes('distributions') 
         ? ballerinaHome.substring(0, ballerinaHome.indexOf('distributions'))
@@ -278,6 +275,14 @@ function getServerOptionsUsingJava(extension: BallerinaExtension): ServerOptions
         }
     }
 
+    const jarName = path.basename(configuredLangServerPath);
+    const versionMatch = jarName.match(/ballerina-language-server-(.+)\.jar$/);
+    if (versionMatch) {
+        log(`Language Server Version: ${versionMatch[1]}`);
+    } else {
+        debug(`Language Server JAR: ${jarName}`);
+    }
+
     const customPaths = [...ballerinaJarPaths, ballerinaLanguageServerJar];
     if (process.env.LS_CUSTOM_CLASSPATH) {
         debug(`LS_CUSTOM_CLASSPATH: ${process.env.LS_CUSTOM_CLASSPATH}`);
@@ -293,6 +298,11 @@ function getServerOptionsUsingJava(extension: BallerinaExtension): ServerOptions
     if (!jdkDir) {
         debug(`No JDK found in dependencies directory: ${dependenciesDir}`);
         throw new Error(`JDK not found in ${dependenciesDir}`);
+    }
+
+    const jdkVersionMatch = jdkDir.match(/jdk-(.+)-jre/);
+    if (jdkVersionMatch) {
+        log(`JDK Version: ${jdkVersionMatch[1]}`);
     }
     
     const javaExecutable = isWindows() ? 'java.exe' : 'java';

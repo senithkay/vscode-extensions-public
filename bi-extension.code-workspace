@@ -22,9 +22,6 @@
 			"path": "workspaces/ballerina/ballerina-side-panel"
 		},
 		{
-			"path": "workspaces/ballerina/ballerina-service-designer"
-		},
-		{
 			"path": "workspaces/common-libs/service-designer"
 		},
 		{

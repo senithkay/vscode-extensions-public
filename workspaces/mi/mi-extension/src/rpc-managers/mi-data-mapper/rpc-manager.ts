@@ -44,7 +44,7 @@ import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { DMProject } from "../../datamapper/DMProject";
-import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL, RUNTIME_VERSION_440 } from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, READONLY_MAPPING_FUNCTION_NAME, RUNTIME_VERSION_440 } from "../../constants";
 import { refreshAuthCode } from '../../ai-panel/auth';
 import { fetchBackendUrl, openSignInView, readTSFile, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "../../util/ai-datamapper-utils";
 import { compareVersions } from "../../util/onboardingUtils";
@@ -226,7 +226,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (!token) {
                 throw new Error('Token not available');
             }
-            const url = await fetchBackendUrl(this.projectUri) + USER_CHECK_BACKEND_URL;
+            const url = await fetchBackendUrl(this.projectUri) + '/user/usage';
             let response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -319,7 +319,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             // Function to read the TypeScript file
             let tsContent = await readTSFile(this.projectUri);
             const backendRootUri = await fetchBackendUrl(this.projectUri);
-            const url = backendRootUri + DATAMAP_BACKEND_URL;
+            const url = backendRootUri + '/data-mapper/map';
             let token;
             try {
                 // Get the user token from the secrets

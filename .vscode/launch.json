@@ -40,7 +40,8 @@
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js",
                 "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
-            "preLaunchTask": "watch-all"
+            "preLaunchTask": "watch-all",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
         {
             "name": "BI Extension",
@@ -60,7 +61,8 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
-            "preLaunchTask": "watch-bi"
+            "preLaunchTask": "watch-bi",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
         {
             "name": "Ballerina Extension",
@@ -80,7 +82,8 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "watch-ballerina"
+            "preLaunchTask": "watch-ballerina",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
         {
             "name": "Ballerina Extension Tests",
@@ -116,7 +119,8 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-wso2-platform"
+            "preLaunchTask": "npm: watch-wso2-platform",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
         {
             "name": "Choreo Extension",
@@ -134,7 +138,8 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/choreo/choreo-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-choreo"
+            "preLaunchTask": "npm: watch-choreo",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
         {
             "name": "Debug Ballerina UI Tests",
@@ -213,7 +218,8 @@
             "skipFiles": [
                 "**/node_modules/**"
             ],
-            "preLaunchTask": "npm: watch-mi"
+            "preLaunchTask": "npm: watch-mi",
+            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
         },
         {
             "name": "MI Extension Tests",
@@ -229,22 +235,6 @@
             "preLaunchTask": "watch-mi-tests"
         },
         {
-            "name": "APIChat Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "env": {
-                "WEB_VIEW_DEV_MODE": "false",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js"
-            },
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/api-chat/extension"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/workspaces/api-chat/extension/dist/**/*.js"
-            ],
-            "preLaunchTask": "npm: watch-api-chat"
-        },
-        {
             "name": "APK Extension",
             "type": "extensionHost",
             "request": "launch",
@@ -255,26 +245,6 @@
                 "${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
             ],
             "preLaunchTask": "npm: watch-apk"
-        },
-        {
-            "name": "FHIR Tools Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension"
-            ],
-            "env": {
-                "LS_EXTENSIONS_PATH": "",
-                "LSDEBUG": "false",
-                "WEB_VIEW_DEV_MODE": "false",
-                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
-                "BALLERINA_STAGE_CENTRAL": "false"
-            },
-            "outFiles": [
-                "${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension/out/**/*.js"
-            ],
-            "preLaunchTask": "npm: watch-fhir-tools"
         },
     ]
 }

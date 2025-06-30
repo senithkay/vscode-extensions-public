@@ -1,8 +1,0 @@
-{
-    "extends": "../../../rush-config.json",
-    "operationSettings": [
-        {
-            "operationName": "build"
-        }
-    ]
-}

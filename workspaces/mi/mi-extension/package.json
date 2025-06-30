@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.3.1",
+  "version": "2.3.3",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.100.0"
@@ -97,90 +97,63 @@
         ]
       }
     ],
-    "configuration": [
-      {
-        "type": "object",
-        "title": "Micro Integrator",
-        "properties": {
-          "MI.rootUrl": {
-            "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0",
-            "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0"
-          },
-          "MI.enhancedRootUrl": {
-            "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v3",
-            "description": "Enhanced Root URL for Backend Services on Synapse Expressions\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v3"
-          },
-          "MI.authOrg": {
-            "type": "string",
-            "default": "wso2mi",
-            "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
-          },
-          "MI.authClientID": {
-            "type": "string",
-            "default": "rTEgoRFEQMc1baXcsO6_AU1ugjAa",
-            "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: rTEgoRFEQMc1baXcsO6_AU1ugjAa"
-          },
-          "MI.authRedirectURL": {
-            "type": "string",
-            "default": "https://mi-copilot.wso2.com/vscode-auth",
-            "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"
-          },
-          "MI.debugger.commandPort": {
-            "type": "number",
-            "default": 9005,
-            "description": "Command port for the debugger to communicate with the MI server"
-          },
-          "MI.debugger.eventPort": {
-            "type": "number",
-            "default": 9006,
-            "description": "Event port for the MI server to communicate with the debugger"
-          },
-          "MI.serverPort": {
-            "type": "number",
-            "default": 8290,
-            "description": "Port to check the readiness of the MI server"
-          },
-          "MI.SERVER_PATH": {
-            "type": "string",
-            "default": "",
-            "description": "Location to store MI archives, considering the user's home directory",
-            "scope": "resource"
-          },
-          "MI.JAVA_HOME": {
-            "type": "string",
-            "default": "",
-            "description": "Java Home path",
-            "scope": "resource"
-          },
-          "MI.LEGACY_EXPRESSION_ENABLED": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable legacy expression support",
-            "scope": "resource"
-          },
-          "MI.REMOTE_DEPLOYMENT_ENABLED": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable remote server deployment support",
-            "scope": "resource"
-          },
-          "MI.Scope": {
-            "type": "string",
-            "default": "",
-            "description": "Devant project scope",
-            "scope": "resource"
-          },
-          "MI.suppressServerUpdateNotification": {
-            "type": "boolean",
-            "default": false,
-            "description": "Don't show server update notification",
-            "scope": "resource"
-          }
+    "configuration": {
+      "type": "object",
+      "title": "Micro Integrator",
+      "properties": {
+        "MI.debugger.commandPort": {
+          "type": "number",
+          "default": 9005,
+          "description": "Command port for the debugger to communicate with the MI server"
+        },
+        "MI.debugger.eventPort": {
+          "type": "number",
+          "default": 9006,
+          "description": "Event port for the MI server to communicate with the debugger"
+        },
+        "MI.serverPort": {
+          "type": "number",
+          "default": 8290,
+          "description": "Port to check the readiness of the MI server"
+        },
+        "MI.SERVER_PATH": {
+          "type": "string",
+          "default": "",
+          "description": "Location to store MI archives, considering the user's home directory",
+          "scope": "resource"
+        },
+        "MI.JAVA_HOME": {
+          "type": "string",
+          "default": "",
+          "description": "Java Home path",
+          "scope": "resource"
+        },
+        "MI.LEGACY_EXPRESSION_ENABLED": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable legacy expression support",
+          "scope": "resource"
+        },
+        "MI.REMOTE_DEPLOYMENT_ENABLED": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable remote server deployment support",
+          "scope": "resource"
+        },
+        "MI.Scope": {
+          "type": "string",
+          "default": "",
+          "description": "Devant project scope",
+          "scope": "resource"
+        },
+        "MI.suppressServerUpdateNotification": {
+          "type": "boolean",
+          "default": false,
+          "description": "Don't show server update notification",
+          "scope": "resource"
         }
       }
-    ],
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -228,7 +201,12 @@
       {
         "view": "MI.project-explorer",
         "contents": "This project appears to have been created with Integration Studio. Please note that the VS Code extension offers limited support for these projects. To enhance compatibility, consider migrating your project using the provided migration tool.\n[Migrate Project](command:MI.migrateProject)",
-        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject' && workspaceFolderCount == 1"
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject' && MI.migrationStatus != 'migrating' && workspaceFolderCount == 1"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Migrating project... Please wait.",
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject' && MI.migrationStatus == 'migrating' && workspaceFolderCount == 1"
       },
       {
         "view": "MI.project-explorer",
@@ -944,8 +922,8 @@
     "mocha": "^11.4.0",
     "typescript": "5.8.3",
     "ts-loader": "^9.5.2",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^4.10.0",
     "@vscode/test-electron": "^2.5.2",
     "rimraf": "~6.0.1",
     "@wso2-enterprise/mi-visualizer": "workspace:*",
@@ -1007,6 +985,7 @@
     "adm-zip": "~0.5.16",
     "@wso2-enterprise/mi-diagram": "workspace:*",
     "upath": "~2.0.1",
-    "find-process": "~1.4.10"
+    "find-process": "~1.4.10",
+    "dotenv": "~16.5.0"
   }
 }

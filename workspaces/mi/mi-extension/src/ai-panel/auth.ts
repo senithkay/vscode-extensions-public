@@ -13,7 +13,6 @@ import { AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
-import { USER_CHECK_BACKEND_URL } from '../constants';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 
 export interface AccessToken {
@@ -29,9 +28,9 @@ const CommonReqHeaders = {
 };
 
 const config = vscode.workspace.getConfiguration('MI');
-const AUTH_ORG = config.get('authOrg') as string;
-const AUTH_CLIENT_ID = config.get('authClientID') as string;
-const AUTH_REDIRECT_URL = config.get('authRedirectURL') as string;
+const AUTH_ORG = process.env.MI_AUTH_ORG || config.get('authOrg') as string;
+const AUTH_CLIENT_ID = process.env.MI_AUTH_CLIENT_ID || config.get('authClientID') as string;
+const MI_AUTH_REDIRECT_URL = process.env.MI_AUTH_REDIRECT_URL || config.get('authRedirectURL') as string;
 
 export async function getAuthUrl(callbackUri: string): Promise<string> {
 
@@ -39,7 +38,7 @@ export async function getAuthUrl(callbackUri: string): Promise<string> {
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
 
     const state = encodeURIComponent(btoa(JSON.stringify({ callbackUri: 'vscode://wso2.micro-integrator/signin' })));
-    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=${AUTH_REDIRECT_URL}&client_id=${AUTH_CLIENT_ID}&scope=openid%20email&state=${state}`;
+    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=${MI_AUTH_REDIRECT_URL}&client_id=${AUTH_CLIENT_ID}&scope=openid%20email&state=${state}`;
 }
 
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
@@ -48,7 +47,7 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
         code: authCode,
         grant_type: 'authorization_code',
         // redirect_uri: 'vscode://wso2.micro-integrator/signin',
-        redirect_uri: AUTH_REDIRECT_URL,
+        redirect_uri: MI_AUTH_REDIRECT_URL,
         scope: 'openid email'
     });
     try {
@@ -82,7 +81,7 @@ export async function exchangeAuthCode(authCode: string) {
             // TODO: This is a temporary fix to get the backend root url. Once multiple workspace support is added, this should be removed.
             const rpcManager = new MiDiagramRpcManager(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "");
             const backendRootUrlResponse = await rpcManager.getBackendRootUrl();
-            const url = backendRootUrlResponse.url + USER_CHECK_BACKEND_URL;
+            const url = backendRootUrlResponse.url + '/user/usage';
             
             const fetch_response = await fetch(url, {
                 method: 'GET',

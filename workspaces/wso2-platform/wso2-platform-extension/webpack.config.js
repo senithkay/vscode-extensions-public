@@ -9,9 +9,23 @@
 
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
-
+const fs = require('fs');
 const CopyPlugin = require("copy-webpack-plugin");
 const PermissionsOutputPlugin = require("webpack-permissions-plugin");
+const webpack = require('webpack');
+const dotenv = require('dotenv');
+
+const envPath = path.resolve(__dirname, '.env');
+const env = dotenv.config({ path: envPath }).parsed;
+
+const mergedEnv = { ...env, ...process.env };
+
+const envKeys = Object.fromEntries(
+  Object.entries(mergedEnv).map(([key, value]) => [
+    `process.env.${key}`,
+    JSON.stringify(value),
+  ])
+);
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -79,6 +93,7 @@ const extensionConfig = {
 		],
 	},
 	plugins: [
+		new webpack.DefinePlugin(envKeys),
 		new CopyPlugin({
 			patterns: [{ from: "src/git/*.sh", to: "[name][ext]" }],
 		}),

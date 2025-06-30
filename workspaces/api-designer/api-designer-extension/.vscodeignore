@@ -19,3 +19,8 @@ playwright-report
 mappings
 config
 .config.js
+.env
+.env.example
+scripts/**
+*.log
+rush-logs

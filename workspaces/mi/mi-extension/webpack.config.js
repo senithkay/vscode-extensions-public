@@ -11,13 +11,25 @@
 
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+const webpack = require('webpack');
 
-//@ts-check
-/** @typedef {import('webpack').Configuration} WebpackConfig **/
+const envPath = path.resolve(__dirname, '.env');
+const env = dotenv.config({ path: envPath }).parsed;
 
-/** @type WebpackConfig */
-const extensionConfig = {
+const mergedEnv = { ...env, ...process.env };
+
+const envKeys = Object.fromEntries(
+  Object.entries(mergedEnv).map(([key, value]) => [
+    `process.env.${key}`,
+    JSON.stringify(value),
+  ])
+);
+
+/** @type {import('webpack').Configuration} */
+module.exports = {
   target: 'node',
 	mode: 'none',
 
@@ -47,9 +59,11 @@ const extensionConfig = {
       }
     ]
   },
+  plugins: [
+      new webpack.DefinePlugin(envKeys),
+  ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
     level: "log",
   },
 };
-module.exports = [ extensionConfig ];

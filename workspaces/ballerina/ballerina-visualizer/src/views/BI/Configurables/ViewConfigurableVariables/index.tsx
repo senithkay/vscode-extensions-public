@@ -11,14 +11,11 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
-import { EditForm } from "../EditConfigurableVariables";
+import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { AddForm } from "../AddConfigurableVariables";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 import { TitleBar } from "../../../../components/TitleBar";
-import ReactMarkdown from "react-markdown";
-import remarkBreaks from "remark-breaks";
+import ConfigurableItem from "../ConfigurableItem";
 
 const Container = styled.div`
     width: 100%;
@@ -74,17 +71,6 @@ const TitleContent = styled.div`
     justify-content: space-between;
 `;
 
-const ConfigurableItem = styled.div`
-    padding: 12px 14px 18px;
-    &:hover {
-        background-color: var(--vscode-settings-rowHoverBackground);
-        
-        .action-button-container {
-            display: block !important;
-        }
-    }
-`;
-
 const SearchContainer = styled.div`
     display: flex;
     align-items: center;
@@ -134,16 +120,13 @@ const Overlay = styled.div`
     height: 100vh;
     background: var(--vscode-settings-rowHoverBackground);
     z-index: 1000;
-    pointer-events: all;
 `;
 
 export function ViewConfigurableVariables(props?: ConfigProps) {
 
     const { rpcClient } = useRpcContext();
     const [configVariables, setConfigVariables] = useState<ConfigVariablesState>({});
-    const [isEditConfigVariableFormOpen, setEditConfigVariableFormOpen] = useState<boolean>(false);
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
-    const [configIndex, setConfigIndex] = useState<number>(null);
     const [searchValue, setSearchValue] = React.useState<string>('');
     const [categoriesWithModules, setCategoriesWithModules] = useState<CategoryWithModules[]>([]);
     const [selectedModule, setSelectedModule] = useState<PackageModuleState>(null);
@@ -245,8 +228,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     }
 
     const handleModuleSelect = (category: string, module: string) => {
-        setAddConfigVariableFormOpen(false);
-        setEditConfigVariableFormOpen(false);
         setSelectedModule({ category, module });
     };
 
@@ -256,74 +237,16 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             .OpenConfigTomlRequest({ filePath: props.fileName });
     }
 
-    const handleEditConfigVariableFormOpen = (index: number) => {
-        setConfigIndex(index);
-        setEditConfigVariableFormOpen(true);
-    };
-
     const handleAddConfigVariableFormOpen = () => {
         setAddConfigVariableFormOpen(true);
     };
 
     const handleFormClose = () => {
         setAddConfigVariableFormOpen(false);
-        setEditConfigVariableFormOpen(false);
     };
 
     const handleFormSubmit = async () => {
         getConfigVariables();
-    }
-
-    const handleUpdateConfigValue = async (newValue: any, prevNode: ConfigVariable) => {
-        const newConfigVarNode: ConfigVariable = {
-            ...prevNode,
-            properties: {
-                ...prevNode.properties,
-                configValue: {
-                    ...prevNode.properties.configValue,
-                    value: newValue.target.value,
-                    modified: true
-                }
-            }
-        };
-
-        await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
-            configFilePath: props.fileName,
-            configVariable: newConfigVarNode,
-            packageName: selectedModule.category,
-            moduleName: selectedModule.module,
-        });
-
-        const configVarName = newConfigVarNode.properties.variable.value;
-
-        // Update the configVariables state with the new value
-        setConfigVariables(prevState => {
-            if (!prevState[selectedModule.category] || !prevState[selectedModule.category][selectedModule.module]) {
-                return prevState;
-            }
-            const updatedVariables = prevState[selectedModule.category][selectedModule.module].map(variable => {
-                if (variable.properties.variable.value === configVarName) {
-                    return {
-                        ...variable,
-                        properties: {
-                            ...variable.properties,
-                            configValue: {
-                                ...variable.properties.configValue,
-                                value: newValue.target.value
-                            }
-                        }
-                    };
-                }
-                return variable;
-            });
-            return {
-                ...prevState,
-                [selectedModule.category]: {
-                    ...prevState[selectedModule.category],
-                    [selectedModule.module]: updatedVariables
-                }
-            };
-        });
     }
 
     const handleOnDeleteConfigVariable = async (index: number) => {
@@ -390,225 +313,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const categoryDisplay = selectedModule?.category === integrationCategory ? 'Integration' : selectedModule?.category;
     const title = selectedModule?.module ? `${categoryDisplay} : ${selectedModule?.module}` : categoryDisplay;
 
-    const ConfigurablesList = () => {
-        let renderVariables: ConfigVariablesState = configVariables;
-        if (searchValue) {
-            renderVariables = getFilteredConfigVariables();
-        }
-
-        if (!renderVariables) {
-            return <ErrorBanner errorMsg={"Error fetching config variables"} />;
-        }
-
-        if (searchValue && filteredCategoriesWithModules.length === 0) {
-            return (<EmptyReadmeContainer>
-                <Icon name="searchIcon" sx={{ fontSize: '3em', color: 'var(--vscode-descriptionForeground)', marginBottom: '10px' }} />
-                <Description variant="body2">
-                    No configurable variables found matching "{searchValue}" in any module
-                </Description>
-                <Button appearance="secondary" onClick={() => setSearchValue('')}>
-                    Clear Search
-                </Button>
-            </EmptyReadmeContainer>
-            )
-        }
-
-        return (
-            <>
-                <div id="TitleDiv" style={{ position: "sticky", top: 0, color: "var(--vscode-editor-foreground)", backgroundColor: "var(--vscode-editor-background)" }}>
-                    <TitleContent>
-                        <Typography variant="h2" sx={{ padding: "0px 0 0 20px", margin: "10px 0px", color: "var(--vscode-foreground)" }}>
-                            {title}
-                        </Typography>
-                        {/* Only show Add Config button at the top when the module has configurations */}
-                        {selectedModule &&
-                            renderVariables[selectedModule?.category]?.[selectedModule?.module]?.length > 0 &&
-                            selectedModule.category === integrationCategory && (
-                                <Button
-                                    sx={{ display: 'flex', justifySelf: 'flex-end' }}
-                                    appearance="primary"
-                                    onClick={handleAddConfigVariableFormOpen}
-                                >
-                                    <Codicon name="add" sx={{ marginRight: 5 }} />Add Config
-                                </Button>
-                            )}
-                    </TitleContent>
-                    <TitleBoxShadow />
-                </div>
-                <Container>
-                    {selectedModule && (
-                        <>
-                            {/* Check if the selected module exists in the variables */}
-                            {renderVariables[selectedModule?.category] &&
-                                renderVariables[selectedModule?.category][selectedModule?.module] && (
-                                    <div key={`${selectedModule?.category}-${selectedModule?.module}`}>
-                                        {renderVariables[selectedModule?.category][selectedModule?.module].length > 0 ? (
-                                            /* Variables under this selected module */
-                                            renderVariables[selectedModule?.category][selectedModule?.module].map((variable, index) => (
-                                                <ConfigurableItem>
-                                                    <ConfigNameTitle>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                            {
-                                                                typeof variable?.properties?.variable?.value === 'string' ?
-                                                                    variable?.properties?.variable?.value : ''
-                                                            }:
-                                                            <span
-                                                                style={{
-                                                                    paddingLeft: '5px',
-                                                                    fontWeight: 500,
-                                                                    color: 'var(--vscode-foreground)'
-                                                                }}>
-                                                                {String(variable?.properties?.type?.value)}
-                                                            </span>
-                                                            {variable?.properties?.defaultValue?.value && <span
-                                                                className="default-value-container"
-                                                                style={{
-                                                                    paddingLeft: '5px',
-                                                                    fontWeight: 200,
-                                                                    fontSize: '12px',
-                                                                    fontStyle: 'italic'
-                                                                }}>
-                                                                {variable?.properties?.defaultValue?.value &&
-                                                                    ` (Defaults to: ${String(variable?.properties?.defaultValue?.value)})`}
-                                                            </span>}
-                                                            {(!variable?.properties?.defaultValue?.value &&
-                                                                !variable?.properties?.configValue?.value) && (
-                                                                    // Warning icon if no value is configured
-                                                                    <ButtonWrapper>
-                                                                        <Button
-                                                                            appearance="icon"
-                                                                            buttonSx={{
-                                                                                background: "transparent"
-                                                                            }}
-                                                                        >
-                                                                            <Codicon
-                                                                                name="warning"
-                                                                                sx={{
-                                                                                    paddingTop: '2px',
-                                                                                    color: 'var(--vscode-editorWarning-foreground)'
-                                                                                }}
-                                                                                iconSx={{ font: "normal normal normal 13px/1 codicon" }}
-                                                                            />
-                                                                        </Button>
-                                                                        <span style={{
-                                                                            color: 'var(--vscode-editorWarning-foreground)',
-                                                                            fontSize: '12px',
-                                                                            whiteSpace: 'nowrap',
-                                                                            fontWeight: 400
-                                                                        }}>
-                                                                            Required
-                                                                        </span>
-                                                                    </ButtonWrapper>
-                                                                )}
-                                                        </div>
-                                                        {selectedModule.category === integrationCategory && (
-                                                            <div className="action-button-container" style={{ display: 'none' }}>
-                                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                                    <div className="edit-icon-container">
-                                                                        <Button
-                                                                            appearance="icon"
-                                                                            onClick={() => handleEditConfigVariableFormOpen(index)}
-                                                                            tooltip="Edit Configurable Variable"
-                                                                        >
-                                                                            <Codicon name="edit" />
-                                                                        </Button>
-                                                                    </div>
-                                                                    <div className="delete-button-container">
-                                                                        <Button
-                                                                            appearance="icon"
-                                                                            onClick={() => handleOnDeleteConfigVariable(index)}
-                                                                            tooltip="Delete Configurable Variable"
-                                                                        >
-                                                                            <Codicon name="trash" />
-                                                                        </Button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </ConfigNameTitle>
-                                                    {variable?.properties?.documentation?.value &&
-                                                        <div
-                                                            style={{
-                                                                fontSize: '13px',
-                                                                marginBottom: '10px',
-                                                                color: 'var(--vscode-descriptionForeground)'
-                                                            }}
-                                                        >
-                                                            <ReactMarkdown remarkPlugins={[remarkBreaks]}>
-                                                                {String(variable?.properties?.documentation?.value)}
-                                                            </ReactMarkdown>
-                                                        </div>
-                                                    }
-                                                    <ConfigValueField>
-                                                        <VSCodeTextArea
-                                                            rows={(() => {
-                                                                const value = variable?.properties?.configValue?.value
-                                                                    ? String(variable?.properties?.configValue?.value)
-                                                                    : '';
-                                                                if (!value) return 1;
-                                                                return Math.min(5, Math.ceil(value.length / 100));
-                                                            })()}
-                                                            resize="vertical"
-                                                            value={variable?.properties?.configValue?.value ? String(variable?.properties?.configValue?.value) : ''}
-                                                            style={{
-                                                                width: '100%',
-                                                                maxWidth: '350px',
-                                                                minHeight: '20px'
-                                                            }}
-                                                            onChange={(e: any) => handleUpdateConfigValue(e, variable)}
-                                                        >
-                                                            <style>{`
-                                                                vscode-text-area::part(control) {
-                                                                    padding: 5px !important;
-                                                                    min-height: 20px !important;
-                                                                }
-                                                            `}</style>
-                                                        </VSCodeTextArea>
-                                                    </ConfigValueField>
-                                                </ConfigurableItem>
-                                            ))
-                                        ) : (
-                                            // No variables in this module (not search related)
-                                            <EmptyReadmeContainer>
-                                                <Description variant="body2">
-                                                    No configurable variables found in this module
-                                                </Description>
-                                                <Button appearance="primary" onClick={handleAddConfigVariableFormOpen}>
-                                                    <Codicon name="add" sx={{ marginRight: 5 }} />Add Config
-                                                </Button>
-                                            </EmptyReadmeContainer>
-                                        )}
-                                    </div>
-                                )
-                            }
-                        </>
-                    )}
-                    {isEditConfigVariableFormOpen && configIndex !== null && selectedModule &&
-                        <EditForm
-                            isOpen={isEditConfigVariableFormOpen}
-                            onClose={handleFormClose}
-                            onSubmit={handleFormSubmit}
-                            variable={renderVariables[selectedModule.category]?.[selectedModule.module]?.[configIndex]}
-                            title={`Edit Configurable Variable`}
-                            filename={props.fileName}
-                            packageName={selectedModule.category}
-                            moduleName={selectedModule.module}
-                        />
-                    }
-                    {isAddConfigVariableFormOpen && selectedModule &&
-                        <AddForm
-                            isOpen={isAddConfigVariableFormOpen}
-                            onClose={handleFormClose}
-                            onSubmit={handleFormSubmit}
-                            title={`Add Configurable Variable`}
-                            filename={props.fileName}
-                            packageName={selectedModule.category}
-                            moduleName={selectedModule.module}
-                        />
-                    }
-                </Container >
-            </>
-        )
+    let renderVariables: ConfigVariablesState = configVariables;
+    if (searchValue) {
+        renderVariables = getFilteredConfigVariables();
     }
 
     return (
@@ -619,7 +326,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                     <Icon sx={{ marginRight: 5, paddingTop: '2px' }} name="editIcon" />Edit in config.toml
                 </Button>
             } />
-            {(isEditConfigVariableFormOpen || isAddConfigVariableFormOpen) && <Overlay data-testid="config-overlay" />}
+            {isAddConfigVariableFormOpen && <Overlay data-testid="config-overlay" />}
             <ViewContent padding>
                 <div style={{ height: 'calc(100vh - 220px)' }}>
                     {/* Search bar and filters */}
@@ -637,9 +344,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                         />
                     </SearchContainer>
                     <div style={{ width: "auto" }}>
-                        <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
+                        <SplitView defaultWidths={[20, 80]}>
                             {/* Left side tree view */}
-                            <div style={{ padding: "10px 0 50px 0" }}>
+                            <div id={`package-treeview`} style={{ padding: "10px 0 50px 0" }}>
                                 {/* Display integration category first */}
                                 {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
                                     .filter(category => category.name === integrationCategory)
@@ -751,97 +458,203 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                 {/* Group all other categories under "Imported libraries" */}
                                 {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
                                     .filter(category => category.name !== integrationCategory).length > 0 && (
-                                    <TreeView
-                                        rootTreeView
-                                        id="imported-libraries"
-                                        expandByDefault={true}
-                                        content={
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    height: '22px',
-                                                    alignItems: 'center',
-                                                }}>
-                                                <Typography
-                                                    variant="body3"
-                                                    sx={{
-                                                        fontWeight: 'normal'
-                                                    }}
-                                                >
-                                                    Imported libraries
-                                                </Typography>
-                                            </div>
-                                        }
-                                    >
-                                        {/* Map all non-integration categories */}
-                                        {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
-                                            .filter(category => category.name !== integrationCategory)
-                                            .map((category, index) => (
-                                                <TreeViewItem
-                                                    key={category.name}
-                                                    id={category.name}
-                                                    sx={{
-                                                        backgroundColor: 'transparent',
-                                                        paddingLeft: '35px',
-                                                        height: '25px',
-                                                        border: selectedModule?.category === category.name
-                                                            ? '1px solid var(--vscode-focusBorder)'
-                                                            : 'none',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        boxSizing: 'border-box'
-                                                    }}
-                                                    selectedId={category.name}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            height: '22px',
-                                                            alignItems: 'center'
-                                                        }}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleModuleSelect(category.name, "");
+                                        <TreeView
+                                            rootTreeView
+                                            id="imported-libraries"
+                                            expandByDefault={true}
+                                            content={
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        height: '22px',
+                                                        alignItems: 'center',
+                                                    }}>
+                                                    <Typography
+                                                        variant="body3"
+                                                        sx={{
+                                                            fontWeight: 'normal'
                                                         }}
                                                     >
-                                                        <Typography
-                                                            variant="body3"
-                                                            sx={{
-                                                                fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
-                                                                    ? 'bold' : 'normal'
+                                                        Imported libraries
+                                                    </Typography>
+                                                </div>
+                                            }
+                                        >
+                                            {/* Map all non-integration categories */}
+                                            {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
+                                                .filter(category => category.name !== integrationCategory)
+                                                .map((category, index) => (
+                                                    <TreeViewItem
+                                                        key={category.name}
+                                                        id={category.name}
+                                                        sx={{
+                                                            backgroundColor: 'transparent',
+                                                            paddingLeft: '35px',
+                                                            height: '25px',
+                                                            border: selectedModule?.category === category.name
+                                                                ? '1px solid var(--vscode-focusBorder)'
+                                                                : 'none',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap',
+                                                            boxSizing: 'border-box'
+                                                        }}
+                                                        selectedId={category.name}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                height: '22px',
+                                                                alignItems: 'center'
+                                                            }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleModuleSelect(category.name, "");
                                                             }}
                                                         >
-                                                            {category.name}
-                                                        </Typography>
-                                                        {categoryWarningCount(category.name) > 0 && (
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <Codicon name="warning"
-                                                                    sx={{
-                                                                        marginLeft: 5,
-                                                                        fontSize: '0.8em',
-                                                                        color: 'var(--vscode-editorWarning-foreground)'
-                                                                    }}
-                                                                />
-                                                                <span
-                                                                    style={{
-                                                                        marginLeft: 3,
-                                                                        color: 'var(--vscode-editorWarning-foreground)',
-                                                                        fontSize: '0.85em'
-                                                                    }}>
-                                                                    {categoryWarningCount(category.name)}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </TreeViewItem>
-                                            ))}
-                                    </TreeView>
-                                )}
+                                                            <Typography
+                                                                variant="body3"
+                                                                sx={{
+                                                                    fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
+                                                                        ? 'bold' : 'normal'
+                                                                }}
+                                                            >
+                                                                {category.name}
+                                                            </Typography>
+                                                            {categoryWarningCount(category.name) > 0 && (
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <Codicon name="warning"
+                                                                        sx={{
+                                                                            marginLeft: 5,
+                                                                            fontSize: '0.8em',
+                                                                            color: 'var(--vscode-editorWarning-foreground)'
+                                                                        }}
+                                                                    />
+                                                                    <span
+                                                                        style={{
+                                                                            marginLeft: 3,
+                                                                            color: 'var(--vscode-editorWarning-foreground)',
+                                                                            fontSize: '0.85em'
+                                                                        }}>
+                                                                        {categoryWarningCount(category.name)}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </TreeViewItem>
+                                                ))}
+                                        </TreeView>
+                                    )}
                             </div>
                             {/* Right side view */}
                             <div style={{ height: '100%' }}>
-                                <ConfigurablesList />
+                                <>
+                                    {!renderVariables ?
+                                        <ErrorBanner errorMsg={"Error fetching config variables"} />
+                                        : searchValue && filteredCategoriesWithModules.length === 0 ?
+                                            <EmptyReadmeContainer>
+                                                <Icon
+                                                    name="searchIcon"
+                                                    sx={{
+                                                        fontSize: '3em',
+                                                        color: 'var(--vscode-descriptionForeground)',
+                                                        marginBottom: '10px'
+                                                    }} />
+                                                <Description variant="body2">
+                                                    No configurable variables found matching "{searchValue}" in any module
+                                                </Description>
+                                                <Button appearance="secondary" onClick={() => setSearchValue('')}>
+                                                    Clear Search
+                                                </Button>
+                                            </EmptyReadmeContainer>
+                                            : <>
+                                                <div
+                                                    id="TitleDiv"
+                                                    style={{
+                                                        position: "sticky", top: 0, color: "var(--vscode-editor-foreground)",
+                                                        backgroundColor: "var(--vscode-editor-background)"
+                                                    }}>
+                                                    <TitleContent>
+                                                        <Typography
+                                                            variant="h2"
+                                                            sx={{
+                                                                padding: "0px 0 0 20px",
+                                                                margin: "10px 0px",
+                                                                color: "var(--vscode-foreground)"
+                                                            }}>
+                                                            {title}
+                                                        </Typography>
+                                                        {/* Only show Add Config button at the top when the module has configurations */}
+                                                        {selectedModule &&
+                                                            renderVariables[selectedModule?.category]?.[selectedModule?.module]?.length > 0 &&
+                                                            selectedModule.category === integrationCategory && (
+                                                                <Button
+                                                                    sx={{ display: 'flex', justifySelf: 'flex-end' }}
+                                                                    appearance="primary"
+                                                                    onClick={handleAddConfigVariableFormOpen}
+                                                                >
+                                                                    <Codicon name="add" sx={{ marginRight: 5 }} />Add Config
+                                                                </Button>
+                                                            )}
+                                                    </TitleContent>
+                                                    <TitleBoxShadow />
+                                                </div>
+                                                <Container>
+                                                    {selectedModule && (
+                                                        <>
+                                                            {/* Check if the selected module exists in the variables */}
+                                                            {renderVariables[selectedModule?.category] &&
+                                                                renderVariables[selectedModule?.category][selectedModule?.module] && (
+                                                                    <div key={`${selectedModule?.category}-${selectedModule?.module}`}>
+                                                                        {renderVariables[selectedModule?.category][selectedModule?.module].length > 0 ? (
+                                                                            /* Variables under this selected module */
+                                                                            renderVariables[selectedModule?.category][selectedModule?.module].map((variable, index) => (
+                                                                                <ConfigurableItem
+                                                                                    key={`${selectedModule.category}-${selectedModule.module}-${index}`}
+                                                                                    variable={variable}
+                                                                                    integrationCategory={integrationCategory}
+                                                                                    packageName={selectedModule.category}
+                                                                                    moduleName={selectedModule.module}
+                                                                                    index={index}
+                                                                                    fileName={props.fileName}
+                                                                                    onDeleteConfigVariable={handleOnDeleteConfigVariable}
+                                                                                    onFormSubmit={handleFormSubmit}
+                                                                                />
+                                                                            ))
+                                                                        ) : (
+                                                                            // No variables in this module (not search related)
+                                                                            <EmptyReadmeContainer>
+                                                                                <Description variant="body2">
+                                                                                    No configurable variables found in this module
+                                                                                </Description>
+                                                                                <Button
+                                                                                    appearance="primary"
+                                                                                    onClick={handleAddConfigVariableFormOpen}>
+                                                                                    <Codicon name="add" sx={{ marginRight: 5 }} />
+                                                                                    Add Config
+                                                                                </Button>
+                                                                            </EmptyReadmeContainer>
+                                                                        )}
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </>
+                                                    )}
+                                                    {isAddConfigVariableFormOpen && selectedModule &&
+                                                        <AddForm
+                                                            isOpen={isAddConfigVariableFormOpen}
+                                                            onClose={handleFormClose}
+                                                            onSubmit={handleFormSubmit}
+                                                            title={`Add Configurable Variable`}
+                                                            filename={props.fileName}
+                                                            packageName={selectedModule.category}
+                                                            moduleName={selectedModule.module}
+                                                        />
+                                                    }
+                                                </Container >
+                                            </>
+                                    }
+                                </>
                             </div>
                         </SplitView>
                     </div>
