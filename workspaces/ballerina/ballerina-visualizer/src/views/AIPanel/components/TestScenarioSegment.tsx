@@ -1,137 +1,22 @@
-// /**
-//  * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
-//  *
-//  * This software is the property of WSO2 LLC. and its suppliers, if any.
-//  * Dissemination of any information or reproduction of any material contained
-//  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
-//  * You may not alter or remove any copyright or other notice from copies of this content.
-//  *
-//  * THIS FILE INCLUDES AUTO GENERATED CODE
-//  */
-
-// import React, { memo, useState } from "react";
-// import styled from "@emotion/styled";
-// import { Codicon } from "@wso2-enterprise/ui-toolkit";
-
-// const AccordionItemContainer = styled.div`
-//     margin-bottom: 10px;
-//     padding-bottom: 8px;
-// `;
-
-// const AccordionTitleButton = styled.button`
-//     cursor: pointer;
-//     width: 100%;
-//     border: none;
-//     text-align: left;
-//     outline: none;
-//     transition: background-color 0.6s ease;
-//     position: relative;
-//     background-color: var(--vscode-list-hoverBackground);
-
-//     /* Display flex to position text and delete icon on one row */
-//     display: flex;
-//     align-items: center;
-//     justify-content: space-between;
-//     padding: 8px 16px;
-
-//     &:hover {
-//         background-color: var(--vscode-badge-background);
-//     }
-
-//     &::before {
-//         content: "";
-//         position: absolute;
-//         left: 0;
-//         top: 0;
-//         bottom: 0;
-//         width: 4px;
-//         background-color: var(--vscode-button-background);
-//     }
-// `;
-
-// const AccordionContent = styled.div<{ expanded: boolean }>`
-//     position: relative;
-//     background-color: var(--vscode-editor-background);
-//     overflow: hidden;
-//     transition: max-height 0.4s ease;
-//     max-height: ${({ expanded }: { expanded: boolean }) => (expanded ? "500px" : "0")};
-
-//     &::before {
-//         content: "";
-//         position: absolute;
-//         left: 0;
-//         top: 0;
-//         bottom: 0;
-//         width: 1px;
-//         background-color: var(--vscode-button-background);
-//         display: ${({ expanded }: { expanded: boolean }) => (expanded ? "block" : "none")};
-//     }
-// `;
-
-// const AccordionTitleText = styled.p`
-//     padding: 0px;
-//     margin: 0;
-//     color: var(--vscode-editor-foreground);
-//     font-weight: 600;
-// `;
-
-// const AccordionText = styled.p`
-//     padding: 8px;
-//     padding-left: 16px;
-//     margin: 0;
-//     white-space: pre-wrap;
-// `;
-
-// interface AccordionItemProps {
-//     content: string;
-//     onDelete: (content: string) => void;
-//     isEnabled: boolean;
-// }
-
-// const AccordionItem: React.FC<AccordionItemProps> = memo(({ content, onDelete, isEnabled }) => {
-//     const parseContent = (input: string) => {
-//         const titleMatch = input.match(/<title>(.*?)<\/title>/);
-//         const descriptionMatch = input.match(/<description>([\s\S]*?)<\/description>/);
-
-//         const title = titleMatch ? titleMatch[1].trim() : "Untitled";
-//         const description = descriptionMatch ? descriptionMatch[1].trim() : "No description available.";
-
-//         return { title, description };
-//     };
-
-//     // Extract values using RegExp
-//     const { title, description } = parseContent(content);
-
-//     // Local state to track if the accordion is expanded
-//     const [isExpanded, setIsExpanded] = useState(false);
-
-//     // Toggle function for expansion
-//     const handleToggle = () => {
-//         setIsExpanded((prev) => !prev);
-//     };
-
-//     const handleDelete = (event: React.MouseEvent<HTMLElement>) => {
-//         event.stopPropagation();
-//         onDelete(content);
-//     };
-
-//     return (
-//         <AccordionItemContainer>
-//             <AccordionTitleButton onClick={handleToggle} aria-expanded={isExpanded}>
-//                 <AccordionTitleText>{title}</AccordionTitleText>
-//                 {isEnabled && (
-//                     <Codicon onClick={handleDelete} iconSx={{ color: "var(--vscode-errorForeground)" }} name="trash" />
-//                 )}
-//             </AccordionTitleButton>
-
-//             <AccordionContent expanded={isExpanded}>
-//                 {isExpanded && <AccordionText>{description}</AccordionText>}
-//             </AccordionContent>
-//         </AccordionItemContainer>
-//     );
-// });
-
-// export default AccordionItem;
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ * THIS FILE INCLUDES AUTO GENERATED CODE
+ */
 
 import React, { memo, useState } from "react";
 import styled from "@emotion/styled";
