@@ -153,9 +153,9 @@ export const SlidingPaneNavContainer = ({children, to}: SlidingPaneNavContainerP
                     <div>
                         {children}
                     </div>
-                   <div style={{marginLeft: '8px', display: 'flex', alignItems: 'center'}}>
+                    <div style={{marginLeft: '8px', display: 'flex', alignItems: 'center'}}>
                         <Codicon name="chevron-right" /> 
-                   </div>
+                    </div>
                 </div>
             </InvisibleButton>
         </SlidingPaneNavContainerElm>
