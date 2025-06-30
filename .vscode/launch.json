@@ -41,7 +41,7 @@
                 "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
             "preLaunchTask": "watch-all",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/ballerina/ballerina-extension/.env"
         },
         {
             "name": "BI Extension",
