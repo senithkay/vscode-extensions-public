@@ -1,10 +1,19 @@
 <!--
- ~   Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- ~   
- ~   This software is the property of WSO2 LLC. and its suppliers, if any.
- ~   Dissemination of any information or reproduction of any material contained
- ~   herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- ~   You may not alter or remove any copyright or other notice from copies of this content.
+ ~ Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ ~
+ ~ WSO2 LLC. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied. See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
 -->
 <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4.25779 3.55779C4.34768 3.46791 4.49085 3.39995 4.69995 3.39995H9.19995C9.40905 3.39995 9.55222 3.46791 9.64211 3.55779C9.732 3.64768 9.79995 3.79085 9.79995 3.99995V4.09995C9.79995 4.53088 9.53054 4.79995 9.19995 4.79995H4.69995C4.36937 4.79995 4.09995 4.53088 4.09995 4.09995V3.99995C4.09995 3.79085 4.16791 3.64768 4.25779 3.55779ZM3.69211 2.99211C3.432 3.25222 3.29995 3.60905 3.29995 3.99995V4.09995C3.29995 4.86902 3.83054 5.59995 4.69995 5.59995H9.19995C10.0694 5.59995 10.6 4.86902 10.6 4.09995V3.99995C10.6 3.60905 10.4679 3.25222 10.2078 2.99211C9.94768 2.732 9.59085 2.59995 9.19995 2.59995H4.69995C4.30905 2.59995 3.95222 2.732 3.69211 2.99211Z" fill="black"/>

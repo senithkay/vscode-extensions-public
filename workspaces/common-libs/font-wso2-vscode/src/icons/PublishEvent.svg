@@ -1,10 +1,19 @@
 <!--
- ~   Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- ~   
- ~   This software is the property of WSO2 LLC. and its suppliers, if any.
- ~   Dissemination of any information or reproduction of any material contained
- ~   herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- ~   You may not alter or remove any copyright or other notice from copies of this content.
+ ~ Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ ~
+ ~ WSO2 LLC. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied. See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
 -->
 <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M13.7344 0.380367C13.8385 0.538879 13.817 0.748728 13.6829 0.882835L7.98294 6.58284C7.87101 6.69477 7.7036 6.73016 7.55594 6.67311L3.15594 4.97311C3.00233 4.91376 2.90079 4.76634 2.9001 4.60167C2.89941 4.437 2.99971 4.28873 3.15281 4.2281L13.2528 0.228096C13.4291 0.158262 13.6303 0.221856 13.7344 0.380367ZM4.39805 4.59539L7.60137 5.83303L11.7511 1.68328L4.39805 4.59539Z" fill="black"/>
