@@ -1538,7 +1538,7 @@ export interface BaseLangClientInterface {
 export interface BIInterface extends BaseLangClientInterface {
     getSTByRange: (params: BallerinaSTParams) => Promise<SyntaxTree | NOT_SUPPORTED_TYPE>;
     getFlowModel: (params: BIFlowModelRequest) => Promise<BIFlowModelResponse>;
-    getSourceCode: (params: BISourceCodeRequest) => Promise<UpdateConfigVariableResponseV2>;
+    getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
