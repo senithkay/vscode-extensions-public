@@ -21,7 +21,7 @@
 				"${workspaceFolder}/dist/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}",
-            "envFile": "${workspaceFolder}/workspaces/mi/mi-extension/.env"
+            "envFile": "${workspaceFolder}/workspaces/choreo/choreo-extension/.env"
 		},
         {
             "name": "Debug Choreo UI Tests",
