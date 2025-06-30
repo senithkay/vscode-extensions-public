@@ -4,7 +4,7 @@
 
 ### Developer Guide
 
-> Avoid working directly on `wso2-enterprise/vscode-extensions`, fork this repositoty to your account first.
+> Avoid working directly on `wso2-enterprise/vscode-extensions`, fork this repository to your account first.
 
 ```
 git clone https://github.com/<your-username>/vscode-extensions.git
