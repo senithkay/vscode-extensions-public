@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { UnionTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { UnionTypeDesc } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../../Expression";
 import { TokenComponent } from "../../../Token";

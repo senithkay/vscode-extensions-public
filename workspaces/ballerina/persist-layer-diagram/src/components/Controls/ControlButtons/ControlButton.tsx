@@ -18,7 +18,7 @@
 
 import React, { ReactNode } from 'react';
 import { useStyles } from './style';
-import { Button, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Tooltip } from '@wso2/ui-toolkit';
 
 interface ControlButtonProps {
     children: ReactNode;

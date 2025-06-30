@@ -21,7 +21,7 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
 import { EntityHead, EntityName } from '../styles';
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon } from '@wso2/ui-toolkit';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;

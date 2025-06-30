@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso2/syntax-tree";
 import { STSymbolInfo } from "../../interfaces/store";
 
 export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]: any } {

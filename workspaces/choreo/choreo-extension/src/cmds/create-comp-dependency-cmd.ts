@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, ComponentViewDrawers, getComponentKey } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentViewDrawers, getComponentKey } from "@wso2/choreo-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";

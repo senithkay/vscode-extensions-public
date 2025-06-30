@@ -17,7 +17,7 @@
  */
 
 import { basename } from "path";
-import { CommandIds, type IDeleteComponentCmdParams } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type IDeleteComponentCmdParams } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

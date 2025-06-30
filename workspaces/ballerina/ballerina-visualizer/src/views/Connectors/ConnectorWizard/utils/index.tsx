@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { BallerinaConnectorInfo, BallerinaConstruct, ConnectorRequest, getFormattedModuleName, getInitialSource, createObjectDeclaration, genVariableName, getAllVariables, createCheckObjectDeclaration, STSymbolInfo, FormField, FormFieldChecks, PrimitiveBalType, getFieldName, FormFieldReturnType, PathParam } from "@wso2-enterprise/ballerina-core";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { BlockStatement, DoStatement, ForeachStatement, IfElseStatement, ModulePart, NodePosition, QualifiedNameReference, STKindChecker, STNode, traversNode, VisibleEndpoint, WhileStatement } from "@wso2-enterprise/syntax-tree";
-import { returnTypeVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { BallerinaConnectorInfo, BallerinaConstruct, ConnectorRequest, getFormattedModuleName, getInitialSource, createObjectDeclaration, genVariableName, getAllVariables, createCheckObjectDeclaration, STSymbolInfo, FormField, FormFieldChecks, PrimitiveBalType, getFieldName, FormFieldReturnType, PathParam } from "@wso2/ballerina-core";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
+import { BlockStatement, DoStatement, ForeachStatement, IfElseStatement, ModulePart, NodePosition, QualifiedNameReference, STKindChecker, STNode, traversNode, VisibleEndpoint, WhileStatement } from "@wso2/syntax-tree";
+import { returnTypeVisitor } from "@wso2/ballerina-low-code-diagram";
 
 export async function fetchConnectorInfo(
     connector: BallerinaConstruct,

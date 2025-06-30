@@ -17,13 +17,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Alert, Button, Codicon, Drawer, Dropdown, OptionProps, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Alert, Button, Codicon, Drawer, Dropdown, OptionProps, Typography } from '@wso2/ui-toolkit';
 import * as yup from 'yup';
 import styled from '@emotion/styled';
 import { DATASOURCE, SIDE_PANEL_WIDTH } from '../../../../constants';
 import { Controller, Resolver, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { Table } from '../../../../components/Table';
 
 const Container = styled.div`

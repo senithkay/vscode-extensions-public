@@ -18,12 +18,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { STModification } from "@wso2/ballerina-core";
 import {
     FunctionDefinition,
     IdentifierToken,
     STNode,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { Endpoint } from "../../../Types/type";

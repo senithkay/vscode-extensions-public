@@ -39,7 +39,7 @@ import {
     STNode,
     traversNode,
     Visitor, WhileStatement
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/RenderingComponents/ActionInvocation/TriggerSVG";

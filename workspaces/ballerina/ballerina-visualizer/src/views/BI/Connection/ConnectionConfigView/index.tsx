@@ -18,10 +18,10 @@
 
 import React, { ReactNode, useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
-import { FlowNode, LineRange, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { ExpressionFormField } from "@wso2/ballerina-side-panel";
+import { FlowNode, LineRange, SubPanel } from "@wso2/ballerina-core";
 import FormGenerator from "../../Forms/FormGenerator";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 
 const Container = styled.div`
     max-width: 600px;

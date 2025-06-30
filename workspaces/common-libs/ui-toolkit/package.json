@@ -1,8 +1,8 @@
 {
-  "name": "@wso2-enterprise/ui-toolkit",
+  "name": "@wso2/ui-toolkit",
   "version": "2.0.24050215",
   "description": "Common ui-toolkit for other components",
-  "homepage": "http://wso2-enterprise.github.io/vscode-extensions.git",
+  "homepage": "http://wso2.github.io/vscode-extensions.git",
   "files": [
     "lib"
   ],
@@ -12,7 +12,7 @@
   "scripts": {
     "watch": "tsc --pretty --watch",
     "prebuild": "pnpm run lint",
-    "copy-font": "copyfiles -u 1 node_modules/@wso2-enterprise/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
+    "copy-font": "copyfiles -u 1 node_modules/@wso2/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
     "build": "tsc --pretty && pnpm run copy-font && pnpm run lint",
     "storybook": "sb dev -p 6006",
     "lint": "eslint .",
@@ -32,7 +32,7 @@
     "@projectstorm/react-diagrams-core": "^7.0.3",
     "@vscode/codicons": "0.0.36",
     "@vscode/webview-ui-toolkit": "~1.4.0",
-    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+    "@wso2/font-wso2-vscode": "workspace:*",
     "classnames": "^2.5.1",
     "lodash": "~4.17.21",
     "monaco-editor": "~0.52.2",
@@ -72,7 +72,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

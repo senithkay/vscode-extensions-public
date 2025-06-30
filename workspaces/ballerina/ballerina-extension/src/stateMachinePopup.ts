@@ -19,7 +19,7 @@
 
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted } from '@wso2/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { StateMachine } from './stateMachine';

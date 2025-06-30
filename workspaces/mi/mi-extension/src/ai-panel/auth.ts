@@ -18,7 +18,7 @@
 
 import axios from 'axios';
 import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
+import { AI_EVENT_TYPE, AIUserTokens } from '@wso2/mi-core';
 import { extension } from '../MIExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';

@@ -18,7 +18,7 @@
 import {
     TypeDefinition,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 
 const typeDefinitions: Map<string, TypeDefinition> = new Map();

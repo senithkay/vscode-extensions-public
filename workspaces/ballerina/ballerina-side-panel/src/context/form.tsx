@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { LineRange } from '@wso2-enterprise/ballerina-core';
+import { LineRange } from '@wso2/ballerina-core';
 import React, { createContext, FC, useContext } from 'react';
 import { 
     Control,

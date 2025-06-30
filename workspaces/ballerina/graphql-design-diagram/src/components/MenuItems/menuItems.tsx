@@ -22,9 +22,9 @@ import React from "react";
 import {
     DesignViewIcon,
     GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon, LabelDeleteIcon, LabelEditIcon
-} from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Codicon, Icon, Item } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ballerina-core";
+import { NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
+import { Codicon, Icon, Item } from "@wso2/ui-toolkit";
 
 import { NodeCategory, NodeType } from "../NodeFilter";
 import { FunctionType, Position } from "../resources/model";

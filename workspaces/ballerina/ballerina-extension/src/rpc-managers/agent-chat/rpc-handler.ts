@@ -20,7 +20,7 @@ import {
     ChatReqMessage,
     abortChatRequest,
     getChatMessage,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AgentChatRpcManager } from "./rpc-manager";
 

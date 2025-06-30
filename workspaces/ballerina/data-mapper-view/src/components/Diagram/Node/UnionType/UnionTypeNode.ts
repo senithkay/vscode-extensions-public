@@ -11,7 +11,7 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { STModification, TypeField, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { STModification, TypeField, PrimitiveBalType } from "@wso2/ballerina-core";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
@@ -20,7 +20,7 @@ import {
     STKindChecker,
     STNode,
     traversNode,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";

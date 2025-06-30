@@ -19,7 +19,7 @@
 
 import { commands, TestItem } from "vscode";
 import { openView, StateMachine, history } from "../../stateMachine";
-import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from "@wso2/ballerina-core";
 import { isTestFunctionItem } from "./discover";
 import path from "path";
 import { promises as fs } from 'fs';

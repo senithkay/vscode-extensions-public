@@ -16,8 +16,8 @@
  * under the License.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
+import { STKindChecker } from "@wso2/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";

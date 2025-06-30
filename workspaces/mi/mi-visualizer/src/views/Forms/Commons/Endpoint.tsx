@@ -18,12 +18,12 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Dropdown, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Codicon } from "@wso2/ui-toolkit";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { linter } from "@codemirror/lint";
 import CodeMirror from "@uiw/react-codemirror";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 
 const Container = styled.div({
     display: 'grid',

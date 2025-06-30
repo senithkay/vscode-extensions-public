@@ -17,8 +17,8 @@
  */
 
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Icon, Typography } from "@wso2/ui-toolkit";
 import React from "react";
 
 const PanelWrapper = styled.div`

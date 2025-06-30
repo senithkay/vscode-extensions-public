@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
 	ArrayLiteralExpression,

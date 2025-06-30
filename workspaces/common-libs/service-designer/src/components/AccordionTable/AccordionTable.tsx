@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2/ui-toolkit';
 import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
 
 export interface AccordionTableProps {

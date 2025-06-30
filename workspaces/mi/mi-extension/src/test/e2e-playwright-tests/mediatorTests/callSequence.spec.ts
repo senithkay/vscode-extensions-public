@@ -22,10 +22,10 @@ import { AddArtifact } from './../components/AddArtifact';
 import { ServiceDesigner } from './../components/ServiceDesigner';
 import { initTest, page } from '../Utils';
 import { Diagram, SidePanel } from './../components/Diagram';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { Overview } from '../components/Overview';
 import { Sequence } from '../components/ArtifactTest/Sequence';
-import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester/lib/components/Utils';
+import { switchToIFrame } from '@wso2/playwright-vscode-tester/lib/components/Utils';
 
 export default function createTests() {
   test.describe("Call Sequence Mediator Tests", {

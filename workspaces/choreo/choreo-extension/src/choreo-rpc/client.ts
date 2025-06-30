@@ -78,7 +78,7 @@ import type {
 	ToggleAutoBuildReq,
 	ToggleAutoBuildResp,
 	UserInfo,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import { type MessageConnection, Trace, type Tracer } from "vscode-jsonrpc";
 import { handlerError } from "../error-utils";
 import { getLogger } from "../logger/logger";

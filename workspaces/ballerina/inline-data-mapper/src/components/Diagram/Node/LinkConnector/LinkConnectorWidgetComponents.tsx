@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon } from '@wso2/ui-toolkit';
 
 import { DataMapperPortWidget, IntermediatePortModel } from '../../Port';
 

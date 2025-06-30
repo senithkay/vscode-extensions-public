@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, type ICmdParamsBase } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type ICmdParamsBase } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import * as vscode from "vscode";
 import { ResponseError } from "vscode-jsonrpc";

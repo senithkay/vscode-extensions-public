@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { toJpeg } from 'html-to-image';
 
-import { Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Icon, ThemeColors } from '@wso2/ui-toolkit';
 
 interface ControlProps {
     engine: DiagramEngine;

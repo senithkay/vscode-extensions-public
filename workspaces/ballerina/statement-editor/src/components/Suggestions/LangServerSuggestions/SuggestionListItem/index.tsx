@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Tooltip, Typography } from "@wso2/ui-toolkit";
 
 import { acceptedCompletionKindForTypes } from "../../../../constants";
 import { SuggestionItem } from "../../../../models/definitions";

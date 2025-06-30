@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { KeyboardNavigationManager } from "@wso2/ballerina-core";
+import { NodePosition, STNode, traversNode } from "@wso2/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 import { URI } from 'vscode-uri';
 

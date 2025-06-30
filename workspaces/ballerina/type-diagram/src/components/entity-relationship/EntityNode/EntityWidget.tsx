@@ -18,7 +18,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon } from '@wso2/ui-toolkit';
 
 import { EntityModel } from './EntityModel';
 import { EntityLinkModel } from '../EntityLink/EntityLinkModel';
@@ -28,7 +28,7 @@ import { AttributeWidget } from './Attribute/AttributeCard';
 import { EntityNode, InclusionPortsContainer, OperationSection } from './styles';
 import { DiagramContext } from '../../common';
 import styled from '@emotion/styled';
-import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ThemeColors } from '@wso2/ui-toolkit';
 import { isNodeClass } from '../../../utils/model-mapper/entityModelMapper';
 
 const HighlightedButton = styled.div`

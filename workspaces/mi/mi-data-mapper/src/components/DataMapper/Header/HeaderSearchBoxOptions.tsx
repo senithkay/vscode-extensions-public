@@ -17,7 +17,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 
 const DropDownContainer = styled.div({

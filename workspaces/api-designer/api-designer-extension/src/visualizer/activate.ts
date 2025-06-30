@@ -19,7 +19,7 @@
 import * as vscode from 'vscode';
 import { openView } from '../stateMachine';
 import { COMMANDS } from '../constants';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2/api-designer-core';
 
 
 

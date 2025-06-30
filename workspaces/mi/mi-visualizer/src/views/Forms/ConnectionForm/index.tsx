@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button, Divider, Icon, DropdownButton } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button, Divider, Icon, DropdownButton } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import AddConnection from "./ConnectionFormGenerator";
 import path from "path";
-import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
+import { Colors } from "@wso2/mi-diagram/lib/resources/constants";
 import { ImportConnectionFromOpenAPI } from "./ImportConnectionFromOpenAPI";
 import { ImportConnectionFromProto } from "./ImportConnectionFromProto";
 

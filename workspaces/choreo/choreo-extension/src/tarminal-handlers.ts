@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, type ComponentKind } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind } from "@wso2/choreo-core";
 import type vscode from "vscode";
 import { commands, window, workspace } from "vscode";
 import { getChoreoExecPath } from "./choreo-rpc/cli-install";

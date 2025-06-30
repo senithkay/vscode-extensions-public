@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { FlowNode, LineRange } from "@wso2-enterprise/ballerina-core";
-import { FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
+import { FlowNode, LineRange } from "@wso2/ballerina-core";
+import { FormImports, FormValues } from "@wso2/ballerina-side-panel";
+import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2/bi-diagram";
 
 import { updateNodeProperties } from "../../../utils/bi";
 

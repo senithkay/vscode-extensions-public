@@ -18,13 +18,13 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { NodePosition, QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, QueryExpression, WhereClause } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2/ui-toolkit";
 
 export function WhereClauseItem(props: {
     intermediateNode: WhereClause;

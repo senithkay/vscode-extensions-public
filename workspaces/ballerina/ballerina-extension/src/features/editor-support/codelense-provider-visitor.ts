@@ -25,11 +25,11 @@ import {
     ResourceAccessorDefinition,
     STKindChecker,
     TypeDefinition
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { PALETTE_COMMANDS } from "../project";
 import { CodeLens, Range, Uri } from "vscode";
 import { checkIsPersistModelFile } from "../../views/persist-layer-diagram/activator";
-import { SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
+import { SHARED_COMMANDS } from "@wso2/ballerina-core";
 
 export class CodeLensProviderVisitor implements Visitor {
     activeEditorUri: Uri;

@@ -22,7 +22,7 @@ import {
 import { commands, window, env } from "vscode";
 import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY } from "../../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
-import { JsonToRecord } from "@wso2-enterprise/ballerina-core";
+import { JsonToRecord } from "@wso2/ballerina-core";
 
 const MSG_NOT_SUPPORT = "Paste JSON as a Ballerina record feature is not supported";
 

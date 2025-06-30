@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { LinePosition } from "@wso2-enterprise/ballerina-core";
+import { LinePosition } from "@wso2/ballerina-core";
 import {
     FunctionCall,
     STKindChecker,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 export interface FunctionCallInfo {
     fnPosition: LinePosition;

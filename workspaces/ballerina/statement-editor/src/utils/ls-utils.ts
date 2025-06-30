@@ -21,13 +21,13 @@ import {
     DiagnosticData,
     PartialSTParams,
     SymbolInfo
-} from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+} from "@wso2/ballerina-core";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 import {
     NodePosition,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
 

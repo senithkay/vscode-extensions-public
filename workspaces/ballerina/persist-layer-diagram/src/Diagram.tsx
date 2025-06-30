@@ -17,10 +17,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ComponentModel, PersistERModel } from '@wso2-enterprise/ballerina-core';
+import { ComponentModel, PersistERModel } from '@wso2/ballerina-core';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
+import { ProgressRing, ThemeColors } from '@wso2/ui-toolkit';
+import { CMEntity as Entity } from '@wso2/ballerina-core';
 import { modelMapper, generateEngine } from './utils';
 import { DiagramControls, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine } from './resources';

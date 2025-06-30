@@ -18,10 +18,10 @@
 
 import { debounce } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LineRange } from "@wso2-enterprise/ballerina-core";
-import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { COMPLETION_ITEM_KIND, CompletionItemKind, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { LineRange } from "@wso2/ballerina-core";
+import { HelperPaneVariableInfo } from "@wso2/ballerina-side-panel";
+import { COMPLETION_ITEM_KIND, CompletionItemKind, getIcon, HelperPane } from "@wso2/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../utils/bi";
 
 type SuggestionsPageProps = {

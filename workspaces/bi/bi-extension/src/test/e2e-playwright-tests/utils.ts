@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ExtendedPage, Form, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ExtendedPage, Form, startVSCode, switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
 import path from 'path';

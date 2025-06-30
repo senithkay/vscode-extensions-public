@@ -18,13 +18,13 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, Dropdown, OptionProps, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown, OptionProps, ThemeColors } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
-import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { SubPanel, SubPanelView } from "@wso2/ballerina-core";
 
 namespace S {
     export const Container = styled.div({

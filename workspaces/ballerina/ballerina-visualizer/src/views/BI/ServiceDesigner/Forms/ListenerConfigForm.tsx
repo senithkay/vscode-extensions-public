@@ -18,10 +18,10 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { ListenerModel, LineRange, RecordTypeField, PropertyModel, PropertyTypeMemberInfo, Property } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Typography, ProgressRing } from "@wso2/ui-toolkit";
+import { FormField, FormImports, FormValues } from "@wso2/ballerina-side-panel";
+import { ListenerModel, LineRange, RecordTypeField, PropertyModel, PropertyTypeMemberInfo, Property } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";

@@ -18,7 +18,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from "@vscode/webview-ui-toolkit/react";
-import type { MarketplaceItem, Organization } from "@wso2-enterprise/wso2-platform-core";
+import type { MarketplaceItem, Organization } from "@wso2/wso2-platform-core";
 import * as yaml from "js-yaml";
 import React, { type FC, type ReactNode } from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";

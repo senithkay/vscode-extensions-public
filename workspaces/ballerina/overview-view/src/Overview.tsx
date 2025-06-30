@@ -19,11 +19,11 @@
  * under the License.
  */
 import React, { useEffect, useState } from 'react';
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client"
+import { useRpcContext } from "@wso2/ballerina-rpc-client"
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
-import { WorkspacesFileResponse, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { WorkspacesFileResponse, VisualizerLocation } from '@wso2/ballerina-core';
 import { URI } from 'vscode-uri';
 // Create a interface for the data
 interface Data {

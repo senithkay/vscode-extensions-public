@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { DMType, IOType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, IOType, TypeKind } from "@wso2/mi-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';

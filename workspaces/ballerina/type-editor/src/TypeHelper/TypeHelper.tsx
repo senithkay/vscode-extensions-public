@@ -24,7 +24,7 @@ import {
     HelperPane,
     HelperPaneHeight,
     Typography
-} from '@wso2-enterprise/ui-toolkit';
+} from '@wso2/ui-toolkit';
 import { TypeHelperOperator } from '..';
 import { TypeHelperCategory, TypeHelperItem } from '.';
 import { TypeBrowser } from './TypeBrowser';

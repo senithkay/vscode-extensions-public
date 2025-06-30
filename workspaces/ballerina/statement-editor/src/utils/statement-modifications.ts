@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2/ballerina-core";
+import { NodePosition } from "@wso2/syntax-tree";
 
 export const keywords = [
     "if", "else", "fork", "join", "while", "foreach",

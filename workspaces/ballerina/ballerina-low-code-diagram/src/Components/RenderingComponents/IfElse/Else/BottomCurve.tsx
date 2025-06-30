@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { DiagnosticMsgSeverity } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMsgSeverity } from "@wso2/ballerina-core";
 
 import "./style.scss";
 

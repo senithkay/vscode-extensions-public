@@ -18,7 +18,7 @@
  */
 
 import { ExtensionContext } from "vscode";
-import { PromptObject } from '@wso2-enterprise/mi-core';
+import { PromptObject } from '@wso2/mi-core';
 
 export class MIExtensionContext {
     public context!: ExtensionContext;

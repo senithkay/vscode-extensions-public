@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import { TextField, Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, Codicon, Icon } from "@wso2/ui-toolkit";
 import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
 import { ConnectionPage } from "../connections";
-import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DiagramService } from "@wso2/mi-syntax-tree/lib/src";
 
 const Wrapper = styled.div`
     height: calc(100vh - 150px);

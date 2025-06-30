@@ -17,7 +17,7 @@
  */
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from "@emotion/styled";
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon } from '@wso2/ui-toolkit';
 
 export interface TreeViewProps {
     id: string;

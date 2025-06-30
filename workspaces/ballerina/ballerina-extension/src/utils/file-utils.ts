@@ -16,7 +16,7 @@
  * under the License.
  */
 import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages, Range, Selection, ViewColumn } from "vscode";
-import { SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTree } from "@wso2/ballerina-core";
 import axios from "axios";
 import { createHash } from "crypto";
 import * as fs from 'fs';
@@ -36,7 +36,7 @@ import {
     TM_EVENT_OPEN_REPO_SAME_FOLDER,
     sendTelemetryEvent
 } from "../features/telemetry";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 import { existsSync } from "fs";
 interface ProgressMessage {
     message: string;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TRIGGER_CHARACTERS } from '@wso2-enterprise/ballerina-core';
+import { TRIGGER_CHARACTERS } from '@wso2/ballerina-core';
 
 export const EXPRESSION_EXTRACTION_REGEX = new RegExp(
     `(?<parentContent>(?:[a-zA-Z0-9_']+[${TRIGGER_CHARACTERS.join('')}\(\[])*)?(?<currentContent>[a-zA-Z0-9_']*)$`

@@ -18,7 +18,7 @@
 
 import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { Typography, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Typography, ThemeColors } from '@wso2/ui-toolkit';
 
 const BannerContainer = styled.div<{ variant?: 'info' | 'warning' | 'success' | 'error' }>`
     display: flex;

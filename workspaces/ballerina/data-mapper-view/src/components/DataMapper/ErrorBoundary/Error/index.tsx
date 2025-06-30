@@ -18,7 +18,7 @@
 import * as React from "react";
 
 import { useStyles } from "./style";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 import { ISSUES_URL } from "../../utils";
 
 export default function Default() {

@@ -17,8 +17,8 @@
  */
 
 import React, { useEffect } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { AIMachineStateValue, MachineStateValue } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { AIMachineStateValue, MachineStateValue } from "@wso2/ballerina-core";
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 import AIPanel from "./views/AIPanel/AIPanel";

@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';

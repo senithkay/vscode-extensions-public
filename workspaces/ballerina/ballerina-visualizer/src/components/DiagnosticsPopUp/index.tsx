@@ -18,8 +18,8 @@
 
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { Icon, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { DiagnosticMessage, FlowNode, Property } from "@wso2-enterprise/ballerina-core";
+import { Icon, Popover, ThemeColors } from "@wso2/ui-toolkit";
+import { DiagnosticMessage, FlowNode, Property } from "@wso2/ballerina-core";
 
 interface NodeProperties {
     [key: string]: Property;

@@ -40,7 +40,7 @@ import {
     DMDiagnosticCategory,
     IOType,
     DataMapWriteRequest,
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
 import { getStateMachine, refreshUI } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";

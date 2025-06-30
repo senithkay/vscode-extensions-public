@@ -33,7 +33,7 @@ import {
 	getIntegrationScopeText,
 	getTypeOfIntegrationType,
 	parseGitURL,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";

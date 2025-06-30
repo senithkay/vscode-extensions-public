@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
-import { ModulePart, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode, TypeDefinition } from "@wso2/syntax-tree";
 
 import { updatePropertyStatement } from "../utils";
 import { UndoRedoManager } from "../components/UndoRedoManager";
@@ -32,7 +32,7 @@ import {
 
 import { RecordItem } from "./RecordItem";
 import { cx } from "@emotion/css";
-import { Button, Codicon, Icon, SidePanelTitleContainer, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, SidePanelTitleContainer, Tooltip, Typography } from "@wso2/ui-toolkit";
 import { Context } from "../Context";
 import { InputLabel, InputLabelDetail, InputWrapper, RecordFormWrapper, RecordList, useStyles } from "../style";
 import { RecordEditorC } from "../RecordEditor/RecordEditorC";

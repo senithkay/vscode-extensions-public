@@ -19,13 +19,13 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getOptionalRecordField, getTypeName, isOptionalAndNillableField } from "../../../utils/dm-utils";
 import { InputSearchHighlight } from "../Search";
-import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
 import { getUnionTypes } from "../../../utils/union-type-utils";
 

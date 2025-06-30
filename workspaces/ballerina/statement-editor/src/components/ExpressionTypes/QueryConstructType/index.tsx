@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { QueryConstructType } from "@wso2-enterprise/syntax-tree";
+import { QueryConstructType } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";

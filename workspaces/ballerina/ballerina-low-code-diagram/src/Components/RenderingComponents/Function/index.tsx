@@ -21,7 +21,7 @@ import React from "react";
 import {
     FunctionDefinition,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { ExprBodiedFuncComponent } from "./ExpressionBodiedFuction";
 import { RegularFuncComponent } from "./RegularFunction";

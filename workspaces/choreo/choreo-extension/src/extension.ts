@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds } from "@wso2/choreo-core";
 import * as vscode from "vscode";
 import { type ConfigurationChangeEvent, commands, window, workspace } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";

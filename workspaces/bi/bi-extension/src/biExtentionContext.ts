@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { ExtendedLangClientInterface } from "@wso2-enterprise/ballerina-core";
+import { ExtendedLangClientInterface } from "@wso2/ballerina-core";
 import { ExtensionContext } from "vscode";
 
 export class ExtensionVariables {

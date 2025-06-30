@@ -17,12 +17,12 @@
  */
 import { Content, MediaType as M, Response as R, Schema } from '../../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
 import { Headers } from '../Headers/Headers';
 import SectionHeader from '../SectionHeader/SectionHeader';
-import { Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { MediaTypes } from '../../../constants';
 

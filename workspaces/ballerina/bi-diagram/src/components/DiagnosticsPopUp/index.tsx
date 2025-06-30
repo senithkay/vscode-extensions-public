@@ -18,8 +18,8 @@
 
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { Icon, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { DiagnosticMessage, FlowNode, NodeProperties, Property } from "@wso2-enterprise/ballerina-core";
+import { Icon, Popover, ThemeColors } from "@wso2/ui-toolkit";
+import { DiagnosticMessage, FlowNode, NodeProperties, Property } from "@wso2/ballerina-core";
 import { NODE_WIDTH } from "../../resources/constants";
 
 const IconBtn = styled.div`

@@ -18,7 +18,7 @@
 
 import React, { useCallback, useState } from "react";
 import { FormField } from "../Form/types";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { TextField } from "@wso2/ui-toolkit";
 import { useFormContext } from "../../context";
 import { parseBasePath, parseResourceActionPath } from "../../utils/path-validations";
 import { capitalize } from "./utils";

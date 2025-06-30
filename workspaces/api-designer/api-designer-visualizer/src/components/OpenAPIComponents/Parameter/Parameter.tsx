@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon, Dropdown, TextField, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, TextField, Tooltip } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { Parameter as P } from '../../../Definitions/ServiceDefinitions';
 import { BaseTypes, ParameterSchemaTypes } from '../../../constants';

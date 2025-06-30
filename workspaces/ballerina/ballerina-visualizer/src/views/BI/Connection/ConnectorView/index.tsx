@@ -18,13 +18,13 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, Category, FlowNode, Item, LinePosition } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ProgressRing, SearchBox, Typography, View } from "@wso2-enterprise/ui-toolkit";
+import { AvailableNode, Category, FlowNode, Item, LinePosition } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Button, Codicon, ProgressRing, SearchBox, Typography, View } from "@wso2/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText, BodyTinyInfo, TopBar } from "../../../styles";
-import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
+import { ConnectorIcon } from "@wso2/bi-diagram";
 import { TitleBar } from "../../../../components/TitleBar";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 

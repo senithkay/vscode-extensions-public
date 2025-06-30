@@ -18,8 +18,8 @@
 
 import { ReactNode } from "react";
 import styled from "@emotion/styled";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Icon } from "@wso2/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { BetaSVG } from "../../views/Connectors/Marketplace/BetaSVG";
 
 const TitleBarContainer = styled.div`

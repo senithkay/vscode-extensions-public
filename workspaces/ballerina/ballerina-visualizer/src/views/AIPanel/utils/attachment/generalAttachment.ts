@@ -18,7 +18,7 @@
 
 import { BaseAttachment } from "./baseAttachment";
 import { getFileTypesForCommand } from "./attachmentManager";
-import { Command } from "@wso2-enterprise/ballerina-core";
+import { Command } from "@wso2/ballerina-core";
 
 /**
  * GeneralAttachment uses the default file reading strategy (plain text).

@@ -18,8 +18,8 @@
 import React, { useContext } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { ParameterInfo } from "@wso2-enterprise/ballerina-core";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { ParameterInfo } from "@wso2/ballerina-core";
+import { Typography } from "@wso2/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamHighlight } from "../../../utils";

@@ -22,8 +22,8 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import ChatInput from "./ChatInput";
 import LoadingIndicator from "./LoadingIndicator";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Codicon, Icon } from "@wso2/ui-toolkit";
 import ReactMarkdown from "react-markdown";
 
 enum ChatMessageType {

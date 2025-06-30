@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
 
-import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { IDMType, TypeKind } from '@wso2/ballerina-core';
+import { Button, Codicon, ProgressRing } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 import classNames from "classnames";
 

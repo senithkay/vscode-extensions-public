@@ -17,8 +17,8 @@
  */
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { FileObject, ImageObject } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { FileObject, ImageObject } from "@wso2/mi-core";
 import { PROJECT_RUNTIME_VERSION_THRESHOLD } from "../constants";
 import { LoaderWrapper, ProgressRing } from "../styles";
 import {

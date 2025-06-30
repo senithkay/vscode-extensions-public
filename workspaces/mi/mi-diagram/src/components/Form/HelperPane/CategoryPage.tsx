@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { Position } from 'vscode-languageserver-types';
-import { Divider, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Divider, HelperPane } from '@wso2/ui-toolkit';
 import { FunctionsPage } from './FunctionsPage';
 import { ConfigsPage } from './ConfigsPage';
 import { PAGE, Page } from './index';

@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-core";
-import { BlockStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { DiagramDiagnostic } from "@wso2/ballerina-core";
+import { BlockStatement, STNode } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../Context/diagram";

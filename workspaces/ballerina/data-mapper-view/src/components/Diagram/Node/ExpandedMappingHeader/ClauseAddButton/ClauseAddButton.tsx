@@ -18,12 +18,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, QueryExpression, STNode } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
-import { Button, Icon, Item, Menu, MenuItem, Popover, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ProgressRing } from "@wso2/ui-toolkit";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;

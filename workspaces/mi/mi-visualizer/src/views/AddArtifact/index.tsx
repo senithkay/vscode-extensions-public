@@ -17,9 +17,9 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { EVENT_TYPE, MACHINE_VIEW, WorkspaceFolder } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, WorkspaceFolder } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, Icon } from "@wso2/ui-toolkit";
 import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
@@ -27,9 +27,9 @@ import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
 import { handleFileAttach } from "../AIPanel/utils";
 import { RUNTIME_VERSION_440 } from "../../constants";
-import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { compareVersions } from "@wso2/mi-diagram/lib/utils/commons";
 import { VALID_FILE_TYPES } from "../AIPanel/constants";
-import { FileObject, ImageObject } from "@wso2-enterprise/mi-core";
+import { FileObject, ImageObject } from "@wso2/mi-core";
 import Attachments from "../AIPanel/component/Attachments";
 
 const Container = styled.div({

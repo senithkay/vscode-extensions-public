@@ -18,7 +18,7 @@
 import { ArrayOutputNode, EmptyInputsNode, InputNode, LinkConnectorNode, ObjectOutputNode } from "../components/Diagram/Node";
 import { DataMapperNodeModel } from "../components/Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../utils/DataMapperContext/DataMapperContext";
-import { IDMModel, IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, IOType, Mapping, TypeKind } from "@wso2/ballerina-core";
 import { OFFSETS } from "../components/Diagram/utils/constants";
 import { BaseVisitor } from "./BaseVisitor";
 

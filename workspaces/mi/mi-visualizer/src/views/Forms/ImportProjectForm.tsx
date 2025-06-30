@@ -17,10 +17,10 @@
  */
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Codicon, LocationSelector, Typography } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Button, Codicon, LocationSelector, Typography } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { SectionWrapper } from "./Commons";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
 
 const WizardContainer = styled.div`
     display: flex;

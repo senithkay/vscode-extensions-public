@@ -23,8 +23,8 @@ import {
     SidePanelTitleContainer,
     SidePanelBody,
     Codicon
-} from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+} from "@wso2/ui-toolkit";
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";

@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from "react";
 
-import { DIAGNOSTIC_SEVERITY, JsonToRecord } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { DIAGNOSTIC_SEVERITY, JsonToRecord } from "@wso2/ballerina-core";
+import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { TextPreloaderVertical } from "../PreLoader/TextPerloaderVertical";
@@ -39,7 +39,7 @@ import { checkDiagnostics, getUpdatedSource } from "../components/FormComponents
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
 import { FileSelect, FormContainer, FormWrapper, InputContainer, InputWrapper, LabelWrapper, useStyles } from "../style";
-import { Button, CheckBox, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, CheckBox, Codicon, SidePanelTitleContainer, Typography } from "@wso2/ui-toolkit";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
 
 interface RecordState {

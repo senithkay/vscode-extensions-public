@@ -1,5 +1,5 @@
 {
-	"name": "@wso2-enterprise/type-diagram",
+	"name": "@wso2/type-diagram",
 	"version": "1.0.0",
 	"description": "The front-end implementation for the Type Diagram",
 	"files": [
@@ -43,8 +43,8 @@
 		"@babel/core": "^7.27.1",
 		"@types/react": "18.2.0",
 		"@types/react-dom": "18.2.0",
-		"@wso2-enterprise/ballerina-core": "workspace:*",
-		"@wso2-enterprise/ui-toolkit": "workspace:*",
+		"@wso2/ballerina-core": "workspace:*",
+		"@wso2/ui-toolkit": "workspace:*",
 		"babel-loader": "^10.0.0",
 		"copyfiles": "^2.4.1",
 		"css-loader": "^7.1.2",

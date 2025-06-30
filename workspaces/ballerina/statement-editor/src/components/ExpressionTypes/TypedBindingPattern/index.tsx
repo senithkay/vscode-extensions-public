@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
+import { TypedBindingPattern } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 

@@ -18,8 +18,8 @@
 
 import React, { useState } from "react";
 import { Flow, FlowNode, Branch, LineRange, NodePosition, ToolData } from "../utils/types";
-import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { ExpressionProperty, TextEdit } from "@wso2-enterprise/ballerina-core";
+import { CompletionItem } from "@wso2/ui-toolkit";
+import { ExpressionProperty, TextEdit } from "@wso2/ballerina-core";
 
 type CompletionConditionalProps = {
     completions: CompletionItem[];

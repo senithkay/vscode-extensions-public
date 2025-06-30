@@ -18,7 +18,7 @@
 
 import React, { ReactNode } from "react";
 import { ENDPOINTS, MEDIATORS } from "../../constants";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 
 export function getMostPopularIconColor() {
     return "#ff7f36";

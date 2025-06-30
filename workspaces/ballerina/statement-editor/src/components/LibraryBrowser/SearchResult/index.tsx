@@ -22,8 +22,8 @@ import {
     LibraryDataResponse,
     LibraryInfo,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-core";
-import { Grid } from '@wso2-enterprise/ui-toolkit';
+} from "@wso2/ballerina-core";
+import { Grid } from '@wso2/ui-toolkit';
 
 import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 import { useStmtEditorHelperPanelStyles } from "../../styles";

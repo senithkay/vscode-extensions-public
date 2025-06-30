@@ -19,7 +19,7 @@
 import React from "react";
 
 import { css } from "@emotion/css";
-import { Codicon, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider } from "@wso2/ui-toolkit";
 
 import { IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
 

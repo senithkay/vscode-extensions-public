@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { FunctionIcon } from '@wso2-enterprise/ballerina-core';
-import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionIcon } from '@wso2/ballerina-core';
+import { FunctionDefinition, IdentifierToken, ObjectMethodDefinition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2/syntax-tree";
 import classNames from 'classnames';
 
 import { truncateText } from '../../../../Utils';

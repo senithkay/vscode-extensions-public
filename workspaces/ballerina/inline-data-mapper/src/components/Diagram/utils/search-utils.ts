@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, TypeKind } from "@wso2/ballerina-core";
 import { useDMSearchStore } from "../../../store/store";
 
 export const getSearchFilteredInput = (dmType: IOType, varName?: string) => {

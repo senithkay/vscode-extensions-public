@@ -20,7 +20,7 @@ import * as fs from 'fs';
 import path from "path";
 import { readFileSync } from "fs";
 import { GetSyntaxTreeParams, GetSyntaxTreeResponse, IMILangClient } from ".";
-import { UpdateMediatorRequest, UpdateMediatorResponse } from '@wso2-enterprise/mi-core';
+import { UpdateMediatorRequest, UpdateMediatorResponse } from '@wso2/mi-core';
 const { spawn } = require('child_process');
 const { StreamMessageReader, StreamMessageWriter, createMessageConnection } = require('vscode-jsonrpc');
 

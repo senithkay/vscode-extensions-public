@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CaptureBindingPattern, DotToken, IdentifierToken, NodePosition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, DotToken, IdentifierToken, NodePosition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode } from "@wso2/syntax-tree";
 
 export const MODULE_DELIMETER = '#';
 export const SUB_DELIMETER = '%%';

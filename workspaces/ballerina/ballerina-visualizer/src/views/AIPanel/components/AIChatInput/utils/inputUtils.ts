@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Command, TemplateId } from "@wso2-enterprise/ballerina-core";
+import { Command, TemplateId } from "@wso2/ballerina-core";
 import { CommandTemplates } from "../../../commandTemplates/data/commandTemplates.const";
 import { getTemplateDefinitionsByCommand } from "../../../commandTemplates/utils/utils";
 import { ChatBadgeType } from "../../ChatBadge";

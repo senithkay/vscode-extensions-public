@@ -4,7 +4,7 @@ const { writeFile, existsSync } = require("fs");
 const path = require("path");
 const { spawn, execSync } = require("child_process");
 
-const { WSConnection, BalleriaLanguageClient } = require("@wso2-enterprise/ballerina-core")
+const { WSConnection, BalleriaLanguageClient } = require("@wso2/ballerina-core")
 
 const MOCK_SERVER_URL = "http://localhost:3000"
 const LANG_SERVER_URL = "ws://localhost:9095"

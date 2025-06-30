@@ -20,7 +20,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Global, css } from "@emotion/react";
 import "./../resources/assets/font/fonts.css";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 export interface DiagramCanvasProps {
     color?: string;
     background?: string;

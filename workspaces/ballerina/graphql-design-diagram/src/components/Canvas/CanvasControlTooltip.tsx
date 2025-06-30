@@ -19,7 +19,7 @@
 import React, { ReactNode } from 'react';
 
 import { css } from '@emotion/css';
-import { Button, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Tooltip } from '@wso2/ui-toolkit';
 
 interface ControlButtonProps {
     children: ReactNode;

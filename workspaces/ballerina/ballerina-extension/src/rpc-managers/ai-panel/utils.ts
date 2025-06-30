@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords, AIMachineEventType, DiagnosticEntry } from "@wso2-enterprise/ballerina-core";
+import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2/syntax-tree";
+import { ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords, AIMachineEventType, DiagnosticEntry } from "@wso2/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 

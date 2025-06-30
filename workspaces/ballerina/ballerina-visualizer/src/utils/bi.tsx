@@ -24,8 +24,8 @@ import {
     ParameterValue,
     Parameter,
     FormImports,
-} from "@wso2-enterprise/ballerina-side-panel";
-import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
+} from "@wso2/ballerina-side-panel";
+import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2/bi-diagram";
 import {
     Category,
     AvailableNode,
@@ -55,20 +55,20 @@ import {
     Imports,
     ColorThemeKind,
     CompletionInsertText,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     HelperPaneVariableInfo,
     HelperPaneFunctionInfo,
     HelperPaneFunctionCategory,
     HelperPaneCompletionItem,
-} from "@wso2-enterprise/ballerina-side-panel";
+} from "@wso2/ballerina-side-panel";
 import { SidePanelView } from "../views/BI/FlowDiagram/PanelManager";
 import { cloneDeep } from "lodash";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import hljs from "highlight.js";
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind, FnSignatureDocumentation } from "@wso2-enterprise/ui-toolkit";
-import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind, FnSignatureDocumentation } from "@wso2/ui-toolkit";
+import { FunctionDefinition, STNode } from "@wso2/syntax-tree";
 import { DocSection } from "../components/ExpressionEditor";
 
 // @ts-ignore

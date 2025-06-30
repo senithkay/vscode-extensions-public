@@ -18,10 +18,10 @@
 
 import React, { useCallback, useState, useRef } from "react";
 import { FormField } from "../Form/types";
-import { Button, TextField, Typography, Icon, ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, Icon, ProgressRing, ThemeColors } from "@wso2/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { getPropertyFromFormField } from "./utils";
 

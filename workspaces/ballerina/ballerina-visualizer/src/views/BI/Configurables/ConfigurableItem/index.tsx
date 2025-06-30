@@ -18,9 +18,9 @@
 
 import React, { ReactNode, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { ConfigVariable } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";

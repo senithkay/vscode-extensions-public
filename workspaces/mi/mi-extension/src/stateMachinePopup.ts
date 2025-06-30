@@ -19,7 +19,7 @@
 
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { POPUP_EVENT_TYPE, PopupVisualizerLocation, PopupMachineStateValue, onParentPopupSubmitted, popupStateChanged } from '@wso2-enterprise/mi-core';
+import { POPUP_EVENT_TYPE, PopupVisualizerLocation, PopupMachineStateValue, onParentPopupSubmitted, popupStateChanged } from '@wso2/mi-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { getStateMachine } from './stateMachine';

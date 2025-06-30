@@ -17,10 +17,10 @@
  */
 
 import React from "react";
-import { DownloadProgress } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { DownloadProgress } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Icon, ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, ProgressRing, ThemeColors } from "@wso2/ui-toolkit";
 
 const Wrapper = styled.div`
     height: calc(100vh - 100px);

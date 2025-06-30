@@ -23,7 +23,7 @@ import EndpointList from "./EndpointList";
 import InlineButtonGroup from "./InlineButtonGroup";
 import ParamField from "./ParamField";
 import PropertiesTable from "./PropertiesTable";
-import { Button, Codicon, Badge } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Badge } from "@wso2/ui-toolkit";
 
 export const SectionWrapper: any = styled.div`
     // Flex Props

@@ -20,7 +20,7 @@ import {
     StringLiteral,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { Range } from "vscode";
 import { newLine } from "./split-provider";
 

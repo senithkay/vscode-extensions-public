@@ -17,7 +17,7 @@
  */
 
 import React from "react";
-import { Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, LinkButton } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 const CardContainer = styled.div`

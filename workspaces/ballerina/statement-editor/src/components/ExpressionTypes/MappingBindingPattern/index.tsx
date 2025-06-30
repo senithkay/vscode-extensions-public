@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { MappingBindingPattern } from "@wso2-enterprise/syntax-tree";
+import { MappingBindingPattern } from "@wso2/syntax-tree";
 
 import { getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";

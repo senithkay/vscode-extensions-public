@@ -18,12 +18,12 @@
 
 import { debounce } from "lodash";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import {
     Category as PanelCategory,
-} from "@wso2-enterprise/ballerina-side-panel";
+} from "@wso2/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { MemoizedDiagram } from "@wso2-enterprise/bi-diagram";
+import { MemoizedDiagram } from "@wso2/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -42,7 +42,7 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     TextEdit
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
@@ -53,8 +53,8 @@ import {
     isNaturalFunction,
     updateLineRange,
 } from "../../../utils/bi";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ProgressRing, ProgressIndicator, ThemeColors, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
+import { View, ProgressRing, ProgressIndicator, ThemeColors, CompletionItem } from "@wso2/ui-toolkit";
 import { EXPRESSION_EXTRACTION_REGEX } from "../../../constants";
 
 const Container = styled.div`

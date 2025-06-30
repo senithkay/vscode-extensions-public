@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Category, AvailableNode, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { Category, AvailableNode, BallerinaProjectComponents } from "@wso2/ballerina-core";
 import { URI, Utils } from "vscode-uri";
 
 // Filter out connections where name starts with _ and module is "ai" or "ai.agent"

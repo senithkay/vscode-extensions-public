@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds } from "@wso2/choreo-core";
 import { type ExtensionContext, commands } from "vscode";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";

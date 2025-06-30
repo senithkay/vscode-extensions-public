@@ -20,7 +20,7 @@ import {
     FunctionBodyBlock,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 class StatementFindingVisitor implements Visitor {
     private statements: STNode[] = [];

@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-core";
-import { GridItem, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { LibraryDataResponse, LibraryInfo } from "@wso2/ballerina-core";
+import { GridItem, Icon, Tooltip, Typography } from "@wso2/ui-toolkit";
 
 import { MAX_COLUMN_WIDTH } from '../../../constants';
 import { StatementEditorContext } from "../../../store/statement-editor-context";

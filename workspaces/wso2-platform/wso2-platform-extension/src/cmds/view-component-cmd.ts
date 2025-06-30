@@ -18,7 +18,7 @@
 
 import { existsSync } from "fs";
 import * as path from "path";
-import { CommandIds, type IViewComponentDetailsCmdParams, getComponentKindRepoSource } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type IViewComponentDetailsCmdParams, getComponentKindRepoSource } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

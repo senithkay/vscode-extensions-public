@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { PrimitiveBalType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, STModification, TypeField } from "@wso2/ballerina-core";
 import {
     ExpressionFunctionBody,
     NodePosition,
@@ -23,7 +23,7 @@ import {
     STKindChecker,
     STNode,
     traversNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

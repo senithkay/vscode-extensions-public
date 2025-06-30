@@ -47,7 +47,7 @@ import {
     onArtifactUpdatedRequest,
     ColorThemeKind,
     currentThemeChanged
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";

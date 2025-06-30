@@ -21,7 +21,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { LifeLineNodeModel } from "./LifeLineNodeModel";
 import { BORDER_WIDTH } from "../../../resources/constants";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 namespace LifeLineNodeStyles {
     export type BoxStyleProp = {
         width: number;

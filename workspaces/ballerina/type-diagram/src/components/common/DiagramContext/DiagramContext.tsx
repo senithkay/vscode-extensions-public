@@ -17,7 +17,7 @@
  */
 
 import React, { createContext, ReactNode } from 'react';
-import { Type } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2/ballerina-core';
 
 interface DiagramContextProps {
     children?: ReactNode;

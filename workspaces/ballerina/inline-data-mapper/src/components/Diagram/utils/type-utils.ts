@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2/ballerina-core";
 
 export function getTypeName(fieldType: IOType): string {
 	if (!fieldType) {

@@ -17,7 +17,7 @@
  */
 import React from 'react';
 
-import { NamedWorkerDeclaration } from '@wso2-enterprise/syntax-tree';
+import { NamedWorkerDeclaration } from '@wso2/syntax-tree';
 
 import { BlockViewState } from '../../../ViewState';
 import { End } from '../End';

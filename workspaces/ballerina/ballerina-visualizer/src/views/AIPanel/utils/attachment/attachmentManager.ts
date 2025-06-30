@@ -18,7 +18,7 @@
 
 import { ChangeEvent } from "react";
 import { DataMapperAttachment } from "./dataMapperAttachment";
-import { Attachment, Command } from "@wso2-enterprise/ballerina-core";
+import { Attachment, Command } from "@wso2/ballerina-core";
 import { GeneralAttachment } from "./generalAttachment";
 
 /**

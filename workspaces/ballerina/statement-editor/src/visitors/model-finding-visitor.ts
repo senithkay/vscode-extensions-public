@@ -19,7 +19,7 @@ import {
     NodePosition,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import { DEFAULT_INTERMEDIATE_CLAUSE, DEFAULT_WHERE_INTERMEDIATE_CLAUSE } from "../constants";

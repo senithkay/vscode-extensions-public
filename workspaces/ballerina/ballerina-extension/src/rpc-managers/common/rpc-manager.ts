@@ -39,7 +39,7 @@ import {
     WorkspaceFileRequest,
     WorkspaceRootResponse,
     WorkspacesFileResponse,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import child_process from 'child_process';
 import { Uri, commands, env, window, workspace, MarkdownString } from "vscode";
 import { URI } from "vscode-uri";

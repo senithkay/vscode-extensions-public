@@ -1,6 +1,6 @@
 import React from "react";
 
-import { FunctionDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ResourceAccessorDefinition } from "@wso2/syntax-tree";
 
 import { Function } from "../Components/RenderingComponents/Function";
 import { sizingAndPositioning } from "../Utils";

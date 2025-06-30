@@ -21,7 +21,7 @@ import { clearNotificationAlerts, initTest, page, showNotifications, resumeVSCod
 import { ProjectExplorer } from '../components/ProjectExplorer';
 import { Overview } from '../components/Overview';
 import { AddArtifact } from '../components/AddArtifact';
-import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
+import { switchToIFrame } from '@wso2/playwright-vscode-tester';
 import { Form } from '../components/Form';
 import path from 'path';
 

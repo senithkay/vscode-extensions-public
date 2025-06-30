@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { DiagnosticEntry, Diagnostics, OpenAPISpec, ProjectDiagnostics, ProjectModule, ProjectSource, SyntaxTree, TestGenerationRequest, TestGenerationResponse, TestGenerationTarget } from '@wso2-enterprise/ballerina-core';
-import { ErrorCode } from "@wso2-enterprise/ballerina-core";
-import { DotToken, IdentifierToken, ModulePart, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { DiagnosticEntry, Diagnostics, OpenAPISpec, ProjectDiagnostics, ProjectModule, ProjectSource, SyntaxTree, TestGenerationRequest, TestGenerationResponse, TestGenerationTarget } from '@wso2/ballerina-core';
+import { ErrorCode } from "@wso2/ballerina-core";
+import { DotToken, IdentifierToken, ModulePart, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker } from "@wso2/syntax-tree";
 import { Uri, workspace } from "vscode";
 import { PARSING_ERROR, UNKNOWN_ERROR, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
 import { langClient } from './activator';

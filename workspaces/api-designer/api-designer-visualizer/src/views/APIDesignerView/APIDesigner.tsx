@@ -17,11 +17,11 @@
  */
 
 import { useEffect, useState } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
+import { useVisualizerContext } from "@wso2/api-designer-rpc-client";
 import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { debounce } from "lodash";
-import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
+import { MachineStateValue } from "@wso2/api-designer-core";
 import { ApiDesigner } from "../../components/OpenAPIComponents/ApiDesigner/ApiDesigner";
 
 interface ServiceDesignerProps {

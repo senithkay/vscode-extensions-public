@@ -20,7 +20,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
 import { IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT } from "../../../resources/constants";
-import { Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";

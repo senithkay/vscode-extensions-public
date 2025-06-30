@@ -20,7 +20,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
 import { EntryPoint, EntryPointType } from "../../../utils/types";
-import { CDFunction, CDResourceFunction, CDService } from "@wso2-enterprise/ballerina-core";
+import { CDFunction, CDResourceFunction, CDService } from "@wso2/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 
 export const VIEW_ALL_RESOURCES_PORT_NAME = "view-all-resources";

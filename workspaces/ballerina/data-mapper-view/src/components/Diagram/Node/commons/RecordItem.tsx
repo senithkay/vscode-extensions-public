@@ -19,7 +19,7 @@
 import React from "react";
 
 import { css } from "@emotion/css";
-import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Icon, Typography } from "@wso2/ui-toolkit";
 
 const useStyles = () => ({
     menuItem: css({

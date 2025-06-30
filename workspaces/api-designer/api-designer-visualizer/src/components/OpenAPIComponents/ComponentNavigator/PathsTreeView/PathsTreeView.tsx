@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon, TreeView, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TreeView, Typography } from '@wso2/ui-toolkit';
 import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../ComponentNavigator';
 import { OpenAPI, PathItem, Paths } from '../../../../Definitions/ServiceDefinitions';
 import { PathTreeView } from '../PathTreeView/PathTreeView';

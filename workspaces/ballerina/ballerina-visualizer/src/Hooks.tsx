@@ -18,8 +18,8 @@
 import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { FlowNode, LinePosition } from '@wso2-enterprise/ballerina-core';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
+import { FlowNode, LinePosition } from '@wso2/ballerina-core';
 
 export const useInlineDataMapperModel = (
     filePath: string,

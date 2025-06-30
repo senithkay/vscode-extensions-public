@@ -25,7 +25,7 @@ import {
     JsonTypeDesc,
     StringTypeDesc,
     VarTypeDesc
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 

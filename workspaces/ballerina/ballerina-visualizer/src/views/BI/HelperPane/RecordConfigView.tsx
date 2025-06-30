@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TypeField } from "@wso2-enterprise/ballerina-core";
+import { TypeField } from "@wso2/ballerina-core";
 
 import styled from "@emotion/styled";
 import { MemoizedParameterBranch } from "./RecordConstructView/ParameterBranch";

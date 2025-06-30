@@ -19,8 +19,8 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
-import { FunctionCall, NodePosition, STKindChecker,} from '@wso2-enterprise/syntax-tree';
+import { PrimitiveBalType, TypeField, TypeKind } from "@wso2/ballerina-core";
+import { FunctionCall, NodePosition, STKindChecker,} from '@wso2/syntax-tree';
 import classNames from "classnames";
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -39,7 +39,7 @@ import {
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing } from '@wso2/ui-toolkit';
 import { QueryExprMappingType } from '../Node';
 import { useDMFocusedViewStateStore } from '../../../store/store';
 import { canPerformAggregation } from '../utils/type-utils';

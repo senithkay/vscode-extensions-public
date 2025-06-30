@@ -16,15 +16,15 @@
  * under the License.
  */
 
-import { FormActions, Button, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import { FormActions, Button, ErrorBanner } from "@wso2/ui-toolkit";
 import React, { useContext } from "react";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
 import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
-import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
-import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { useVisualizerContext, } from "@wso2/mi-rpc-client";
+import { GetMediatorResponse } from "@wso2/mi-core";
+import { Range } from "@wso2/mi-syntax-tree/lib/src";
 import { ERROR_MESSAGES } from "../../../resources/constants";
 import { createAndopenDataMapper } from "./onSubmitFunctions";
 

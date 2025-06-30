@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../Mappings/MappingMetadata";

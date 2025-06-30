@@ -25,7 +25,7 @@ import {
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { PlusButton } from "../../PlusButtons/Plus";

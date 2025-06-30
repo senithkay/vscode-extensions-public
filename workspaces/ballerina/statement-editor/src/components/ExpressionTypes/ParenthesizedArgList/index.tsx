@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { ParenthesizedArgList } from "@wso2-enterprise/syntax-tree";
+import { ParenthesizedArgList } from "@wso2/syntax-tree";
 
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";

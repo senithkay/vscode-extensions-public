@@ -16,7 +16,7 @@
  * under the License.
  */
 import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 
 import { InputOutputPortModel, MappingType } from "../Port";
 import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";

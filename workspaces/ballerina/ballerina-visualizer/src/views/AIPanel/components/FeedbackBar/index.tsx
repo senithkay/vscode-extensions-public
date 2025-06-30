@@ -17,7 +17,7 @@
  */
 
 import React, { useState } from "react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import FeedbackDialog from "../FeedbackDialog";
 

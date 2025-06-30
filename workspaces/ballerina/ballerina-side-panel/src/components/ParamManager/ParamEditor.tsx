@@ -24,9 +24,9 @@ import { Parameter } from './ParamManager';
 import Form from '../Form';
 import { FormField, FormValues } from '../Form/types';
 import { useFormContext } from '../../context';
-import { RecordTypeField, TextEdit } from '@wso2-enterprise/ballerina-core';
-import { HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
-import { FormExpressionEditorRef } from '@wso2-enterprise/ui-toolkit';
+import { RecordTypeField, TextEdit } from '@wso2/ballerina-core';
+import { HelperPaneHeight } from '@wso2/ui-toolkit';
+import { FormExpressionEditorRef } from '@wso2/ui-toolkit';
 
 export interface ParamProps {
     propertyKey: string;

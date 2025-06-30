@@ -23,8 +23,8 @@ import {
     SidePanelTitleContainer,
     SidePanelBody,
     Codicon
-} from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+} from "@wso2/ui-toolkit";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";

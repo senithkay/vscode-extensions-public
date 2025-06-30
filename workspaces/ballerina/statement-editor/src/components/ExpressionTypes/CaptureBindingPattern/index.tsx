@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { CaptureBindingPattern } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern } from "@wso2/syntax-tree";
 
 import { getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";

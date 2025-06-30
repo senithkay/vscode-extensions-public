@@ -19,10 +19,10 @@
 import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Position } from 'vscode-languageserver-types';
-import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { HelperPaneCompletionItem } from '@wso2/mi-core';
+import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2/ui-toolkit';
 import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { PAGE, Page } from './index';
 
 type PropertiesPageProps = {

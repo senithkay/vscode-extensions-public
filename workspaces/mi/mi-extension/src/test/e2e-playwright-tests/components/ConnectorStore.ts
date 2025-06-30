@@ -17,7 +17,7 @@
  */
 
 import { Frame, Keyboard, Locator, Page } from "@playwright/test";
-import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { getVsCodeButton, switchToIFrame } from "@wso2/playwright-vscode-tester";
 import path from "path";
 import * as os from 'os';
 

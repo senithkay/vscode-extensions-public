@@ -19,8 +19,8 @@
 import React from "react";
 
 import { useForm, Controller } from 'react-hook-form';
-import { TextField } from '@wso2-enterprise/ui-toolkit';
-import { ActionButtons } from '@wso2-enterprise/ui-toolkit';
+import { TextField } from '@wso2/ui-toolkit';
+import { ActionButtons } from '@wso2/ui-toolkit';
 import SidePanelContext from "../SidePanelContexProvider";
 import { ExpressionFieldValue } from "../../Form/ExpressionField/ExpressionInput";
 import { ParamConfig, ParamManager } from "../../Form/ParamManager/ParamManager";

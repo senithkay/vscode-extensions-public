@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { FunctionDefinition, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, STNode, Visitor } from "@wso2/syntax-tree";
 
 export class FunctionFindingVisitor implements Visitor {
     functionName: string;

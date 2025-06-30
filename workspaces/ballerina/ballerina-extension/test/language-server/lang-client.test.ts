@@ -30,7 +30,7 @@ import {
     NotebookVariable, OpenAPISpec, PackageConfigSchema, PartialST,
     SymbolInfo, SyntaxTreeNode,
     Connectors, Completion, Diagnostics,
-    SyntaxTree} from '@wso2-enterprise/ballerina-core';
+    SyntaxTree} from '@wso2/ballerina-core';
 import { ExtendedLangClient } from '../../src/core/extended-language-client';
 import { ballerinaExtInstance } from '../../src/core/extension';
 
@@ -841,7 +841,7 @@ suite.skip("Language Server Tests", function () {
         });
     });
 
-    // TODO: Enable test. https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/937
+    // TODO: Enable test. https://github.com/wso2/ballerina-plugin-vscode/issues/937
     // test.skip("Test get connector", function (done): void {
     //     langClient.getConnector({
     //         name: "Client",

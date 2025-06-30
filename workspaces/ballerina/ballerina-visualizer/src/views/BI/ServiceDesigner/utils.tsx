@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { responseCodes } from '@wso2-enterprise/ballerina-core';
+import { responseCodes } from '@wso2/ballerina-core';
 
 export enum HTTP_METHOD {
     "GET" = "GET",

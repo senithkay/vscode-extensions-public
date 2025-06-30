@@ -19,7 +19,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { NodeCollapser } from '../Controls/NodeCollapser';
-import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ThemeColors } from '@wso2/ui-toolkit';
 
 interface HeaderProps {
     collapsedMode: boolean;

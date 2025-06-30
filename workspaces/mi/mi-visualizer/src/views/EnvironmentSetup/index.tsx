@@ -18,13 +18,13 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, FormGroup, OptionProps, Dropdown } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { DownloadProgressData, EVENT_TYPE, PathDetailsResponse } from "@wso2-enterprise/mi-core";
+import { Button, FormGroup, OptionProps, Dropdown } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { DownloadProgressData, EVENT_TYPE, PathDetailsResponse } from "@wso2/mi-core";
 import { ButtonWithDescription, DownloadComponent, RuntimeStatus, Row, Column, StepDescription } from "./Components";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EULALicenseForm } from "./EULALicense";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing } from "@wso2/ui-toolkit";
 
 const Container = styled.div`
     display: flex;

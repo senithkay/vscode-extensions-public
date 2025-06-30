@@ -79,7 +79,7 @@ import {
     UpdateAiDependenciesResponse,
     UpdateAiDependenciesRequest,
     MavenDeployPluginDetails
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, LanguageClientOptions, ServerOptions, TextEdit } from "vscode-languageclient/node";

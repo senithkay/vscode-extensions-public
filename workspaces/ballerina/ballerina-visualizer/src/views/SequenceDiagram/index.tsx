@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import {
     LowCodeDiagram,
     initVisitor,
@@ -27,11 +27,11 @@ import {
     cleanLocalSymbols,
     cleanModuleLevelSymbols,
     getSymbolInfo,
-} from "@wso2-enterprise/ballerina-low-code-diagram";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-low-code-diagram";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2/syntax-tree";
 import styled from "@emotion/styled";
 import { PanelType, useVisualizerContext } from "../../Context";
-import { ComponentInfo, ConnectorInfo, removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
+import { ComponentInfo, ConnectorInfo, removeStatement, STModification } from "@wso2/ballerina-core";
 import { URI } from "vscode-uri";
 import { fetchConnectorInfo, retrieveUsedAction } from "../Connectors/ConnectorWizard/utils";
 

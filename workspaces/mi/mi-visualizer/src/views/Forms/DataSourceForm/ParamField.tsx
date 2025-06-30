@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { FormCheckBox, Dropdown, RadioButtonGroup, TextField } from '@wso2-enterprise/ui-toolkit';
+import { FormCheckBox, Dropdown, RadioButtonGroup, TextField } from '@wso2/ui-toolkit';
 import { useFormContext } from "react-hook-form";
 
 export const getParameterName = (id: string) => {

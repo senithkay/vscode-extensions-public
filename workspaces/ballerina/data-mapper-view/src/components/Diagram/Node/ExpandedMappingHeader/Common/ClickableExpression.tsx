@@ -18,12 +18,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { useStyles } from "../styles";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon } from "@wso2/ui-toolkit";
 
 export const ClickableExpression = (props: {
     node: STNode;

@@ -19,12 +19,12 @@
 
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, LinkButton, Typography } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
 import { HTTP_METHOD } from '../../../utils';
-import { ReturnTypeModel, StatusCodeResponse } from '@wso2-enterprise/ballerina-core';
+import { ReturnTypeModel, StatusCodeResponse } from '@wso2/ballerina-core';
 
 export interface ResourceParamProps {
     method: HTTP_METHOD;

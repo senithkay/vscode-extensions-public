@@ -18,13 +18,13 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { CommaToken, NodePosition, OrderByClause, OrderKey, QueryExpression, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CommaToken, NodePosition, OrderByClause, OrderKey, QueryExpression, STKindChecker, STNode } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { Button, Codicon, Dropdown, OptionProps, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown, OptionProps, ProgressRing } from "@wso2/ui-toolkit";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;

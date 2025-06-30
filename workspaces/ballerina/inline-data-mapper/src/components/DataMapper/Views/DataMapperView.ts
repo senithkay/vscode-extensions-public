@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { IDMModel } from "@wso2-enterprise/ballerina-core";
+import { IDMModel } from "@wso2/ballerina-core";
 
 export interface View {
     label: string;

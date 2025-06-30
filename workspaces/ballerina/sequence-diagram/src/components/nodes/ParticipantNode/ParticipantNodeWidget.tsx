@@ -19,7 +19,7 @@
 import React, { useContext } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 import { ParticipantNodeModel } from "./ParticipantNodeModel";
 import {
     PARTICIPANT_NODE_WIDTH,

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ComponentInfo } from "@wso2-enterprise/ballerina-core";
+import { ComponentInfo } from "@wso2/ballerina-core";
 import {
     FieldAccess,
     OptionalFieldAccess,
@@ -23,7 +23,7 @@ import {
     STKindChecker,
     STNode,
     Visitor,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { ModuleVariable, ModuleVarKind } from "../Node/ModuleVariable";
 

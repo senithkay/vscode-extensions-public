@@ -22,7 +22,7 @@ import {
     FunctionBodyBlock,
     FunctionDefinition,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../Context/diagram";

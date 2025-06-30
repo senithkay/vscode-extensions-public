@@ -16,21 +16,21 @@
  * under the License.
  */
 
-import { Codicon, ErrorBanner, LinkButton, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, LinkButton, ProgressRing, Tooltip } from '@wso2/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { GetMediatorsResponse, Mediator, MediatorCategory } from '@wso2-enterprise/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
+import { GetMediatorsResponse, Mediator, MediatorCategory } from '@wso2/mi-core';
 import { ButtonGrid, ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { Colors, DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import { RemoveConnectorPage } from './RemoveConnectorPage';
-import { DiagramService } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService } from '@wso2/mi-syntax-tree/lib/src';
 
 interface MediatorProps {
     nodePosition: any;

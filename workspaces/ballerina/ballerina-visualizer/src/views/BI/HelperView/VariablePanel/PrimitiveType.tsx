@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TypeWithIdentifier, VarIcon } from '@wso2-enterprise/ballerina-core';
+import { TypeWithIdentifier, VarIcon } from '@wso2/ballerina-core';
 
 import { IconContainer, VariableComponent, VariableName, VariableType } from '../VariablesView';
 import { getIcon, getTypeName } from './utils';

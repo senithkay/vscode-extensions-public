@@ -19,7 +19,7 @@
 import { useState } from "react";
 import { CodeSegment, CodeSegmentProps } from "./CodeSegment";
 import styled from "@emotion/styled";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import { Spinner } from "./ProgressTextSegment";
 import { Collapse } from "react-collapse";
 import { SegmentType, splitContent } from "./AIChat";

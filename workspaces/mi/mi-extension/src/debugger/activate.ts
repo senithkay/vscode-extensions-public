@@ -28,7 +28,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { SELECTED_SERVER_PATH, SELECTED_JAVA_HOME } from './constants';
 import { buildBallerinaModule, setPathsInWorkSpace, verifyJavaHomePath, verifyMIPath } from '../util/onboardingUtils';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { askForProject } from '../util/workspace';
 import { webviews } from '../visualizer/webview';
 

@@ -21,7 +21,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import {
     FunctionBodyBlock,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
 

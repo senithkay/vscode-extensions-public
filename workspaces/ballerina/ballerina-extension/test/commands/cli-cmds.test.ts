@@ -21,7 +21,7 @@ import * as rimraf from "rimraf";
 import * as path from 'path';
 import axios from "axios";
 import { expect } from "chai";
-import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject } from "@wso2/ballerina-core";
 import { runCommand, BALLERINA_COMMANDS } from '../../src/features/project/cmds/cmd-runner';
 import { getBallerinaHome, killPort } from '../test-util';
 import { wait } from "../../ui-test/util";

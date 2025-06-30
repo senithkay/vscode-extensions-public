@@ -17,7 +17,7 @@
  */
 
 import { URI, Utils } from "vscode-uri";
-import { ARTIFACT_TYPE, Artifacts, ArtifactsNotification, BaseArtifact, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { ARTIFACT_TYPE, Artifacts, ArtifactsNotification, BaseArtifact, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2/ballerina-core";
 import { StateMachine } from "../stateMachine";
 import * as fs from 'fs';
 import * as path from 'path';

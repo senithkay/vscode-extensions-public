@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type { ComponentViewDrawers, ExtensionName, WebviewState } from "@wso2-enterprise/wso2-platform-core";
+import type { ComponentViewDrawers, ExtensionName, WebviewState } from "@wso2/wso2-platform-core";
 import { workspace } from "vscode";
 import { createStore } from "zustand";
 

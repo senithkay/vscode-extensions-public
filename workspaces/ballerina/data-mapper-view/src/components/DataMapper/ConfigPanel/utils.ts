@@ -26,7 +26,7 @@ import {
     STModification,
     TypeField,
     updateFunctionSignature
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     FunctionDefinition,
     IdentifierToken,
@@ -34,7 +34,7 @@ import {
     RequiredParam,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-types";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
@@ -44,7 +44,7 @@ import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupp
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export const FILE_SCHEME = "file://";

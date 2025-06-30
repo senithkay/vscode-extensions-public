@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Diagnostics, ProjectDiagnosticsResponse, STModification, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { Diagnostics, ProjectDiagnosticsResponse, STModification, SyntaxTree } from "@wso2/ballerina-core";
 import { ExtendedLangClient } from "../../core";
 import { Uri, workspace } from "vscode";
 import { TextDocumentEdit } from "vscode-languageserver-types";

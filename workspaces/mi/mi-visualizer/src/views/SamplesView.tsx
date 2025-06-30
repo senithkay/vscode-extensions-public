@@ -20,10 +20,10 @@
 import React, { useEffect } from "react";
 import {
     VisualizerLocation, GettingStartedSample,
-    GettingStartedCategory, SampleDownloadRequest} from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { ComponentCard, Dropdown, SearchBox } from "@wso2-enterprise/ui-toolkit";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+    GettingStartedCategory, SampleDownloadRequest} from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { ComponentCard, Dropdown, SearchBox } from "@wso2/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { View, ViewContent, ViewHeader } from "../components/View";

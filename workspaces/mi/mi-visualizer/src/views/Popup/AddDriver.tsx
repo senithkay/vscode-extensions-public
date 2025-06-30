@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import { Button, FormActions, FormView, ProgressIndicator, Typography } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Button, FormActions, FormView, ProgressIndicator, Typography } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { useEffect, useState } from "react";
-import { ParamConfig, ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2-enterprise/mi-diagram";
-import { POPUP_EVENT_TYPE, Dependency } from "@wso2-enterprise/mi-core";
+import { ParamConfig, ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2/mi-diagram";
+import { POPUP_EVENT_TYPE, Dependency } from "@wso2/mi-core";
 
 export interface AddDriverProps {
     path: string;

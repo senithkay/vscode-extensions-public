@@ -17,8 +17,8 @@
  */
 
 import React from 'react';
-import { ExpressionCompletionItem, HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { ExpressionCompletionItem, HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2/mi-core';
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, HelperPane } from '@wso2/ui-toolkit';
 
 /**
  * Map from LSP CompletionItemKind to UI Toolkit's CompletionItemKind

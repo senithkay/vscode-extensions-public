@@ -60,7 +60,7 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
-import { BallerinaProject, DownloadProgress, onDownloadProgress, SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, DownloadProgress, onDownloadProgress, SHARED_COMMANDS } from "@wso2/ballerina-core";
 import os from "os";
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import AdmZip from 'adm-zip';

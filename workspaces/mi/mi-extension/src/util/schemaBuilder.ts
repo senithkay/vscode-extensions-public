@@ -18,7 +18,7 @@
 
 import { JSONSchema3or4 } from "to-json-schema";
 import { getStateMachine } from "../stateMachine";
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType } from "@wso2/mi-core";
 
 export function convertToJSONSchema(fileContent: JSONSchema3or4): JSONSchema3or4 {
     let schema = JSON.parse(fileContent);

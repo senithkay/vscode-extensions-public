@@ -28,7 +28,7 @@ import {
     ThemeColors,
     Tooltip,
     Typography
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";

@@ -23,7 +23,7 @@ import {
 	type ComponentKind,
 	getComponentKindRepoSource,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import React, { type FC } from "react";
 import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { type IRightPanelSectionItem, RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";

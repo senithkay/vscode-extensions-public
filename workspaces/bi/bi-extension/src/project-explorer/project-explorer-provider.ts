@@ -19,7 +19,7 @@
 import * as vscode from 'vscode';
 import { window, Uri, commands } from 'vscode';
 import path = require('path');
-import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, PackageConfigSchema, BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, PackageConfigSchema, BallerinaProject } from "@wso2/ballerina-core";
 import { extension } from "../biExtentionContext";
 
 interface Property {

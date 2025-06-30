@@ -17,8 +17,8 @@
  */
 
 import React, { ReactNode, useEffect, useState } from "react";
-import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { FieldValues, useController, UseControllerProps } from "react-hook-form";
@@ -26,7 +26,7 @@ import { Colors } from "../../../resources/constants";
 import fsPath from "path";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { getValue, isExpressionFieldValue } from "./utils";
-import { ResourceType, MultipleResourceType, Platform } from "@wso2-enterprise/mi-core";
+import { ResourceType, MultipleResourceType, Platform } from "@wso2/mi-core";
 
 export type FilterType =
     | "sequence"

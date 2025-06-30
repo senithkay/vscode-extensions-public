@@ -16,10 +16,10 @@
  * under the License.
  */
 import React, { useState } from 'react';
-import { Button, Codicon, Dropdown, SearchBox } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, SearchBox } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { ConstructorPanel } from '../ConstructorPanel';
-import { WorkspacesFileResponse } from '@wso2-enterprise/ballerina-core';
+import { WorkspacesFileResponse } from '@wso2/ballerina-core';
 import { SELECT_ALL_FILES } from '../../Overview';
 
 const Container = styled.div`

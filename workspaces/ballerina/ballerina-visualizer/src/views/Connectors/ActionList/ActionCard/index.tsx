@@ -21,8 +21,8 @@ import React, { useState } from "react";
 import debounce from "lodash.debounce";
 
 import { S } from "..";
-import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-core";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { FunctionDefinitionInfo } from "@wso2/ballerina-core";
+import { Typography } from "@wso2/ui-toolkit";
 
 interface ActionCardProps {
     action: FunctionDefinitionInfo;

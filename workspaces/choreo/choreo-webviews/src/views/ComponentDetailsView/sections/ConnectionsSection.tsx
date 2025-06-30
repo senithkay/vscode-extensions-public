@@ -28,7 +28,7 @@ import {
 	type Organization,
 	type Project,
 	getComponentKey,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import classNames from "classnames";
 import React, { useState, type FC } from "react";
 import { BreadCrumb, type BreadCrumbItem } from "../../../components/BreadCrumb";

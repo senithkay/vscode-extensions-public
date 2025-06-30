@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2/mi-core';
 import { RUNTIME_VERSION_440 } from '../../../resources/constants';
 import { compareVersions } from '../../../utils/commons';
 

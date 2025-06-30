@@ -20,7 +20,7 @@ import React, { ReactNode } from "react";
 
 import {
     TypeDefinition
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { KeywordComponent } from "../../Keyword";

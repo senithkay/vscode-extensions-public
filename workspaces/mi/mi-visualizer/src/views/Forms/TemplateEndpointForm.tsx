@@ -18,16 +18,16 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { TypeChip } from "./Commons";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
-import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
-import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { FormKeylookup, ParamManager } from "@wso2/mi-diagram";
+import { compareVersions } from "@wso2/mi-diagram/lib/utils/commons";
 import { RUNTIME_VERSION_440 } from "../../constants";
 
 const FieldGroup = styled.div`

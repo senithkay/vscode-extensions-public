@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW } from "@wso2/mi-core";
 import { SamplesView } from "./views/SamplesView";
 import { ProjectWizard } from "./views/Forms/ProjectForm";
 import { ImportProjectWizard } from "./views/Forms/ImportProjectForm";

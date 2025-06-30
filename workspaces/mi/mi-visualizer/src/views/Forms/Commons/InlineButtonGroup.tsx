@@ -17,7 +17,7 @@
  */
 
 import styled from "@emotion/styled";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 
 const Container = styled.div({
     display: 'flex',

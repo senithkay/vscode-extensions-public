@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 export interface StmtActionStackItem {
     oldModel: StackElement,

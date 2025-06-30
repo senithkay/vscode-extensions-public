@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Button, TextField, SidePanel, SidePanelTitleContainer, SidePanelBody, Codicon, FormCheckBox, TextArea, Dropdown, Typography, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, SidePanel, SidePanelTitleContainer, SidePanelBody, Codicon, FormCheckBox, TextArea, Dropdown, Typography, LinkButton } from "@wso2/ui-toolkit";
 import * as yup from "yup";
 import styled from "@emotion/styled";
 import { SIDE_PANEL_WIDTH } from "../../../../constants";

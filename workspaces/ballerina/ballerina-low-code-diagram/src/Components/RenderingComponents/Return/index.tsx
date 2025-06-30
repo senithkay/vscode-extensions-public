@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus, WizardType } from "@wso2/ballerina-core";
+import { NodePosition, ReturnStatement } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../Context/diagram";

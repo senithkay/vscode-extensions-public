@@ -18,7 +18,7 @@
 
 import { CopilotChatEntry, RpcClientType, Role, MessageType, ChatMessage, ApiResponse, BackendRequestType } from "./types";
 
-import { GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE, FileObject, ImageObject} from "@wso2-enterprise/mi-core";
+import { GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE, FileObject, ImageObject} from "@wso2/mi-core";
 import {
     MI_ARTIFACT_EDIT_BACKEND_URL,
     MI_ARTIFACT_GENERATION_BACKEND_URL,

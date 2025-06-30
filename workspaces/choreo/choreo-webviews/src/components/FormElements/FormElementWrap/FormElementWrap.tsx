@@ -17,8 +17,8 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { RequiredFormInput } from "@wso2-enterprise/ui-toolkit";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { RequiredFormInput } from "@wso2/ui-toolkit";
+import { ProgressIndicator } from "@wso2/ui-toolkit";
 import classNames from "classnames";
 import React, { type FC, type HTMLProps, type PropsWithChildren, type ReactNode } from "react";
 

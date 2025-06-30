@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { type MarketplaceItem, getTimeAgo } from "@wso2-enterprise/choreo-core";
+import { type MarketplaceItem, getTimeAgo } from "@wso2/choreo-core";
 import classNames from "classnames";
 import React from "react";
 import type { FC } from "react";

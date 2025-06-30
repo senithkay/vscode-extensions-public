@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { LimitClause } from "@wso2-enterprise/syntax-tree";
+import { LimitClause } from "@wso2/syntax-tree";
 
 
 import { ExpressionComponent } from "../../Expression";

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { NodeKind } from "@wso2-enterprise/ballerina-core";
+import { NodeKind } from "@wso2/ballerina-core";
 import { FormField, FormImports } from "../..";
 
 // This function allows us to format strings by adding indentation as tabs to the lines

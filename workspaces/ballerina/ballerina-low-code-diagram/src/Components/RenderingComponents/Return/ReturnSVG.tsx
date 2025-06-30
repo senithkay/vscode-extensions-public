@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { ErrorSnippet } from "../../../Types/type";
 

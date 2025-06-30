@@ -17,9 +17,9 @@
  */
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button } from "@wso2-enterprise/ui-toolkit";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Button } from "@wso2/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 interface AIMapButtonProps {
   onClick: () => void;

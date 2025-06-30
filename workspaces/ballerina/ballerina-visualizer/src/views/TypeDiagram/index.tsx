@@ -17,12 +17,12 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
-import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW, TypeNodeKind } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { TypeDiagram as TypeDesignDiagram } from "@wso2/type-diagram";
+import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
 import { FormTypeEditor } from "../BI/TypeEditor";

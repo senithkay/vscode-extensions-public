@@ -25,16 +25,16 @@
 
 import { ReactNode, useState } from "react";
 
-import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { STKindChecker, STNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { ModuleIcon } from "@wso2/ballerina-low-code-diagram";
+import { STKindChecker, STNode, VisibleEndpoint } from "@wso2/syntax-tree";
 
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaConnectorInfo, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-core";
-import { Button, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
+import { BallerinaConnectorInfo, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2/ballerina-core";
+import { Button, Typography, ThemeColors } from "@wso2/ui-toolkit";
 import { useVisualizerContext } from "../../../Context";
 import { fetchConnectorInfo, getConnectorFromVisibleEp, getMatchingConnector, getTargetBlock } from "../ConnectorWizard/utils";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { ActionList } from "../ActionList";
 import { ActionForm } from "../ActionForm";
 

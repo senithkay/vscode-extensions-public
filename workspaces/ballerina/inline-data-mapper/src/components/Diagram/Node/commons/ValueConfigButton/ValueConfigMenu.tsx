@@ -19,7 +19,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { Button, ContextMenu, Icon, Item, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ContextMenu, Icon, Item, Typography } from '@wso2/ui-toolkit';
 
 const useStyles = () => ({
     itemContainer: css({

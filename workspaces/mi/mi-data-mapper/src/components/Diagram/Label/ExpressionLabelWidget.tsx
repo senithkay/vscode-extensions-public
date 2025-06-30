@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
 
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { DMType, TypeKind } from '@wso2/mi-core';
+import { Button, Codicon, ProgressRing } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 import classNames from "classnames";
 import { Node } from "ts-morph";

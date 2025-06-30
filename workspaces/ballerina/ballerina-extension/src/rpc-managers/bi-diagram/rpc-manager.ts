@@ -132,7 +132,7 @@ import {
     WorkspacesResponse,
     DeleteConfigVariableRequestV2,
     DeleteConfigVariableResponseV2,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import * as fs from "fs";
 import * as path from 'path';
 import * as vscode from "vscode";
@@ -156,7 +156,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_URL } from "../../features/ai/utils";
-import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2/wso2-platform-core";
 import { cleanAndValidateProject, getCurrentBIProject } from "../../features/config-generator/configGenerator";
 import { updateSourceCode } from "../../utils/source-utils";
 import { getRefreshedAccessToken } from "../../../src/utils/ai/auth";

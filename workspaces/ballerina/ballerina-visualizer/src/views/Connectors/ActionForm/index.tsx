@@ -16,13 +16,13 @@
  * under the License.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { useVisualizerContext } from "../../../Context";
-import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { getSymbolInfo } from "@wso2/ballerina-low-code-diagram";
 import { StatementEditorComponent } from "../../StatementEditorComponent";
 import { getDefaultParams, getFormFieldReturnType, getPathParams, getReturnTypeImports, isParentNodeWithErrorReturn } from "../ConnectorWizard/utils";
-import { BallerinaConnectorInfo, createActionStatement, createCheckActionStatement, createCheckedRemoteServiceCall, createCheckedResourceServiceCall, createRemoteServiceCall, FunctionDefinitionInfo, genVariableName, getAllVariables, getInitialSource, STModification } from "@wso2-enterprise/ballerina-core";
+import { BallerinaConnectorInfo, createActionStatement, createCheckActionStatement, createCheckedRemoteServiceCall, createCheckedResourceServiceCall, createRemoteServiceCall, FunctionDefinitionInfo, genVariableName, getAllVariables, getInitialSource, STModification } from "@wso2/ballerina-core";
 
 interface ActionFormProps {
     action: FunctionDefinitionInfo;

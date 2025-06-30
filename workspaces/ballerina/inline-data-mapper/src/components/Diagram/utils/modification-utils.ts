@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { IDMModel, Mapping } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, Mapping } from "@wso2/ballerina-core";
 import { DataMapperLinkModel } from "../Link";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { InputOutputPortModel } from "../Port";

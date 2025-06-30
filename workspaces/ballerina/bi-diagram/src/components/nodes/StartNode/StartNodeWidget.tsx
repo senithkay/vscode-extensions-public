@@ -22,7 +22,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
 import { NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
 import { FlowNode } from "../../../utils/types";
-import { Tooltip, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Tooltip, ThemeColors } from "@wso2/ui-toolkit";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {

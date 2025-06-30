@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Endpoint, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Endpoint, STNode } from "@wso2/mi-syntax-tree/src";
 import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";

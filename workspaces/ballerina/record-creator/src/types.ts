@@ -16,13 +16,13 @@
  * under the License.
  */
 
-import { BallerinaProjectComponents, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, STModification, SyntaxTreeResponse } from "@wso2/ballerina-core";
 import {
     LangClientRpcClient,
     LibraryBrowserRpcClient,
     RecordCreatorRpcClient
-} from "@wso2-enterprise/ballerina-rpc-client";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-rpc-client";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 export interface SimpleField {
     name: string;

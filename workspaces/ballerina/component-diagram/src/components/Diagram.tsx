@@ -41,7 +41,7 @@ import {
     CDModel,
     CDService,
     CDResourceFunction,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ListenerNodeModel } from "./nodes/ListenerNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";

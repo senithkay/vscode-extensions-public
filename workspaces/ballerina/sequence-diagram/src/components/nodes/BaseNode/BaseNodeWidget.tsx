@@ -19,7 +19,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Node } from "../../../utils/types";

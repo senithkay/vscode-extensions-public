@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import { Connection, Diagram, EntryPoint, Project } from "@wso2-enterprise/mi-component-diagram";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Connection, Diagram, EntryPoint, Project } from "@wso2/mi-component-diagram";
+import { ProgressRing } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 
 const SpinnerContainer = styled.div`
     display: flex;

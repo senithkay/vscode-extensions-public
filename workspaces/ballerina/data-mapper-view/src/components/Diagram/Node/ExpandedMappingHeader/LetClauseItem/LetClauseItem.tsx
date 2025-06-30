@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { STModification } from "@wso2/ballerina-core";
 import {
     CaptureBindingPattern,
     LetClause,
@@ -26,14 +26,14 @@ import {
     NodePosition,
     QueryExpression,
     STNode,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2/ui-toolkit";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;

@@ -18,7 +18,7 @@
 
 import styled from "@emotion/styled";
 import { Transition } from "@headlessui/react";
-import { Codicon, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Card, Typography, LinkButton, Divider } from "@wso2/ui-toolkit";
 import { css } from "@emotion/css";
 import React from "react";
 

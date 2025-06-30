@@ -35,7 +35,7 @@ import {
     TemplateString,
     TrueKeyword,
     VarKeyword
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { checkCommentMinutiae, getClassNameForToken, getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";

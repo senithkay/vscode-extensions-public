@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { Attachment, createFunctionSignature, DataMappingRecord, ErrorCode, GenerateMappingFromRecordResponse, GenerateMappingsFromRecordRequest, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, getSource, PartialST, ProjectSource, SyntaxTree } from "@wso2-enterprise/ballerina-core";
-import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Attachment, createFunctionSignature, DataMappingRecord, ErrorCode, GenerateMappingFromRecordResponse, GenerateMappingsFromRecordRequest, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, getSource, PartialST, ProjectSource, SyntaxTree } from "@wso2/ballerina-core";
+import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2/syntax-tree";
 import { camelCase, memoize } from "lodash";
 import path from "path";
 import * as fs from 'fs';

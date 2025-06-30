@@ -20,10 +20,10 @@ import React from "react";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EnableCondition, ParamConfig, ParamField, ParamManager } from "./ParamManager";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
-import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2/ui-toolkit";
 import { FilterType, Keylookup } from "../Keylookup/Keylookup";
 import styled from "@emotion/styled";
-import { ResourceType } from "@wso2-enterprise/mi-core";
+import { ResourceType } from "@wso2/mi-core";
 import { FormExpressionField } from "../FormExpressionField";
 import { Range } from 'vscode-languageserver-types';
 

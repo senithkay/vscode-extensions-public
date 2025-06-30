@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 import { AIMachineContext, AIMachineStateValue } from "../../state-machine-types";
 import { Command, TemplateId } from "../../interfaces/ai-panel";
 

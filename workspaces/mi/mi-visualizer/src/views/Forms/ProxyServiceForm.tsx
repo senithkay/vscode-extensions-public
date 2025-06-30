@@ -17,13 +17,13 @@
  */
 import React, {useEffect, useState} from "react";
 import * as path from 'path';
-import {Button, TextField, Dropdown, CheckBox, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
-import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
-import {EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest} from "@wso2-enterprise/mi-core";
+import {Button, TextField, Dropdown, CheckBox, FormView, FormActions} from "@wso2/ui-toolkit";
+import {useVisualizerContext} from "@wso2/mi-rpc-client";
+import {EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest} from "@wso2/mi-core";
 import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
-import {FormKeylookup} from "@wso2-enterprise/mi-diagram";
+import {FormKeylookup} from "@wso2/mi-diagram";
 
 interface OptionProps {
     value: string;

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon, TreeViewItem, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TreeViewItem, Typography } from '@wso2/ui-toolkit';
 import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';

@@ -18,7 +18,7 @@
 
 import React from "react";
 
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 
 import { Param } from "../resources/model";
 import { FieldName, FieldType } from "../resources/styles/styles";

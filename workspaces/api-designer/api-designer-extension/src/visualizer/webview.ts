@@ -26,7 +26,7 @@ import { RPCLayer } from '../RPCLayer';
 import { extension } from '../APIDesignerExtensionContext';
 import { debounce } from 'lodash';
 import { navigate, StateMachine } from '../stateMachine';
-import { MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
+import { MACHINE_VIEW } from '@wso2/api-designer-core';
 import { COMMANDS } from '../constants';
 
 export class VisualizerWebview {

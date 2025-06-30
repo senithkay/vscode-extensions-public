@@ -14,7 +14,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import debounce from "lodash.debounce";
-import { Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, TextField } from '@wso2/ui-toolkit';
 
 import { useDMSearchStore } from "../../../store/store";
 import { SelectionState } from "../DataMapper";

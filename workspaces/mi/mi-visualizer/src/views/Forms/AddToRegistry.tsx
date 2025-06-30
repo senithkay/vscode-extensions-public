@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { TextField, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { TextField, RadioButtonGroup } from "@wso2/ui-toolkit";
+import { RpcClient } from "@wso2/mi-rpc-client";
 import { FieldErrors, UseFormGetValues, UseFormRegister } from "react-hook-form";
-import { CreateRegistryResourceRequest } from "@wso2-enterprise/mi-core";
+import { CreateRegistryResourceRequest } from "@wso2/mi-core";
 
 export interface AddToRegistryProps {
     path: string;

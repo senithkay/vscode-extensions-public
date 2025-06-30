@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { History } from "@wso2-enterprise/mi-core";
+import { History } from "@wso2/mi-core";
 import { getStateMachine, refreshUI } from "../stateMachine";
 import { Uri, workspace } from "vscode";
 

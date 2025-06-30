@@ -26,7 +26,7 @@ import {
 	type Organization,
 	type Project,
 	type WorkspaceConfig,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

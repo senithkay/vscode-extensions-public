@@ -20,7 +20,7 @@ import React, { SVGProps, useContext, useEffect, useState } from 'react';
 import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { Point } from '@projectstorm/geometry';
 import { EntityLinkModel } from './EntityLinkModel';
-import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ThemeColors } from '@wso2/ui-toolkit';
 import { DiagramContext } from '../../common';
 
 interface WidgetProps {

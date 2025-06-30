@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { useStatementRendererStyles } from "../../styles";
 

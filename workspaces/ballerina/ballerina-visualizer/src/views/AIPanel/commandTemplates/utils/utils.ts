@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Command } from "@wso2-enterprise/ballerina-core";
+import { Command } from "@wso2/ballerina-core";
 import { CommandTemplates } from "../data/commandTemplates.const";
 import { placeholderTags } from "../data/placeholderTags.const";
 import { PlaceholderDefinition } from "../models/placeholder.model";

@@ -31,7 +31,7 @@ import { NodeLinkModel } from "./NodeLink";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { ConsoleColor, logger } from "../utils/logger";
 import { NodeTypes } from "../resources/constants";
-import { SqParticipant, SqParticipantType } from "@wso2-enterprise/ballerina-core";
+import { SqParticipant, SqParticipantType } from "@wso2/ballerina-core";
 import { Controls } from "./Controls";
 
 export interface DiagramProps {

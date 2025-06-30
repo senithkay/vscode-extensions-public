@@ -17,10 +17,10 @@
  */
 
 import React, { useState } from "react";
-import { SidePanelBody, ProgressRing, Icon, TabPanel } from "@wso2-enterprise/ui-toolkit";
+import { SidePanelBody, ProgressRing, Icon, TabPanel } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Member, Type, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
+import { Member, Type, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2/ballerina-core";
 import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
 import { TypeHelperContext } from "../Context";
 import { ImportTab } from "./Tabs/ImportTab";

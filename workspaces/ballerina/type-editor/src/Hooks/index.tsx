@@ -16,8 +16,8 @@
  * under the License.
  */
 import { useQuery } from "@tanstack/react-query";
-import { BallerinaProjectComponents, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaProjectComponents, SyntaxTreeResponse } from "@wso2/ballerina-core";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export const useBallerinaVersion = (

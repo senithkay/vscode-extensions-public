@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Button, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Typography } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 import { ISSUES_URL } from '../utils';
 

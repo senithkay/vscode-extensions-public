@@ -17,7 +17,7 @@
  */
 import { test } from '@playwright/test';
 import { addArtifact, initTest, page } from '../utils';
-import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
+import { switchToIFrame } from '@wso2/playwright-vscode-tester';
 
 export default function createTests() {
     test.describe('Automation Tests', {

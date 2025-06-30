@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Codicon, Button } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Codicon, Button } from "@wso2/ui-toolkit";
 import path from "path";
 import { useEffect, useState } from "react";
 

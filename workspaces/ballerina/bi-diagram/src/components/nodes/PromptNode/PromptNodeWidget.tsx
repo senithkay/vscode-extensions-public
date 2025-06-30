@@ -26,11 +26,11 @@ import {
     PROMPT_NODE_HEIGHT,
     PROMPT_NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, CompletionItem, FormExpressionEditor, FormExpressionEditorRef, Icon, Item, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, CompletionItem, FormExpressionEditor, FormExpressionEditorRef, Icon, Item, ThemeColors } from "@wso2/ui-toolkit";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { PromptNodeModel } from "./PromptNodeModel";
-import { ELineRange, ExpressionProperty } from "@wso2-enterprise/ballerina-core";
+import { ELineRange, ExpressionProperty } from "@wso2/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { getRawTemplate, nodeHasError } from "../../../utils/node";
 import { cloneDeep } from "lodash";

@@ -20,7 +20,7 @@ import { Point } from "@projectstorm/geometry";
 import { useDMCollapsedFieldsStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2/ballerina-core";
 
 export const INPUT_NODE_TYPE = "datamapper-node-input";
 const NODE_ID = "input-node";

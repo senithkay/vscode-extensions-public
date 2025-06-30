@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { NodePosition, RemoteMethodCallAction } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RemoteMethodCallAction } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";

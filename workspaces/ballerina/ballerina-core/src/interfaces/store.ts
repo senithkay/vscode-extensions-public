@@ -17,7 +17,7 @@
  * under the License.
  */
 // tslint:disable-next-line: no-submodule-imports
-import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition, STNode } from "@wso2/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 import { BallerinaConnectorInfo, BallerinaConnector } from "./ballerina";
 import { URI } from "vscode-uri";

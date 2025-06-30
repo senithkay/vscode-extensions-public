@@ -19,8 +19,8 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2/ui-toolkit";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { Block, InterfaceDeclaration, Node, PropertySignature } from "ts-morph";
 import classnames from "classnames";
 

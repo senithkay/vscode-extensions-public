@@ -25,7 +25,7 @@ import {
     FlowNode,
     FOCUS_FLOW_DIAGRAM_VIEW,
     MACHINE_VIEW
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { BallerinaExtension } from "../../core";
 import { openView } from "../../stateMachine";
 import { prepareAndGenerateConfig } from "../config-generator/configGenerator";

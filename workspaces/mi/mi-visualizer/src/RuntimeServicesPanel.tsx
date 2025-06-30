@@ -16,13 +16,13 @@
  * under the License.
  */
 
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import React, { Fragment, useEffect, useState } from 'react';
-import { RuntimeServicesResponse, SwaggerData, MiServerRunStatus } from '@wso2-enterprise/mi-core';
+import { RuntimeServicesResponse, SwaggerData, MiServerRunStatus } from '@wso2/mi-core';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from './components/View';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { ButtonWrapper, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { ButtonWrapper, Codicon, ProgressRing, Tooltip } from '@wso2/ui-toolkit';
 import { SwaggerPanel } from './SwaggerPanel';
 
 const ProxyContent = styled.div`

@@ -19,13 +19,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2/mi-core';
 import { AiPanelWebview } from './webview';
 import { getAuthUrl, refreshAuthCode } from './auth';
 import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
 import { log } from '../util/logger';
-import { PromptObject } from '@wso2-enterprise/mi-core';
+import { PromptObject } from '@wso2/mi-core';
 
 interface ChatEntry {
     role: string;

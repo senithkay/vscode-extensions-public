@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Range, DSSResource, DSSOperation } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { Range, DSSResource, DSSOperation } from "@wso2/mi-syntax-tree/lib/src";
+import { RpcClient } from "@wso2/mi-rpc-client";
 import { DSS_TEMPLATES } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 import { ResourceFormData, ResourceType } from "../views/Forms/DataServiceForm/SidePanelForms/ResourceForm";

@@ -23,7 +23,7 @@ import {
 	keywords,
 	PrimitiveBalType,
 	TypeField
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
 	CaptureBindingPattern,
 	ExpressionFunctionBody,
@@ -50,7 +50,7 @@ import {
 	STNode,
 	traversNode,
 	TypeCastExpression
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { PortModel } from "@projectstorm/react-diagrams-core";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";

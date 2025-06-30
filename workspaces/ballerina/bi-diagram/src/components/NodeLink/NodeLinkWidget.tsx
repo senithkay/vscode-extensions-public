@@ -24,7 +24,7 @@ import { NodeLinkModel } from "./NodeLinkModel";
 import { NODE_WIDTH } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
 import AddCommentPopup from "../AddCommentPopup";
-import { Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Popover, ThemeColors } from "@wso2/ui-toolkit";
 import AddPromptPopup from "../AddPromptPopup";
 
 interface NodeLinkWidgetProps {

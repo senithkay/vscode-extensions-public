@@ -17,10 +17,10 @@
  */
 import { ArrayLiteralExpression, AsExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
 import { cloneDeep } from "lodash";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { RpcClient } from "@wso2/mi-rpc-client";
 
 export function enrichAndProcessType(
     typeToBeProcessed: DMType,

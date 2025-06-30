@@ -18,14 +18,14 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ThemeColors } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
-import { SubPanelView } from "@wso2-enterprise/ballerina-core";
-import { SubPanel } from "@wso2-enterprise/ballerina-core";
-import { RecordTypeField } from "@wso2-enterprise/ballerina-core";
+import { SubPanelView } from "@wso2/ballerina-core";
+import { SubPanel } from "@wso2/ballerina-core";
+import { RecordTypeField } from "@wso2/ballerina-core";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 
 namespace S {

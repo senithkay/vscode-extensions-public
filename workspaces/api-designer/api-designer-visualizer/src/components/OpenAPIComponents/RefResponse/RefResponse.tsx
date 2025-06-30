@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { TextField, Typography } from '@wso2/ui-toolkit';
 import { Response as R } from '../../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Parameters/Parameters';
 import { Response } from '../Response/Response';

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ChoreoBuildPackNames, CommandIds, type IOpenCompSrcCmdParams, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
+import { ChoreoBuildPackNames, CommandIds, type IOpenCompSrcCmdParams, type Organization, type Project } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { waitForContextStoreToLoad } from "../stores/context-store";

@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { Block } from "ts-morph";
 import classnames from "classnames";
 

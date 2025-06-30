@@ -23,7 +23,7 @@ import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "..
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, ConfigVariableResponse, EVENT_TYPE, MACHINE_VIEW, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, ConfigVariableResponse, EVENT_TYPE, MACHINE_VIEW, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2/ballerina-core";
 import { TextDocumentEdit } from "vscode-languageserver-types";
 import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";

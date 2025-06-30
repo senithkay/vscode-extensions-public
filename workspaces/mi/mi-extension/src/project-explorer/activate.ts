@@ -19,7 +19,7 @@
 import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { getStateMachine, openView, refreshUI } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import path = require("path");

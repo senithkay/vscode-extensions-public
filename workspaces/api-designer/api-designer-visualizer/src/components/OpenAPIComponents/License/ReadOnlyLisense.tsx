@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { License as L } from '../../../Definitions/ServiceDefinitions';
 import { DataGrid } from '../../DataGrid/DataGrid';

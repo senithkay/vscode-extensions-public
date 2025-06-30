@@ -22,7 +22,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { ButtonNodeModel } from "./ButtonNodeModel";
 import { BUTTON_NODE_HEIGHT, BUTTON_NODE_WIDTH, NODE_PADDING } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";
-import { Button, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, ThemeColors } from "@wso2/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`

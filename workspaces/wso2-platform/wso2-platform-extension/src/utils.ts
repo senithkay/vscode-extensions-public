@@ -30,7 +30,7 @@ import {
 	type ReadLocalProxyConfigResp,
 	getRandomNumber,
 	parseGitURL,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import type { IFileStatus } from "./git/git";

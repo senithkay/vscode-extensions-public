@@ -17,7 +17,7 @@
  */
 
 import { PlaceholderDefinition } from './placeholder.model';
-import { TemplateId } from '@wso2-enterprise/ballerina-core';
+import { TemplateId } from '@wso2/ballerina-core';
 
 export interface TemplateDefinition {
     id: TemplateId;

@@ -16,7 +16,7 @@
  * under the License.
  */
 import { useState, useEffect } from "react";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType } from "@wso2/ballerina-core";
 
 export const ObjectBalType = "object";
 

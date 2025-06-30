@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { CheckAction, CheckExpression } from "@wso2-enterprise/syntax-tree";
+import { CheckAction, CheckExpression } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { KeywordComponent } from "../../Keyword";

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AIMachineEventType } from "@wso2-enterprise/ballerina-core";
+import { AIMachineEventType } from "@wso2/ballerina-core";
 
 interface FetchWithAuthParams {
     url: string;

@@ -17,9 +17,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FieldType, LineRange, PropertyModel, Type } from '@wso2-enterprise/ballerina-core';
+import { FieldType, LineRange, PropertyModel, Type } from '@wso2/ballerina-core';
 import { FormGeneratorNew } from '../Forms/FormGeneratorNew';
-import { FormField, FormImports, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports, FormValues } from '@wso2/ballerina-side-panel';
 import { getImportsForProperty } from '../../../utils/bi';
 
 interface VariableFormProps {

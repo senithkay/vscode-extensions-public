@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { IDMModel, IOType, Mapping } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, IOType, Mapping } from "@wso2/ballerina-core";
 
 export interface BaseVisitor {
     beginVisit?(node: IDMModel, parent?: IDMModel): void;

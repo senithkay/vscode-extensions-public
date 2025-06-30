@@ -23,7 +23,7 @@ import { CodeAction } from "vscode-languageserver-types";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 import { CodeActionTooltip } from "./CodeActionTooltip/CodeActionTooltip";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 
 export interface CustomAction {
     title: string;

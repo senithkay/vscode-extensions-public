@@ -18,12 +18,12 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
-import { HistoryEntry, STModification } from "@wso2-enterprise/ballerina-core";
+import { FunctionDefinition } from "@wso2/syntax-tree";
+import { HistoryEntry, STModification } from "@wso2/ballerina-core";
 import { DataMapper } from "./components/DataMapper/DataMapper";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client/lib/rpc-clients/library-browser/rpc-client";
-import { StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
+import { LibraryBrowserRpcClient } from "@wso2/ballerina-rpc-client/lib/rpc-clients/library-browser/rpc-client";
+import { StatementEditorComponentProps } from "@wso2/record-creator";
 
 const queryClient = new QueryClient({
     defaultOptions: {

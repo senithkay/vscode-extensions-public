@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { STModification } from "@wso2/ballerina-core";
 import {
     CommaToken,
     LetExpression,
@@ -24,7 +24,7 @@ import {
     NodePosition,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import {
     genLetExpressionVariableName,

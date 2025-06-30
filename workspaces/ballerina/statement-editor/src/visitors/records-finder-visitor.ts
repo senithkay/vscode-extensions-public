@@ -23,7 +23,7 @@ import {
     STNode,
     UnionTypeDesc,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 
 const recordTypeDescriptions: Map<string, STNode> = new Map();

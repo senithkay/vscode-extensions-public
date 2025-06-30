@@ -600,12 +600,12 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState, useRef } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps, openPopup, getParamManagerValues, getParamManagerFromValues } from '../common';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';

@@ -24,7 +24,7 @@ import {
     IsolatedKeyword,
     ModuleVarDecl,
     STKindChecker
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

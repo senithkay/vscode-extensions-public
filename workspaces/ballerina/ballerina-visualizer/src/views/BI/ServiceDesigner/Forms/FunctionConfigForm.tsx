@@ -17,8 +17,8 @@
  */
 
 import React, { useState } from "react";
-import { ActionButtons, Dropdown, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
-import { FunctionModel, ServiceModel } from "@wso2-enterprise/ballerina-core";
+import { ActionButtons, Dropdown, SidePanelBody } from "@wso2/ui-toolkit";
+import { FunctionModel, ServiceModel } from "@wso2/ballerina-core";
 
 import { EditorContentColumn } from "../styles";
 

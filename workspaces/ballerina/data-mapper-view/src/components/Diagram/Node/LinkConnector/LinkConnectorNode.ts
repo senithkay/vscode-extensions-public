@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { PrimitiveBalType, STModification } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, STModification } from "@wso2/ballerina-core";
 import {
     FieldAccess,
     NodePosition,
@@ -24,7 +24,7 @@ import {
     STKindChecker,
     STNode,
     traversNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-types";
 

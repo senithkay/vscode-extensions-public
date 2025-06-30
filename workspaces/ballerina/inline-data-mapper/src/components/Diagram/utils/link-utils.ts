@@ -16,7 +16,7 @@
  * under the License.
  */
 import { PortModel } from "@projectstorm/react-diagrams-core";
-import { TypeKind } from "@wso2-enterprise/ballerina-core";
+import { TypeKind } from "@wso2/ballerina-core";
 
 import { InputOutputPortModel } from "../Port";
 

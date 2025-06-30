@@ -17,7 +17,7 @@
  */
 
 import { Frame, Locator, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { Form, FormFillProps } from "./Form";
 
 export class Diagram {

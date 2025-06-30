@@ -19,8 +19,8 @@
 import React, { useMemo, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { AnydataType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { AnydataType, STModification, TypeField } from "@wso2/ballerina-core";
+import { NodePosition, STKindChecker, STNode } from '@wso2/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -49,7 +49,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2/ui-toolkit';
 import { useIONodesStyles } from '../../../../styles';
 
 export interface EditableMappingConstructorWidgetProps {

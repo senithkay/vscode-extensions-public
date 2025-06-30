@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMDiagnostic } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic } from "@wso2/mi-core";
 import { Node } from "ts-morph";
 
 export function filterDiagnosticsForNode(diagnostics: DMDiagnostic[], node: Node): DMDiagnostic[] {

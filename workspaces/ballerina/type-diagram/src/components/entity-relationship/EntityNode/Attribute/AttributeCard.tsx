@@ -18,7 +18,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { Member, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
+import { Member, TypeFunctionModel } from '@wso2/ballerina-core';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 

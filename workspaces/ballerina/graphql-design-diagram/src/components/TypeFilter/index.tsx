@@ -18,7 +18,7 @@
 
 import React from "react";
 
-import { Dropdown, OptionProps } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, OptionProps } from "@wso2/ui-toolkit";
 
 export enum OperationTypes {
     Queries = "Queries",

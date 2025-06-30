@@ -29,8 +29,8 @@ import {
 	type ProjectBuildLogsData,
 	getComponentKindRepoSource,
 	getTimeAgo,
-} from "@wso2-enterprise/choreo-core";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/choreo-core";
+import { ProgressIndicator } from "@wso2/ui-toolkit";
 import classNames from "classnames";
 import React, { type ReactNode, type FC } from "react";
 import { Button } from "../../../components/Button";

@@ -19,8 +19,8 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { DMType, IOTypeResponse, Range } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { DMType, IOTypeResponse, Range } from "@wso2/mi-core";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -38,7 +38,7 @@ import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { buildNodeListForSubMappings, initializeSubMappingContext } from "../Diagram/utils/sub-mapping-utils";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 
 const classes = {
     root: css({

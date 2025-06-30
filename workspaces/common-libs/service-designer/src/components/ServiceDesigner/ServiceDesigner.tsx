@@ -19,8 +19,8 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { NodePosition } from "@wso2/syntax-tree";
+import { Typography, Codicon } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Resource, Service } from "./../../definitions";

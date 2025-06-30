@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TextField, Typography } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation as O } from '../../../Definitions/ServiceDefinitions';
 import ResourceHeader from '../ResourceHeader/ResourceHeader';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { useEffect, useState } from 'react';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
 import { Parameters } from '../Parameters/Parameters';

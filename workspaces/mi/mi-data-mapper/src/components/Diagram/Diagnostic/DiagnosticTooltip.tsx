@@ -17,10 +17,10 @@
  */
 import React from "react";
 
-import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2/ui-toolkit";
 
 import { useStyles } from "./style";
-import { DMDiagnostic } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic } from "@wso2/mi-core";
 
 interface Props {
     placement: "top" | "bottom" | "left" | "right";

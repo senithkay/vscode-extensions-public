@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { isIcpEnabled, addICP, ICPEnabledRequest, disableICP } from "@wso2-enterprise/ballerina-core";
+import { isIcpEnabled, addICP, ICPEnabledRequest, disableICP } from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ICPServiceRpcManager } from "./rpc-manager";
 

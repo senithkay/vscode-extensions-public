@@ -18,7 +18,7 @@
 
 import React, { ReactNode, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { Codicon, Container, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Container, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from "@wso2/ui-toolkit";
 
 const Colors = {
     INPUT_OPTION_ACTIVE: "var(--vscode-inputOption-activeBackground)",

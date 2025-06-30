@@ -27,7 +27,7 @@ import { SELECTED_SERVER_PATH, INCORRECT_SERVER_PATH_MSG } from './constants';
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { getStateMachine } from '../stateMachine';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 import * as toml from "@iarna/toml";

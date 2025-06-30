@@ -17,10 +17,10 @@
  */
 
 import styled from "@emotion/styled";
-import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormImports, FormValues } from "@wso2/ballerina-side-panel";
 import { FormGeneratorNew } from "../Forms/FormGeneratorNew";
 import { getImportsForProperty } from "../../../utils/bi";
-import { LineRange } from "@wso2-enterprise/ballerina-core";
+import { LineRange } from "@wso2/ballerina-core";
 
 const Container = styled.div`
     max-width: 600px;

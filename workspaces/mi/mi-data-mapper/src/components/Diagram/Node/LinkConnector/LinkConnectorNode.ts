@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMDiagnostic, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic, TypeKind } from "@wso2/mi-core";
 import md5 from "blueimp-md5";
 import { BinaryExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 

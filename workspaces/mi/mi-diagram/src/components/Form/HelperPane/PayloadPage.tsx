@@ -20,9 +20,9 @@ import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Position } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
-import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Alert, COMPLETION_ITEM_KIND, getIcon, HelperPane, Icon } from '@wso2-enterprise/ui-toolkit';
+import { HelperPaneCompletionItem } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
+import { Alert, COMPLETION_ITEM_KIND, getIcon, HelperPane, Icon } from '@wso2/ui-toolkit';
 import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 import { PAGE, Page } from './index';
 

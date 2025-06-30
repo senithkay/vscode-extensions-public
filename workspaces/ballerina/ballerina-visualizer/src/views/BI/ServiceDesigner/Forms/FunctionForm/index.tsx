@@ -18,11 +18,11 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActionButtons, Divider, SidePanelBody, Typography, ProgressIndicator } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Divider, SidePanelBody, Typography, ProgressIndicator } from '@wso2/ui-toolkit';
 import { FunctionName } from './FunctionName/FunctionName';
 import { FunctionReturn } from './Return/FunctionReturn';
 import styled from '@emotion/styled';
-import { FunctionModel, ParameterModel, PropertyModel, ReturnTypeModel } from '@wso2-enterprise/ballerina-core';
+import { FunctionModel, ParameterModel, PropertyModel, ReturnTypeModel } from '@wso2/ballerina-core';
 import { Parameters } from './Parameters/Parameters';
 import { EditorContentColumn } from '../../styles';
 

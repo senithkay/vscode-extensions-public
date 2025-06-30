@@ -1,4 +1,4 @@
-import { FieldAccess, OptionalFieldAccess, SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, OptionalFieldAccess, SimpleNameReference, STNode } from "@wso2/syntax-tree";
 
 export class FieldAccessToSpecificFied {
 	constructor(

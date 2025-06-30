@@ -17,7 +17,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { getSequenceModel } from "@wso2-enterprise/ballerina-core";
+import { getSequenceModel } from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { SequenceDiagramRpcManager } from "./rpc-manager";
 

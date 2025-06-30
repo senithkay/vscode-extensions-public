@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 import { ConfigurableFormState, ConstantConfigFormState, HeaderObjectConfig, ModuleVariableFormState, STModification } from "../../interfaces/ballerina";
 import { SendStatementConfig, ReceivestatementConfig, WaitStatementConfig, FlushStatementConfig, FormField, HTTPServiceConfigState } from "../../interfaces/config-spec";
 

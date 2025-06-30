@@ -18,7 +18,7 @@
 
 import React from 'react';
 
-import { DMType } from '@wso2-enterprise/mi-core';
+import { DMType } from '@wso2/mi-core';
 import { UnionTypeSelectorItem } from './UnionTypeSelectorItem';
 import styled from '@emotion/styled';
 

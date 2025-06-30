@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { NodePosition, TableConstructor } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, TableConstructor } from "@wso2/syntax-tree";
 
 import { MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

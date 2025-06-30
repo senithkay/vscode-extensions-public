@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
 
 import {
     ArrayType,

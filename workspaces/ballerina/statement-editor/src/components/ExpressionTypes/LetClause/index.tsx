@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { LetClause } from "@wso2-enterprise/syntax-tree";
+import { LetClause } from "@wso2/syntax-tree";
 
 
 import { ExpressionArrayComponent } from "../../ExpressionArray";

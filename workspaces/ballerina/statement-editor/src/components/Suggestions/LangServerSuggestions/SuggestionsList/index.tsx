@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { Grid, GridItem } from "@wso2-enterprise/ui-toolkit";
+import { Grid, GridItem } from "@wso2/ui-toolkit";
 
 import { MAX_COLUMN_WIDTH, SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Diagnostic, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic, NodePosition } from "@wso2/syntax-tree";
 
 export enum ModelType {
     EXPRESSION,

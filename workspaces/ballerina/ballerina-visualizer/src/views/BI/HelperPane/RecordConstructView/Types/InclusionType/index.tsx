@@ -18,7 +18,7 @@
 import React, { useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Tooltip, Typography } from "@wso2/ui-toolkit";
 
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";

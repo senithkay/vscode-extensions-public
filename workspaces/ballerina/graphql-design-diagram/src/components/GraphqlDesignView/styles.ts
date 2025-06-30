@@ -17,7 +17,7 @@
  */
 
 import { css } from '@emotion/css';
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 
 export const GraphqlUnsupportedStyles = () => ({
     overlayWrapper: css(

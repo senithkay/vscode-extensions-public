@@ -21,10 +21,10 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
 import { NODE_BORDER_WIDTH, CON_NODE_WIDTH, CON_NODE_HEIGHT } from "../../../resources/constants";
-import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
-import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
+import { ConnectorIcon } from "@wso2/bi-diagram";
 
 type NodeStyleProp = {
     hovered: boolean;

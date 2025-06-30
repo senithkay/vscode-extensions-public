@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 

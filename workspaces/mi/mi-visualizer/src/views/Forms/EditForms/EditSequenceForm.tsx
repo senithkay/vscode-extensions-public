@@ -23,12 +23,12 @@ import {
     FormActions,
     FormCheckBox,
     FormAutoComplete,
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { Resolver, useForm } from "react-hook-form";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup } from "@wso2/mi-diagram";
 import { set } from "lodash";
 
 export type EditSequenceFields = {

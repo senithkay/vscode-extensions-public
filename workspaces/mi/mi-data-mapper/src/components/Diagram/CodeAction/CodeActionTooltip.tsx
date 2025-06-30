@@ -17,7 +17,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-import { Item, Menu, MenuItem, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Item, Menu, MenuItem, Tooltip } from "@wso2/ui-toolkit";
 
 import { CodeAction } from "./CodeAction";
 

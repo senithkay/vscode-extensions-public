@@ -16,13 +16,13 @@
  * under the License.
  */
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2-enterprise/mi-diagram";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, Dropdown, FormActions, FormView, ProgressIndicator, TextArea, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
+import { ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2/mi-diagram";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, ComponentCard, Dropdown, FormActions, FormView, ProgressIndicator, TextArea, TextField, Typography } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { TagRange } from '@wso2/mi-syntax-tree/lib/src';
 import * as yup from "yup";
 import { getTestCaseXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 

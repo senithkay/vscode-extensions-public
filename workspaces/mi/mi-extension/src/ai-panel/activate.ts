@@ -20,7 +20,7 @@ import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
 import { openAIWebview } from './aiMachine';
 import { extension } from '../MIExtensionContext';
-import { PromptObject } from '@wso2-enterprise/mi-core';
+import { PromptObject } from '@wso2/mi-core';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(

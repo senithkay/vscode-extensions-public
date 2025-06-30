@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { ProjectDetailsResponse } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox, PasswordField, VSCodeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox, PasswordField, VSCodeColors } from "@wso2/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";

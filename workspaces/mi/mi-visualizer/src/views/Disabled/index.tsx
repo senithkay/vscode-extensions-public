@@ -17,9 +17,9 @@
  */
 
 import styled from "@emotion/styled";
-import { ErrorType } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Alert, Codicon, LinkButton, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ErrorType } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Alert, Codicon, LinkButton, Typography } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 
 // Styles

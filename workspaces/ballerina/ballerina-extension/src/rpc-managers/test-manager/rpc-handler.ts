@@ -16,7 +16,7 @@
  * under the License.
  */
 import { addTestFunction, getTestFunction, GetTestFunctionRequest, 
-    AddOrUpdateTestFunctionRequest, updateTestFunction } from "@wso2-enterprise/ballerina-core";
+    AddOrUpdateTestFunctionRequest, updateTestFunction } from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { TestServiceManagerRpcManager } from "./rpc-manager";
 

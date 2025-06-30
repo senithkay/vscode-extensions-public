@@ -17,7 +17,7 @@
  */
 
 import styled from "@emotion/styled";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import { useState } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { Collapse } from "react-collapse";

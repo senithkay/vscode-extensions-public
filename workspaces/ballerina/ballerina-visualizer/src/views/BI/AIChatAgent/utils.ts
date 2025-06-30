@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { FlowNode } from "@wso2-enterprise/ballerina-core";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { FlowNode } from "@wso2/ballerina-core";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
 import { cloneDeep } from "lodash";
 import { URI, Utils } from "vscode-uri";
 

@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import { NodeProperties } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodeProperties } from "@wso2/ballerina-core";
+import { NodePosition, STNode, traversNode } from "@wso2/syntax-tree";
 
 import { FunctionFindingVisitor } from "../../utils/function-finding-visitor";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
-import { TextEdit } from "@wso2-enterprise/ballerina-core";
+import { TextEdit } from "@wso2/ballerina-core";
 
 export const DATA_MAPPING_FILE_NAME = "data_mappings.bal";
 

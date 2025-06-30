@@ -18,7 +18,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 
-import { Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ProgressRing } from "@wso2/ui-toolkit";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 
 export interface NodeLayerWidgetProps {

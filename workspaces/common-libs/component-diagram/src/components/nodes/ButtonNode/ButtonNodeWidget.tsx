@@ -27,7 +27,7 @@ import {
     NEW_CONNECTION,
     CON_NODE_HEIGHT,
 } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
 

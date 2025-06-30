@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { MenuItem } from "@wso2-enterprise/ui-toolkit";
+import { MenuItem } from "@wso2/ui-toolkit";
 import React from "react";
 
 interface BreakpointMenuWidgetProps {

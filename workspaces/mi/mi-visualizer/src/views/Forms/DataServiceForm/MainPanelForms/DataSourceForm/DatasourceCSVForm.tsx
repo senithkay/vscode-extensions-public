@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from "react";
-import { TextField, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
+import { TextField, RadioButtonGroup } from "@wso2/ui-toolkit";
 
 export interface DataSourceCSVFormProps {
     renderProps: any;

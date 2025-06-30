@@ -20,7 +20,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import classnames from "classnames";
-import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, ProgressRing } from "@wso2/ui-toolkit";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
@@ -31,7 +31,7 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
-import { IOType } from "@wso2-enterprise/ballerina-core";
+import { IOType } from "@wso2/ballerina-core";
 import { removeMapping } from "../../utils/modification-utils";
 import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 import { useShallow } from "zustand/react/shallow";

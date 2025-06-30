@@ -19,8 +19,8 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { Button, Codicon } from "@wso2/ui-toolkit";
+import { IOType, TypeKind } from "@wso2/ballerina-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";

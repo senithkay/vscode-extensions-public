@@ -21,7 +21,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import styled from "@emotion/styled";
 
 import { OverlayLayerModel } from "./OverlayLayerModel";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing } from "@wso2/ui-toolkit";
 import { DiagramStyles } from "../DiagramCanvas";
 import { Colors } from "../../resources/constants";
 

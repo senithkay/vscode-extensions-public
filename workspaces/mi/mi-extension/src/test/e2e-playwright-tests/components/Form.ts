@@ -17,7 +17,7 @@
  */
 
 import { Frame, Locator, Page, expect } from "@playwright/test";
-import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { DefaultParamManager, SimpleParamManager, ParamManagerWithNewCreateForm } from "./ParamManager";
 
 export interface FormFillProps {

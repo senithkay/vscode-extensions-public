@@ -17,12 +17,12 @@
  */
 
 import React, { useState } from 'react';
-import { Button, SidePanelBody, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
-import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import { Button, SidePanelBody, TextArea, Typography } from '@wso2/ui-toolkit';
+import { BallerinaRpcClient } from '@wso2/ballerina-rpc-client';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
-import { NOT_SUPPORTED_TYPE, Type, TypeDataWithReferences } from '@wso2-enterprise/ballerina-core';
-import { XMLToRecord } from '@wso2-enterprise/ballerina-core';
+import { NOT_SUPPORTED_TYPE, Type, TypeDataWithReferences } from '@wso2/ballerina-core';
+import { XMLToRecord } from '@wso2/ballerina-core';
 import styled from '@emotion/styled';
 
 interface RecordFromXmlProps {

@@ -16,22 +16,22 @@
  * under the License.
  */
 import { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
 import { TypeChip } from "./Commons";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { ParamConfig, ParamManager } from "@wso2/mi-diagram";
 import { AddressEndpointWizard } from "./AddressEndpointForm";
 import { DefaultEndpointWizard } from "./DefaultEndpointForm";
 import { HttpEndpointWizard } from "./HTTPEndpointForm";
 import { WsdlEndpointWizard } from "./WSDLEndpointForm";
-import { Template } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { Template } from "@wso2/mi-syntax-tree/lib/src";
+import { compareVersions } from "@wso2/mi-diagram/lib/utils/commons";
 import { RUNTIME_VERSION_440 } from "../../constants";
 
 export interface TemplateWizardProps {

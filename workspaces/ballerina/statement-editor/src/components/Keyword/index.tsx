@@ -19,7 +19,7 @@ import React, { useContext } from "react";
 
 import {
     AscendingKeyword, DescendingKeyword, FinalKeyword
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";

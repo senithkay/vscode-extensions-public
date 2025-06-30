@@ -19,7 +19,7 @@
 import React from "react";
 import { useIntl } from "react-intl";
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, SidePanelTitleContainer, Typography } from "@wso2/ui-toolkit";
 import { RecordFormWrapper } from "../style";
 
 export interface RecordConfigTypeProps {

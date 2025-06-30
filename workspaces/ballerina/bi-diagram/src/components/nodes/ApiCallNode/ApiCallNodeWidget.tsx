@@ -29,7 +29,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";

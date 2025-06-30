@@ -17,8 +17,8 @@
  */
 
 import React from "react";
-import { Overview as OverviewComponent } from "@wso2-enterprise/overview-view";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { Overview as OverviewComponent } from "@wso2/overview-view";
+import { VisualizerLocation } from "@wso2/ballerina-core";
 import { ViewWrapper } from "../styles";
 
 export function Overview(props: { visualizerLocation: VisualizerLocation }) {

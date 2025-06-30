@@ -21,7 +21,7 @@ import { TestController, tests, TestRunProfileKind, Uri, TestItem, ExtensionCont
 import { runHandler } from "./runner";
 import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2/mi-core";
 import { COMMANDS } from "../constants";
 import { openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";

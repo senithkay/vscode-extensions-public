@@ -20,7 +20,7 @@
 import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
     engine: DiagramEngine;

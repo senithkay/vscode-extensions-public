@@ -23,8 +23,8 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { PlusNodeModel } from "./PlusNodeModel";
 import { Colors } from "../../../resources/constants";
 import { keyframes } from "@emotion/react";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Switch } from "@wso2/mi-syntax-tree/lib/src";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 
 namespace S {

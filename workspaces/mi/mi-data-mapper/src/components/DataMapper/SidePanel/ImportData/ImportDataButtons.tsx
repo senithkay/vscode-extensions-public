@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon } from "@wso2/ui-toolkit";
 import { css } from "@emotion/css";
 
 import { ImportType } from "./ImportDataForm";

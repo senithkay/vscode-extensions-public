@@ -19,7 +19,7 @@ import React, { useState } from "react";
 
 import { TreeContainer } from "../commons/Tree/Tree";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import { Label } from "../../OverriddenLinkLayer/LabelWidget";
 import { useShallow } from "zustand/react/shallow";
 

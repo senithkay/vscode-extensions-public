@@ -17,7 +17,7 @@
  */
 
 import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
+import { CMEntity as Entity } from '@wso2/ballerina-core';
 import {
     EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory
 } from '../components';

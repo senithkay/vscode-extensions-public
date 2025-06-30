@@ -27,7 +27,7 @@ import {
     SidePanelBody,
     CheckBox,
     Typography,
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormImports, FormValues } from "./types";
@@ -45,7 +45,7 @@ import {
     LinePosition,
     ExpressionProperty,
     RecordTypeField,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import {
     formatJSONLikeString,

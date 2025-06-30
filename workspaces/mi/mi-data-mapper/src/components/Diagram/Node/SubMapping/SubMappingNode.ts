@@ -17,7 +17,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { Block, VariableStatement } from "ts-morph";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";

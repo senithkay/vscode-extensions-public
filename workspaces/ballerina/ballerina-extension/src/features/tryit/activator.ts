@@ -24,7 +24,7 @@ import * as vscode from 'vscode';
 import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
 import { clientManager, findRunningBallerinaProcesses, handleError, HTTPYAC_CONFIG_TEMPLATE, TRYIT_TEMPLATE, waitForBallerinaService } from "./utils";
-import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
+import { BIDesignModelResponse, OpenAPISpec } from "@wso2/ballerina-core";
 import { startDebugging } from "../editor-support/codelens-provider";
 import { v4 as uuidv4 } from "uuid";
 import { StateMachine } from "../../stateMachine";

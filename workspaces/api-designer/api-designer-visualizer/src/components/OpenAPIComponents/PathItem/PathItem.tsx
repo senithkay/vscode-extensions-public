@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, CheckBox, CheckBoxGroup, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, CheckBoxGroup, Codicon, TextField } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathItem as P, Parameter, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { useContext } from 'react';
 import { getColorByMethod } from '../../Utils/OpenAPIUtils';
 import { Parameters } from '../Parameters/Parameters';

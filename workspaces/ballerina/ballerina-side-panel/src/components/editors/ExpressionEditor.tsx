@@ -31,7 +31,7 @@ import {
     RequiredFormInput,
     ThemeColors,
     Tooltip
-} from '@wso2-enterprise/ui-toolkit';
+} from '@wso2/ui-toolkit';
 import { getPropertyFromFormField, sanitizeType } from './utils';
 import { FormField, FormExpressionEditorProps } from '../Form/types';
 import { useFormContext } from '../../context';
@@ -41,7 +41,7 @@ import {
     SubPanel,
     SubPanelView,
     SubPanelViewProps
-} from '@wso2-enterprise/ballerina-core';
+} from '@wso2/ballerina-core';
 import ReactMarkdown from 'react-markdown';
 
 export type ContextAwareExpressionEditorProps = {

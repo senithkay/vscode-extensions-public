@@ -17,12 +17,12 @@
  */
 
 import React from 'react';
-import { Button, FormActions, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, FormActions, Typography } from '@wso2/ui-toolkit';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { sidepanelGoBack } from '..';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 const ProgressRing = styled(VSCodeProgressRing)`
     height: 50px;

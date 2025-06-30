@@ -18,7 +18,7 @@
 
 import React from "react";
 
-import { Icon, Item, MenuItem } from "@wso2-enterprise/ui-toolkit";
+import { Icon, Item, MenuItem } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeType } from "../NodeFilter";

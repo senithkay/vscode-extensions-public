@@ -20,7 +20,7 @@ import {
     BlockStatement, ForeachStatement, FunctionBodyBlock, IfElseStatement,
     NamedWorkerDeclaration, STKindChecker, STNode, traversNode, Visitor,
     WhileStatement
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
 import { FOREACH_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ForeachSVG";

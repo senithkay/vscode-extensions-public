@@ -18,7 +18,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { Button, Icon, RequiredFormInput, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, RequiredFormInput, Tooltip } from "@wso2/ui-toolkit";
 import { capitalize } from "./utils";
 import styled from "@emotion/styled";
 

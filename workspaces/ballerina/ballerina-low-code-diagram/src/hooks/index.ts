@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { Context } from "../Context/diagram";
 import { SelectedPosition } from "../Context/types";

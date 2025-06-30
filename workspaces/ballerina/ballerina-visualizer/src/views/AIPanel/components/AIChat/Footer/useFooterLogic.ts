@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { Command } from "@wso2-enterprise/ballerina-core";
+import { Command } from "@wso2/ballerina-core";
 import { Tag } from "../../../commandTemplates/models/tag.model";
 import { injectTags } from "../../../commandTemplates/utils/utils";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
 
 interface UseFooterLogicParams {
     rpcClient: BallerinaRpcClient;

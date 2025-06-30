@@ -20,7 +20,7 @@ import {
     AgentChatAPI,
     ChatReqMessage,
     ChatRespMessage,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { extension } from '../../BalExtensionContext';
 
 export class AgentChatRpcManager implements AgentChatAPI {

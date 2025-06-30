@@ -23,7 +23,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { StateMachine } from '../../../src/stateMachine';
 import { Uri } from 'vscode';
-import { Diagnostics } from '@wso2-enterprise/ballerina-core';
+import { Diagnostics } from '@wso2/ballerina-core';
 
 const RESOURCES_PATH = path.resolve(__dirname, '../../../../test/ai/post_proccess/resources');
 

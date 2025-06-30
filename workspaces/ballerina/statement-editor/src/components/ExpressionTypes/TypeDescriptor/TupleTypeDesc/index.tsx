@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { TupleTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { TupleTypeDesc } from "@wso2/syntax-tree";
 
 import { TYPE_DESC_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";

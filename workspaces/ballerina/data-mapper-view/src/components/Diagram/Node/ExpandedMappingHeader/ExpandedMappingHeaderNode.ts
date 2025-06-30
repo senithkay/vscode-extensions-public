@@ -17,7 +17,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DefaultPortModel, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { QueryExpression } from "@wso2-enterprise/syntax-tree";
+import { QueryExpression } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";

@@ -18,9 +18,9 @@
 
 import React from "react";
 import { VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
-import { Icon, PanelContent, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Icon, PanelContent, Typography } from "@wso2/ui-toolkit";
 import { MediatorForm } from "./Form";
-import { DiagramService, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DiagramService, Range } from "@wso2/mi-syntax-tree/lib/src";
 import TryOutView from "../tryout/Tryout";
 import { useForm } from "react-hook-form";
 import { Colors } from "../../../resources/constants";

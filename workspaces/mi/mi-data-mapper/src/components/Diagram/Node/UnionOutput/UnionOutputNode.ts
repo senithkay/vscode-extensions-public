@@ -16,7 +16,7 @@
  * under the License.
  */
 import { Point } from "@projectstorm/geometry";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";

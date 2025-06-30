@@ -223,7 +223,7 @@ import {
     UpdateConfigVariableResponseV2,
     DeleteConfigVariableRequestV2,
     DeleteConfigVariableResponseV2
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug, handlePullModuleProgress } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";

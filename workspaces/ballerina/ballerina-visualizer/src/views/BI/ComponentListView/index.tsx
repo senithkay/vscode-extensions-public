@@ -17,8 +17,8 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
-import { SCOPE, TriggerModelsResponse } from "@wso2-enterprise/ballerina-core";
+import { View, ViewContent } from "@wso2/ui-toolkit";
+import { SCOPE, TriggerModelsResponse } from "@wso2/ballerina-core";
 
 import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
@@ -30,7 +30,7 @@ import { IntegrationAPIPanel } from "./IntegrationApiPanel";
 import { OtherArtifactsPanel } from "./OtherArtifactsPanel";
 import { AIAgentPanel } from "./AIAgentPanel";
 import { useVisualizerContext } from "../../../Context";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 
 interface ComponentListViewProps {
     scope: SCOPE;

@@ -24,9 +24,9 @@ import * as yup from 'yup';
 
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Alert, Button, Codicon, COMPLETION_ITEM_KIND, Divider, Dropdown, getIcon, HelperPane, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
+import { Alert, Button, Codicon, COMPLETION_ITEM_KIND, Divider, Dropdown, getIcon, HelperPane, TextField, Typography } from '@wso2/ui-toolkit';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
+import { HelperPaneCompletionItem } from '@wso2/mi-core';
 
 import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 

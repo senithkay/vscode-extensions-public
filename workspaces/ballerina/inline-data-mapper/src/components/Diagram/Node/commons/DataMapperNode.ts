@@ -17,7 +17,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { IOType, Mapping, MappingElement, TypeKind } from '@wso2-enterprise/ballerina-core';
+import { IOType, Mapping, MappingElement, TypeKind } from '@wso2/ballerina-core';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { MappingMetadata } from '../../Mappings/MappingMetadata';

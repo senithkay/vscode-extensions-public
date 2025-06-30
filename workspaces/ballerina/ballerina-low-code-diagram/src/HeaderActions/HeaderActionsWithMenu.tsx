@@ -27,8 +27,8 @@ import {
     LabelRunIcon,
     LabelTryIcon,
     ShowMenuIcon,
-} from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { ComponentExpandButton } from "../Components/ComponentExpandButton";

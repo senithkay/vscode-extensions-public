@@ -21,18 +21,18 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { AiAgentNodeModel } from "./AiAgentNodeModel";
 import { Colors, NODE_DIMENSIONS, NODE_GAP } from "../../../resources/constants";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Menu, MenuItem, Popover, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { STNode } from "@wso2/mi-syntax-tree/src";
+import { Menu, MenuItem, Popover, Tooltip, Typography } from "@wso2/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import path from "path";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import { getTextSizes } from "../../../utils/node";
-import { AIConnector, AIConnectorConnection } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { AIConnector, AIConnectorConnection } from "@wso2/mi-syntax-tree/lib/src";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 
 namespace S {
     export type NodeStyleProp = {

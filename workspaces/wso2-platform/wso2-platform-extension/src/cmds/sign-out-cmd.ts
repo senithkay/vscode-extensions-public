@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";

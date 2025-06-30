@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { useStyles } from './style';
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon } from '@wso2/ui-toolkit';
 
 export interface PromptScreenProps {
     userMessage: string;

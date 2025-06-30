@@ -17,7 +17,7 @@
  */
 import { FunctionDeclaration, Node, SourceFile, Type, ts } from 'ts-morph';
 import * as path from 'path';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind } from '@wso2/mi-core';
 import { DMProject } from '../datamapper/DMProject';
 
 

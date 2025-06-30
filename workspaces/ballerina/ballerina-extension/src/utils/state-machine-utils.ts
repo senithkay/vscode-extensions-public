@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { DIRECTORY_MAP, FOCUS_FLOW_DIAGRAM_VIEW, HistoryEntry, MACHINE_VIEW, ProjectStructureArtifactResponse, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { DIRECTORY_MAP, FOCUS_FLOW_DIAGRAM_VIEW, HistoryEntry, MACHINE_VIEW, ProjectStructureArtifactResponse, SyntaxTreeResponse } from "@wso2/ballerina-core";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
 import { UIDGenerationVisitor } from "./history/uid-generation-visitor";

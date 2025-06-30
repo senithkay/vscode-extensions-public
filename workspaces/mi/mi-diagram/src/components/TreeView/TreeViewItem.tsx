@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import styled from "@emotion/styled";
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon } from '@wso2/ui-toolkit';
 
 const IconContainer = styled.div`
     width: 15px;

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition } from "@wso2/syntax-tree";
 
 import { ActionViewState } from "./action";
 import { EndpointViewState } from "./endpoint";

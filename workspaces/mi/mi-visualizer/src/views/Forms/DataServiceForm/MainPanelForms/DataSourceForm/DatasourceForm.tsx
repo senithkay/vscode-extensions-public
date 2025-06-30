@@ -16,7 +16,7 @@
  * under the License.
  */
 import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
-import { Button, TextField, FormCheckBox, Dropdown, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormCheckBox, Dropdown, FormView, FormActions } from "@wso2/ui-toolkit";
 import { DataServicePropertyTable } from "../PropertyTable";
 import * as yup from "yup";
 import { useForm, FormProvider } from "react-hook-form";
@@ -25,13 +25,13 @@ import { DataSourceRDBMSForm } from "./DatasourceRDBMSForm";
 import { DataSourceMongoDBForm } from "./DatasourceMongoDBForm";
 import { DataSourceCSVForm } from "./DatasourceCSVForm";
 import { DataSourceCassandraForm } from "./DatasourceCassandraForm";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, Datasource, Property } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, Datasource, Property } from "@wso2/mi-core";
 import { TestConnectionForm } from "./TestConnectionForm";
 import { DatabaseDriverForm } from "./DatabaseDriverForm";
 import { driverMap } from "../../../DataSourceForm/types";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
-import { openPopup } from "@wso2-enterprise/mi-diagram/lib/components/Form/common";
+import { FormKeylookup } from "@wso2/mi-diagram";
+import { openPopup } from "@wso2/mi-diagram/lib/components/Form/common";
 
 export interface DataServiceDataSourceWizardProps {
     datasource?: any;

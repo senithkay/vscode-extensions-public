@@ -27,7 +27,7 @@ import {
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
 	getComponentTypeText,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { getGitRoot } from "../git/util";

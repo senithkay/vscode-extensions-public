@@ -18,7 +18,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { AutoResizeTextArea } from "@wso2-enterprise/ui-toolkit";
+import { AutoResizeTextArea } from "@wso2/ui-toolkit";
 import { useFormContext } from "../../context";
 import { S } from "./ExpressionEditor";
 import { Controller } from "react-hook-form";

@@ -20,7 +20,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { Popover } from "@wso2-enterprise/ui-toolkit";
+import { Popover } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";

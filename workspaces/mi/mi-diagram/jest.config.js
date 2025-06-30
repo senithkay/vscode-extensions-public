@@ -35,6 +35,6 @@ module.exports = {
     ],
     setupFiles: ['<rootDir>/src/test/matchMedia.ts'],
     "transformIgnorePatterns": [
-        "<rootDir>/node_modules/(?!(@wso2-enterprise)/)"
+        "<rootDir>/node_modules/(?!(@wso2)/)"
     ]
 };

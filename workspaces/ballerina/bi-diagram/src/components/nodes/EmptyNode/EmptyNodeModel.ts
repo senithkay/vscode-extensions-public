@@ -19,7 +19,7 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
-import { Branch, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { Branch, FlowNode, LinePosition } from "@wso2/ballerina-core";
 
 export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;

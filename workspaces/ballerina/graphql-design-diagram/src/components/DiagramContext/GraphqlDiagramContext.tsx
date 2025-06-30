@@ -19,8 +19,8 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { createContext } from "react";
 
-import { CurrentFile, ExtendedLangClientInterface } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { CurrentFile, ExtendedLangClientInterface } from "@wso2/ballerina-core";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 import { NodeType } from "../NodeFilter";
 

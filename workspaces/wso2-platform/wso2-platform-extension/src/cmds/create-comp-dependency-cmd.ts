@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, ComponentViewDrawers, type ICreateDependencyParams, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ComponentViewDrawers, type ICreateDependencyParams, getComponentKey } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

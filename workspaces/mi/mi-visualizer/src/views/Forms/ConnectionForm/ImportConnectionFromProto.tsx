@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import { FormView, FormActions, Button, LocationSelector, ErrorBanner, Typography } from "@wso2-enterprise/ui-toolkit";
+import { FormView, FormActions, Button, LocationSelector, ErrorBanner, Typography } from "@wso2/ui-toolkit";
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { ConnectorStatus } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { ConnectorStatus } from "@wso2/mi-core";
 
 const LoaderWrapper = styled.div`
     display: flex;

@@ -17,7 +17,7 @@
  */
 
 import { Locator, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";

@@ -17,7 +17,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import { ParseResult, processSegment, splitSegments, processParam } from "@wso2-enterprise/ballerina-side-panel";
+import { ParseResult, processSegment, splitSegments, processParam } from "@wso2/ballerina-side-panel";
 
 export function parseResourcePath(input: string): ParseResult {
     const result: ParseResult = {

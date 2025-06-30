@@ -22,7 +22,7 @@ import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
 import { initTest, page } from './Utils';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { Overview } from './components/Overview';
 
 export default function createTests() {

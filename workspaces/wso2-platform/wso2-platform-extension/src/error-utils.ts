@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds } from "@wso2/wso2-platform-core";
 import { commands, window as w } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";

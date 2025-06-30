@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { StringTemplateExpression} from "@wso2-enterprise/syntax-tree";
+import { StringTemplateExpression} from "@wso2/syntax-tree";
 
 import { InputEditor } from "../../InputEditor";
 

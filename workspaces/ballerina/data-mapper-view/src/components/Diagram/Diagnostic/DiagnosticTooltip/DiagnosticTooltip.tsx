@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2/ui-toolkit";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { useStyles } from "../style";

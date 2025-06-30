@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType } from "@wso2/ballerina-core";
 import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
@@ -34,7 +34,7 @@ import {
     STNode,
     traversNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { hasErrorDiagnosis, isPositionsEquals } from "../../../utils/st-utils";
 import { SelectionState } from "../../DataMapper/DataMapper";

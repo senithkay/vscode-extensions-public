@@ -33,7 +33,7 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
-import { Button, Icon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, TruncatedLabel } from "@wso2/ui-toolkit";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { useShallow } from "zustand/react/shallow";
 

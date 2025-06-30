@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { TypeWithIdentifier, VarIcon } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TypeWithIdentifier, VarIcon } from "@wso2/ballerina-core";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import { VariableTree } from "./VariablesTree";
 import styled from "@emotion/styled";
 import { useState } from "react";

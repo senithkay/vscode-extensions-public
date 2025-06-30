@@ -19,16 +19,16 @@
 import { useEffect, useState } from "react";
 
 
-import { BallerinaConnectorInfo, BallerinaModuleResponse, BallerinaConnectorsRequest, BallerinaConstruct, STModification } from "@wso2-enterprise/ballerina-core";
+import { BallerinaConnectorInfo, BallerinaModuleResponse, BallerinaConnectorsRequest, BallerinaConstruct, STModification } from "@wso2/ballerina-core";
 
 
 import { Marketplace, SearchQueryParams } from "../Marketplace";
-import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaRpcClient, useRpcContext } from "@wso2/ballerina-rpc-client";
 import { fetchConnectorInfo, getConnectorImports, getInitialSourceForConnectors } from "./utils";
 import { useVisualizerContext } from "../../../Context";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import { StatementEditorComponent } from "../../StatementEditorComponent";
-import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { getSymbolInfo } from "@wso2/ballerina-low-code-diagram";
 
 
 export interface ConnectorListProps {

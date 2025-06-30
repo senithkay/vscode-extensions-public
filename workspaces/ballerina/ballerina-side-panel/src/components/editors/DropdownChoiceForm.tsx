@@ -18,13 +18,13 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Dropdown, LocationSelector, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, LocationSelector, RadioButtonGroup } from "@wso2/ui-toolkit";
 
 import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
-import { PropertyModel } from "@wso2-enterprise/ballerina-core";
+import { PropertyModel } from "@wso2/ballerina-core";
 import { EditorFactory } from "./EditorFactory";
 import Form from "../Form";
 

@@ -17,7 +17,7 @@
  */
 
 import * as vscode from 'vscode';
-import { AIPanelPrompt, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { AIPanelPrompt, SHARED_COMMANDS } from '@wso2/ballerina-core';
 import { closeAIWebview, openAIWebview } from './aiMachine';
 import { BallerinaExtension } from '../../core';
 import { notifyAiWebview } from '../../RPCLayer';

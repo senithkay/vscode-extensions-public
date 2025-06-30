@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Command } from '@wso2-enterprise/ballerina-core';
+import { Command } from '@wso2/ballerina-core';
 import { Tag } from '../models/tag.model';
 import { commandTemplates } from './commandTemplates.const';
 

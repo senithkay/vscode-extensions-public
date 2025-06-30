@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { NodePosition, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, SimpleNameReference } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 

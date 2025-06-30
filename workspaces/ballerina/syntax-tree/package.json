@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/syntax-tree",
+  "name": "@wso2/syntax-tree",
   "version": "3.4.2",
   "description": "syntax-tree",
   "files": [
@@ -43,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "author": "wso2",
   "license": "UNLICENSED",

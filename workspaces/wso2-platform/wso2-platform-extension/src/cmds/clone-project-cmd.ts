@@ -27,7 +27,7 @@ import {
 	type Organization,
 	getComponentKindRepoSource,
 	parseGitURL,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, extensions, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { initGit } from "../git/main";

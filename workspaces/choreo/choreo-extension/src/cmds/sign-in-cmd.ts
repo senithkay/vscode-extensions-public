@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds } from "@wso2/choreo-core";
 import { type ExtensionContext, ProgressLocation, commands, window } from "vscode";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";

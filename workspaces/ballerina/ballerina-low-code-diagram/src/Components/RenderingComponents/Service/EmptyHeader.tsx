@@ -19,8 +19,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ClassIcon, DeleteButton, EditButton } from "@wso2-enterprise/ballerina-core";
-import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ClassIcon, DeleteButton, EditButton } from "@wso2/ballerina-core";
+import { ServiceDeclaration, STKindChecker } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { Context as DiagramContext } from "../../../Context/diagram";

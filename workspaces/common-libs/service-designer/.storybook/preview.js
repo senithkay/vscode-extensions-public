@@ -32,7 +32,7 @@ export const decorators = [
       } else if (context.globals.theme === 'Light_Theme') {
         import('../.storybook/lightTheme.css');
       }
-      import ("./fonts/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css");
+      import ("./fonts/@wso2/font-wso2-vscode/dist/wso2-vscode.css");
       import ("./fonts/@vscode/codicons/dist/codicon.css");
       return <Story />
     }

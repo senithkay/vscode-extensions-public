@@ -21,7 +21,7 @@ import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { DiagnosticTooltip } from "./DiagnosticTooltip/DiagnosticTooltip";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon } from "@wso2/ui-toolkit";
 
 export interface DiagnosticWidgetProps {
     diagnostic: Diagnostic,

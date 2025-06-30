@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { PositionalArg } from "@wso2-enterprise/syntax-tree";
+import { PositionalArg } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 

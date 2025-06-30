@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree"
+import { IfElseStatement, NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree"
 
 import { ELSEIF_CLAUSE, ELSE_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

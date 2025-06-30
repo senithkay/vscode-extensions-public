@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/api-designer-core';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2/api-designer-core';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import styled from '@emotion/styled';
 import { APIDesignerView } from './views/APIDesignerView/APIDesigner';
 

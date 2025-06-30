@@ -17,7 +17,7 @@
  */
 import React, { useState } from "react";
 
-import { ClassDefinition } from "@wso2-enterprise/syntax-tree";
+import { ClassDefinition } from "@wso2/syntax-tree";
 
 import { ClassHeader } from "./ClassHeader";
 import './style.scss'

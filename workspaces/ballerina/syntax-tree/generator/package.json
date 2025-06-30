@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/syntax-tree-generator",
+  "name": "@wso2/syntax-tree-generator",
   "version": "1.0.0",
   "description": "",
   "main": "lib/generate.js",
@@ -14,7 +14,7 @@
     "gen-models": "pnpm run build && node lib/generate"
   },
   "dependencies": {
-    "@wso2-enterprise/ballerina-core": "workspace:*",
+    "@wso2/ballerina-core": "workspace:*",
     "dts-generator": "^3.0.0",
     "gitly": "^2.2.2",
     "glob": "^7.1.3",

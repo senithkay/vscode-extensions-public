@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon, Tooltip, TreeViewItem, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Tooltip, TreeViewItem, Typography } from '@wso2/ui-toolkit';
 import { Operation, PathItemWrapper, RightPathContainerButtons } from '../ComponentNavigator';
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { getBackgroundColorByMethod, getColorByMethod } from '../../../Utils/OpenAPIUtils';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
 import { PathID } from '../../../../constants';

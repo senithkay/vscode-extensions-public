@@ -16,13 +16,13 @@
  * under the License.
  */
 
-import { DependencyDetails, MACHINE_VIEW, ParentPopupData, PomNodeDetails, POPUP_EVENT_TYPE, ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { DependencyDetails, MACHINE_VIEW, ParentPopupData, PomNodeDetails, POPUP_EVENT_TYPE, ProjectDetailsResponse } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Icon, ProgressIndicator, Typography, Divider, Button } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ProgressIndicator, Typography, Divider, Button } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { ParamConfig, ParamManager } from "@wso2/mi-diagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const Item = styled.div`

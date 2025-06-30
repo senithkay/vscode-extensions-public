@@ -12,11 +12,11 @@
  */
 import React, { createRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 
 import { AIChatView } from "../styles";
-import { AIMachineEventType } from "@wso2-enterprise/ballerina-core";
+import { AIMachineEventType } from "@wso2/ballerina-core";
 
 const Container = styled.div`
     display: flex;

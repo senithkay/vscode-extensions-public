@@ -20,7 +20,7 @@ import React, { useState } from "react";
 import { Collapse } from "react-collapse";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { duotoneDark, duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import { identifyLanguage, handleAddSelectiveCodetoWorkspace, identifyArtifactTypeAndPath, isDarkMode } from "../utils";
 import { EntryContainer, StyledTransParentButton, StyledContrastButton } from "../styles";
 import { useMICopilotContext } from "./MICopilotContext";

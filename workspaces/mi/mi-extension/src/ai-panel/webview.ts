@@ -23,7 +23,7 @@ import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { AI_EVENT_TYPE } from '@wso2/mi-core';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
@@ -64,7 +64,7 @@ export class AiPanelWebview {
             '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
         // const codiconUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "resources", "codicons", "codicon.css"));
-        // const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+        // const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
         <!DOCTYPE html>

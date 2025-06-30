@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ContextItemEnriched } from "@wso2/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { authStore } from "../stores/auth-store";

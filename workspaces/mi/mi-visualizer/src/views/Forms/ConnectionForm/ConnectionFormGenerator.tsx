@@ -17,14 +17,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button, FormActions, FormView, TextField, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, FormActions, FormView, TextField, Codicon, ProgressRing } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { create } from 'xmlbuilder2';
 import { useForm, Controller } from 'react-hook-form';
-import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2/mi-core';
 import { TypeChip } from '../Commons';
-import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
+import { ParamConfig, ParamManager, FormGenerator } from '@wso2/mi-diagram';
 
 const ParamManagerContainer = styled.div`
     width: 100%;

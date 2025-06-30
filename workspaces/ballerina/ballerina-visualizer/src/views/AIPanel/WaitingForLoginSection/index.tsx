@@ -17,8 +17,8 @@
  */
 
 import styled from "@emotion/styled";
-import { AIMachineEventType } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { AIMachineEventType } from '@wso2/ballerina-core';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 
 import { AlertBox } from "../AlertBox";
 

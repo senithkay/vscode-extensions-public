@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { Welcome } from '../styles';
-import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Icon, Typography } from "@wso2/ui-toolkit";
 import { useMICopilotContext } from './MICopilotContext';
 import { PreviewContainerDefault, WelcomeStyles } from "../styles";
 

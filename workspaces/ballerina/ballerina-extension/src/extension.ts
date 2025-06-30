@@ -40,7 +40,7 @@ import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
 import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
-import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
+import { ExtendedClientCapabilities } from '@wso2/ballerina-core';
 import { RPCLayer } from './RPCLayer';
 import { activateAIFeatures } from './features/ai/activator';
 import { activateTryItCommand } from './features/tryit/activator';

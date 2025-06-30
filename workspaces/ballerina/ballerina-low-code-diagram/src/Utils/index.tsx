@@ -1,7 +1,7 @@
 import React from "react";
 
-import { BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, DiagnosticMsgSeverity, DiagramDiagnostic, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-core";
-import { ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionBodyBlock, IfElseStatement, IsolatedKeyword, ListenerDeclaration, LocalVarDecl, NodePosition, PublicKeyword, QualifiedNameReference, RemoteMethodCallAction, ServiceDeclaration, STKindChecker, STNode, traversNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, DiagnosticMsgSeverity, DiagramDiagnostic, STSymbolInfo, WizardType } from "@wso2/ballerina-core";
+import { ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionBodyBlock, IfElseStatement, IsolatedKeyword, ListenerDeclaration, LocalVarDecl, NodePosition, PublicKeyword, QualifiedNameReference, RemoteMethodCallAction, ServiceDeclaration, STKindChecker, STNode, traversNode, TypeCastExpression } from "@wso2/syntax-tree";
 
 import * as stComponents from '../Components/RenderingComponents';
 import { ActionProcessor } from "../Components/RenderingComponents/ActionInvocation/ActionProcess";

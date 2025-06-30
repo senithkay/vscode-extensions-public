@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2/mi-core";
 import { Node } from "ts-morph";
 
 export interface ArrayElement {

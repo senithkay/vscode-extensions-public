@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, Item, Menu, MenuItem } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition } from "@wso2/syntax-tree";
+import { Button, Codicon, Item, Menu, MenuItem } from "@wso2/ui-toolkit";
 import { CodeAction, TextDocumentEdit } from "vscode-languageserver-protocol";
 
 import { StatementSyntaxDiagnostics } from "../../models/definitions";

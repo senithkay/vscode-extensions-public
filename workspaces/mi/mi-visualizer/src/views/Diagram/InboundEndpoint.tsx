@@ -17,12 +17,12 @@
  */
 import React, { useEffect } from 'react';
 import { Diagnostic } from "vscode-languageserver-types";
-import { InboundEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Diagram } from "@wso2-enterprise/mi-diagram";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { InboundEndpoint } from "@wso2/mi-syntax-tree/lib/src";
+import { Diagram } from "@wso2/mi-diagram";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Button, Codicon, Icon, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
+import { Button, Codicon, Icon, ProgressRing, Typography } from '@wso2/ui-toolkit';
 
 
 export interface InboundEPViewProps {

@@ -17,7 +17,7 @@
  */
 
 import { useMutation } from "@tanstack/react-query";
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds } from "@wso2/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 import { Button } from "../../components/Button";

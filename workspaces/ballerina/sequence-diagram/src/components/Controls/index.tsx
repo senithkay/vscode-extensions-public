@@ -20,7 +20,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
-import { Icon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ThemeColors } from "@wso2/ui-toolkit";
 
 export namespace ControlsStyles {
     export const Container = styled.div`

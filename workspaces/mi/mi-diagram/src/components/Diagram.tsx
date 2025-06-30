@@ -23,7 +23,7 @@ import {
     STNode,
     DiagramService,
     Proxy
-} from "@wso2-enterprise/mi-syntax-tree/lib/src";
+} from "@wso2/mi-syntax-tree/lib/src";
 import { DiagramDimensions, SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
@@ -32,15 +32,15 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { clearSidePanelState, DefaultSidePanelState, SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
-import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
+import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
 import { CANVAS_PADDING, Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
-import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
-import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { APIResource } from "@wso2/mi-syntax-tree/src";
+import { GetBreakpointsResponse } from "@wso2/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import { debounce } from "lodash";
 import { Navigator } from "./Navigator/Navigator";

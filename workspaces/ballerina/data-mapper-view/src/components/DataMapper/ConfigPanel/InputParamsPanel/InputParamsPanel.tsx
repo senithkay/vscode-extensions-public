@@ -28,7 +28,7 @@ import { getTypeIncompatibilityMsg } from "../utils";
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner } from "@wso2/ui-toolkit";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];

@@ -17,14 +17,14 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Drawer, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2/ballerina-core";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
+import { Drawer, ThemeColors } from "@wso2/ui-toolkit";
+import { STNode } from "@wso2/syntax-tree";
 import styled from "@emotion/styled";
 import { URI } from "vscode-uri";
-import { FormField } from "@wso2-enterprise/ballerina-side-panel";
-import { RecordEditor as BalRecordEditor } from '@wso2-enterprise/record-creator';
+import { FormField } from "@wso2/ballerina-side-panel";
+import { RecordEditor as BalRecordEditor } from '@wso2/record-creator';
 
 const DrawerContainer = styled.div`
     fontFamily: GilmerRegular;

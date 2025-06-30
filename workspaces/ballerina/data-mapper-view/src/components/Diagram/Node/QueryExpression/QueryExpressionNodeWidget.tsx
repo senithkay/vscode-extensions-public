@@ -27,7 +27,7 @@ import { expandArrayFn } from "../../utils/dm-utils";
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
-import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, Tooltip } from '@wso2/ui-toolkit';
 import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface QueryExprAsSFVNodeWidgetProps {

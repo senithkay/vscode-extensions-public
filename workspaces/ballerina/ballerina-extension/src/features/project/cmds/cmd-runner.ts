@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject } from "@wso2/ballerina-core";
 import { Terminal, window, workspace } from "vscode";
 import { isSupportedSLVersion, isWindows } from "../../../utils";
 import { ballerinaExtInstance } from "../../../core";

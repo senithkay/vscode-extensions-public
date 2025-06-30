@@ -23,7 +23,7 @@ import { commands, window, env } from "vscode";
 import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY } from "../../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 import { isSupportedSLVersion } from "../../../utils";
-import { XMLToRecord } from "@wso2-enterprise/ballerina-core";
+import { XMLToRecord } from "@wso2/ballerina-core";
 
 const MSG_NOT_SUPPORT = "Paste XML as a Ballerina record feature is not supported";
 

@@ -17,7 +17,7 @@
  */
 import React, { useContext, useEffect, useState } from "react";
 
-import { ForeachStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { ForeachStatement, STNode } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { ErrorSnippet } from "../../../Types/type";

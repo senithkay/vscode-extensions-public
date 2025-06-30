@@ -19,7 +19,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React from "react";
 
-import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
+import { ContextMenu, Item } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getServiceSubHeaderMenuItems } from "../../../MenuItems/menuItems";

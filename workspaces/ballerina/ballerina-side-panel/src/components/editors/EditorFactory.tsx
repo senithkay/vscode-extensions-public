@@ -18,7 +18,7 @@
 
 import React from "react";
 
-import { NodeKind, RecordTypeField, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, RecordTypeField, SubPanel, SubPanelView } from "@wso2/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";

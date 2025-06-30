@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-core";
-import { BlockStatement, FunctionBodyBlock, LocalVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConnectorInfo } from "@wso2/ballerina-core";
+import { BlockStatement, FunctionBodyBlock, LocalVarDecl, NodePosition } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../Context/diagram";

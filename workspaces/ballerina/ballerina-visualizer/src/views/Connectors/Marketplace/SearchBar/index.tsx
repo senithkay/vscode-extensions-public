@@ -20,7 +20,7 @@ import React, { useEffect, useState } from "react";
 
 import debounce from "lodash.debounce";
 
-import { SearchBox } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox } from "@wso2/ui-toolkit";
 
 export interface SearchBarProps {
     searchQuery: string;

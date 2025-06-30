@@ -16,7 +16,7 @@
  * under the License.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { IOType, Mapping } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping } from "@wso2/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel } from "../IntermediatePort";

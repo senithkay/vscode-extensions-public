@@ -18,7 +18,7 @@
 // tslint:disable:jsx-no-multiline-js
 import React from "react";
 import { useStyles } from "./style";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 import { FormattedMessage } from "react-intl";
 
 interface FormHeaderSectionProps {

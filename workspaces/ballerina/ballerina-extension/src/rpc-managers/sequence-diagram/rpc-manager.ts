@@ -17,7 +17,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { SequenceDiagramAPI, SequenceModelRequest, SequenceModelResponse } from "@wso2-enterprise/ballerina-core";
+import { SequenceDiagramAPI, SequenceModelRequest, SequenceModelResponse } from "@wso2/ballerina-core";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";
 

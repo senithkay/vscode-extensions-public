@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type { GHAppConfig } from "@wso2-enterprise/choreo-core";
+import type { GHAppConfig } from "@wso2/choreo-core";
 import { workspace } from "vscode";
 
 interface IChoreoEnvConfig {

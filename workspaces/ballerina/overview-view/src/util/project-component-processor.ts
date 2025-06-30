@@ -17,7 +17,7 @@
  */
 
 
-import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2/ballerina-core";
 import { ComponentCollection } from "../ComponentListView";
 import { URI } from "vscode-uri"
 

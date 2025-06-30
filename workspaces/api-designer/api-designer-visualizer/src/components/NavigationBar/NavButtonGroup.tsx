@@ -18,10 +18,10 @@
 
 import { useEffect, useState } from "react";
 
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/api-designer-core";
+import { useVisualizerContext } from "@wso2/api-designer-rpc-client";
+import { MACHINE_VIEW, VisualizerLocation } from "@wso2/api-designer-core";
 import { HierachicalPath } from "./HierachicalPath";
 
 interface NavButtonGroupProps {

@@ -23,7 +23,7 @@ import axios from "axios";
 import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import * as unzipper from 'unzipper';
-import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest, ApplyEditResponse, RangeFormatRequest} from "@wso2-enterprise/mi-core";
+import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest, ApplyEditResponse, RangeFormatRequest} from "@wso2/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
 import { spawn } from "child_process";

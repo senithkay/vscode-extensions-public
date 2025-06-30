@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { UnaryExpression } from "@wso2-enterprise/syntax-tree";
+import { UnaryExpression } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { OperatorComponent } from "../../Operator";

@@ -23,14 +23,14 @@ import {
     ExpressionRange,
     addToTargetPosition,
     ResolvedTypeForExpression
-} from "@wso2-enterprise/ballerina-core";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { NodePosition } from "@wso2/syntax-tree";
 import { CodeAction, CompletionItemKind, Diagnostic, WorkspaceEdit } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 
 export async function getDiagnostics(docUri: string, langServerRpcClient: LangClientRpcClient): Promise<DiagnosticData[]> {
     const diagnostics = await langServerRpcClient.getDiagnostics({

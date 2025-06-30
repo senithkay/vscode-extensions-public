@@ -17,16 +17,16 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Icon, Switch, View, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2/syntax-tree";
+import { Button, Icon, Switch, View, ThemeColors, Tooltip } from "@wso2/ui-toolkit";
 import { BIFlowDiagram } from "../FlowDiagram";
 import { BISequenceDiagram } from "../SequenceDiagram";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
-import { EVENT_TYPE, FOCUS_FLOW_DIAGRAM_VIEW, FocusFlowDiagramView } from "@wso2-enterprise/ballerina-core";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FOCUS_FLOW_DIAGRAM_VIEW, FocusFlowDiagramView } from "@wso2/ballerina-core";
+import { VisualizerLocation } from "@wso2/ballerina-core";
+import { MACHINE_VIEW } from "@wso2/ballerina-core";
 import styled from "@emotion/styled";
 import { BIFocusFlowDiagram } from "../FocusFlowDiagram";
 

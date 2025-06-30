@@ -27,11 +27,11 @@ import {
     Mapping,
     SubPanel,
     SubPanelView
-} from "@wso2-enterprise/ballerina-core";
-import { DataMapperView } from "@wso2-enterprise/ballerina-inline-data-mapper";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
+} from "@wso2/ballerina-core";
+import { DataMapperView } from "@wso2/ballerina-inline-data-mapper";
+import { ProgressIndicator } from "@wso2/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { ExpressionFormField } from "@wso2/ballerina-side-panel";
 
 import { useInlineDataMapperModel } from "../../Hooks";
 

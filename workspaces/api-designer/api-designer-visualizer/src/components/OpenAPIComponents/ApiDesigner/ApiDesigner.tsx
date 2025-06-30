@@ -24,7 +24,7 @@ import { PathID, Views } from '../../../constants';
 import { APIDesignerContext } from '../../../APIDesignerContext';
 import { getAllComponents } from '../../Utils/OpenAPIUtils';
 import { ReadOnlyOpenAPI } from '../OpenAPI/ReadOnlyOpenAPI';
-import { SplitView, Tabs } from '@wso2-enterprise/ui-toolkit';
+import { SplitView, Tabs } from '@wso2/ui-toolkit';
 
 const SplitViewContainer = styled.div`
     display: flex;

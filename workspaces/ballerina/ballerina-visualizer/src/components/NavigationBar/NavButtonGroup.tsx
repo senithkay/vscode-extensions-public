@@ -18,10 +18,10 @@
 
 import React, { useState } from "react";
 
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { HistoryEntry } from "@wso2/ballerina-core";
 import styled from "@emotion/styled";
 
 interface NavButtonGroupProps {

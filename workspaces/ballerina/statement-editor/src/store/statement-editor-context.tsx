@@ -18,9 +18,9 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LibraryBrowserRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2/ballerina-core";
+import { LibraryBrowserRpcClient } from '@wso2/ballerina-rpc-client';
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
 import {

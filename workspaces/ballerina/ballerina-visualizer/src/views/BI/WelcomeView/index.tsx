@@ -17,10 +17,10 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { MACHINE_VIEW, EVENT_TYPE, DownloadProgress } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { MACHINE_VIEW, EVENT_TYPE, DownloadProgress } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const Wrapper = styled.div`

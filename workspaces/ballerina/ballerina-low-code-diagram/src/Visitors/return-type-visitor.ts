@@ -19,7 +19,7 @@ import {
     ErrorTypeDesc,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 class ReturnTypeVisitor implements Visitor {
     private errorNode: STNode = undefined;

@@ -18,13 +18,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { debounce } from 'lodash';
-import { LineRange, Type } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { TypeEditor, TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
+import { LineRange, Type } from '@wso2/ballerina-core';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
+import { TypeEditor, TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2/type-editor';
 import { TYPE_HELPER_OPERATORS } from './constants';
 import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from './utils';
 import { useMutation } from '@tanstack/react-query';
-import { Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Overlay, ThemeColors } from '@wso2/ui-toolkit';
 import { createPortal } from 'react-dom';
 import { LoadingRing } from '../../../components/Loader';
 import styled from '@emotion/styled';

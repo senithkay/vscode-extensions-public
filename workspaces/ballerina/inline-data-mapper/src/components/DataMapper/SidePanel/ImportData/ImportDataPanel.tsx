@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { Button, Icon, LinkButton, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, LinkButton, TextArea } from "@wso2/ui-toolkit";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { Controller, useForm } from 'react-hook-form';

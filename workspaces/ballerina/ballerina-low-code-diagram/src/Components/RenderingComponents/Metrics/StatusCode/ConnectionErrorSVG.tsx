@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { ErrorCopyIcon } from "@wso2-enterprise/ballerina-core";
+import { ErrorCopyIcon } from "@wso2/ballerina-core";
 
 import { CopyToClipboard } from './CopyToClipboard';
 

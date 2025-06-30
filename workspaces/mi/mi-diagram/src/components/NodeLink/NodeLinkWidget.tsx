@@ -23,8 +23,8 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Range } from "@wso2/mi-syntax-tree/lib/src";
+import { Tooltip } from "@wso2/ui-toolkit";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;

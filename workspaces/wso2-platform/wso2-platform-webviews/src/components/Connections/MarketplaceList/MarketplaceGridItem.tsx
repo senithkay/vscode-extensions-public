@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { type MarketplaceItem, getTimeAgo } from "@wso2-enterprise/wso2-platform-core";
+import { type MarketplaceItem, getTimeAgo } from "@wso2/wso2-platform-core";
 import classNames from "classnames";
 import React from "react";
 import type { FC } from "react";

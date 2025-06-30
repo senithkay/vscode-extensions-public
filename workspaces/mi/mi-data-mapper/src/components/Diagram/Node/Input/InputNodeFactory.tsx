@@ -19,7 +19,7 @@ import React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { TypeKind } from '@wso2-enterprise/mi-core';
+import { TypeKind } from '@wso2/mi-core';
 
 import { InputOutputPortModel } from '../../Port';
 import { InputNodeWidget } from "./InputNodeWidget";

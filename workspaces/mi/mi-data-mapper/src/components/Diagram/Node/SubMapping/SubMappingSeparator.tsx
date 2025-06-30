@@ -19,7 +19,7 @@ import React, { useState } from "react";
 
 import { keyframes } from "@emotion/react";
 import styled from "@emotion/styled";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 
 import { useIONodesStyles } from "../../../../components/styles";
 

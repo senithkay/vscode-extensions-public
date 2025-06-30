@@ -17,7 +17,7 @@
  */
 
 import React from "react";
-import { Button, SidePanel, SidePanelTitleContainer, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanel, SidePanelTitleContainer, ThemeColors } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon } from "../../resources";
 

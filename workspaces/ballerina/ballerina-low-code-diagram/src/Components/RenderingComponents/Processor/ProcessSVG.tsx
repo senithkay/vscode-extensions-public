@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactElement } from "react";
 
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
 
 import { ErrorSnippet } from "../../../Types/type";
 

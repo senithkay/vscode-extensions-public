@@ -16,7 +16,7 @@
  * under the License.
  */
 import styled from "@emotion/styled";
-import { Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Typography, ThemeColors } from "@wso2/ui-toolkit";
 
 export const LoadingContainer = styled.div`
     display: flex;

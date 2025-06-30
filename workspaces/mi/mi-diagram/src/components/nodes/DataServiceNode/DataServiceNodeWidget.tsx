@@ -21,13 +21,13 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataServiceNodeModel } from "./DataServiceNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
-import { Query, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Query, STNode } from "@wso2/mi-syntax-tree/src";
+import { Button, Tooltip } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name, Content, Body } from "../BaseNodeModel";
-import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 
 namespace S {
     export type NodeStyleProp = {

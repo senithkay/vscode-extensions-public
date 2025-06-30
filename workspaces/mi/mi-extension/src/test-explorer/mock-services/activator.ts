@@ -22,7 +22,7 @@ import { TreeDataProvider, Event, EventEmitter, ExtensionContext, TreeItem, Tree
 import { startWatchingWorkspace } from '../helper';
 import path = require('path');
 import { COMMANDS } from '../../constants';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2/mi-core';
 import { openView } from '../../stateMachine';
 import * as vscode from 'vscode';
 

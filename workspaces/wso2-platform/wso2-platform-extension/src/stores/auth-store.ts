@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type { AuthState, Organization, UserInfo } from "@wso2-enterprise/wso2-platform-core";
+import type { AuthState, Organization, UserInfo } from "@wso2/wso2-platform-core";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { ext } from "../extensionVariables";

@@ -25,7 +25,7 @@ import {
 	type Project,
 	getComponentKindRepoSource,
 	parseGitURL,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";

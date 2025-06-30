@@ -18,9 +18,9 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
-import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, Tooltip, TreeView, TreeViewItem, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { ConfigVariable } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, Tooltip, TreeView, TreeViewItem, Typography, View, ViewContent } from "@wso2/ui-toolkit";
 import { AddForm } from "../AddConfigurableVariables";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 import { TitleBar } from "../../../../components/TitleBar";

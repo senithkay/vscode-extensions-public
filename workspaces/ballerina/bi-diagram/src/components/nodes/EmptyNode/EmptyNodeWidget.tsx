@@ -20,7 +20,7 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/react";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { EmptyNodeModel } from "./EmptyNodeModel";
 import { EMPTY_NODE_WIDTH, NODE_PADDING } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";

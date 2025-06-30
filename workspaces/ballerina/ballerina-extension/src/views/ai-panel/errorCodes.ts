@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ErrorCode } from "@wso2-enterprise/ballerina-core";
+import { ErrorCode } from "@wso2/ballerina-core";
 
 export const NOT_LOGGED_IN: ErrorCode = {
     code: 1,

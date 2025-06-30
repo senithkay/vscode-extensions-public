@@ -22,7 +22,7 @@ import {
     GraphqlModelRequest,
     getGraphqlModel,
     getGraphqlTypeModel
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { GraphqlDesignerRpcManager } from "./rpc-manager";
 

@@ -14,8 +14,8 @@
 import React, { ReactNode, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
-import { IdentifierToken, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification, TypeField } from "@wso2/ballerina-core";
+import { IdentifierToken, NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
@@ -40,7 +40,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { UnionTypeSelector } from "./UnionTypeSelector";
-import { Codicon, Divider, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, ProgressRing, TruncatedLabel } from "@wso2/ui-toolkit";
 import { useIONodesStyles, useUnionTypeNodeStyles } from "../../../styles";
 
 export interface UnionTypeTreeWidgetProps {

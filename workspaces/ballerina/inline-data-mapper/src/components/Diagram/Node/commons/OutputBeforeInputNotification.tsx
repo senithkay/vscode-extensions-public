@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 
 import { useIONodesStyles } from "../../../styles";
 

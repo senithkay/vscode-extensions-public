@@ -29,7 +29,7 @@ import {
     DRAFT_NODE_BORDER_WIDTH,
     NODE_GAP_Y,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";

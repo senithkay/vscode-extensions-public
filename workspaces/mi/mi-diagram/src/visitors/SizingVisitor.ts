@@ -85,11 +85,11 @@ import {
     Query,
     ThrowError,
     Connector
-} from "@wso2-enterprise/mi-syntax-tree/lib/src";
+} from "@wso2/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 import { StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
-import { AIConnector, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
+import { AIConnector, Tool } from "@wso2/mi-syntax-tree/src";
 import { getTextSizes } from "../utils/node";
 
 export interface DiagramDimensions {

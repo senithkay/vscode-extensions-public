@@ -17,14 +17,14 @@
  */
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
-import { Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Diagram } from "@wso2-enterprise/mi-diagram";
-import { Switch } from "@wso2-enterprise/ui-toolkit";
+import { Proxy } from "@wso2/mi-syntax-tree/lib/src";
+import { Diagram } from "@wso2/mi-diagram";
+import { Switch } from "@wso2/ui-toolkit";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { EditProxyForm, ProxyProps } from "../Forms/EditForms/EditProxyForm";
 import { generateProxyData, onProxyEdit } from "../../utils/form";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
 import path from "path";
 
 export interface ProxyViewProps {

@@ -17,7 +17,7 @@
  */
 
 import { Frame, Page } from "@playwright/test";
-import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { getVsCodeButton, switchToIFrame } from "@wso2/playwright-vscode-tester";
 
 export class InboundEPForm {
     private webView!: Frame;

@@ -23,7 +23,7 @@ import {
     GraphqlDiagramAPI,
     GraphqlModelRequest,
     GraphqlModelResponse
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { StateMachine } from "../../stateMachine";
 
 export class GraphqlDesignerRpcManager implements GraphqlDiagramAPI {

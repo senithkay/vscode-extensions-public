@@ -16,9 +16,9 @@
  * under the License.
  */
 import React, { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormActions, FormGroup, LinkButton, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateDataServiceRequest, Datasource, Property, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { Button, TextField, FormView, FormActions, FormGroup, LinkButton, Codicon } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, CreateDataServiceRequest, Datasource, Property, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 import { DataServiceAdvancedWizard } from "./AdvancedForm";
 import { DataServiceTransportWizard } from "./TransportForm";
 import { DataServiceDisplayTable } from "./DisplayTable";

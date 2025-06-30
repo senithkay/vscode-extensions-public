@@ -19,7 +19,7 @@
 import React from "react";
 import ResourceAccordion from "./ResourceAccordion";
 import { PARAM_TYPES, Resource } from "../../definitions";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 
 export default {
     component: ResourceAccordion,

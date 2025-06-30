@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { checkCommentMinutiae, getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";

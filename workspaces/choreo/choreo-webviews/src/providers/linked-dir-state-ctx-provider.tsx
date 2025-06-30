@@ -17,7 +17,7 @@
  */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ContextStoreState } from "@wso2-enterprise/choreo-core";
+import type { ContextStoreState } from "@wso2/choreo-core";
 import React, { type FC, type ReactNode, useContext, useEffect } from "react";
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 

@@ -20,7 +20,7 @@
 
 import React, { memo, useState } from "react";
 import styled from "@emotion/styled";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 
 const AccordionItemContainer = styled.div`
   margin-bottom: 10px;

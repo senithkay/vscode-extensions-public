@@ -27,7 +27,7 @@ import { Diagram } from './components/Diagram';
 import { clearNotificationsByCloseButton, initTest, newProjectPath, dataFolder, page, resourcesFolder, vscode } from './Utils';
 import { DataMapper, IOType, SchemaType } from './components/DataMapper';
 import { ProjectExplorer } from './components/ProjectExplorer';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { Overview } from './components/Overview';
 
 export default function createTests() {

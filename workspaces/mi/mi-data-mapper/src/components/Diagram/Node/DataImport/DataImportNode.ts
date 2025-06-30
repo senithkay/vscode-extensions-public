@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType } from "@wso2/mi-core";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const DATA_IMPORT_NODE = "data-import-node";

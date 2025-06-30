@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 
 import { ViewState } from "./view-state";
 

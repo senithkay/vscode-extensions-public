@@ -20,7 +20,7 @@ import { window, Uri, ProviderResult, commands } from "vscode";
 import { exchangeAuthCode } from "./ai-panel/auth";
 import { COMMANDS } from "./constants";
 import { checkForDevantExt } from "./extension";
-import { IOpenCompSrcCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { IOpenCompSrcCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2/wso2-platform-core";
 
 export function activateUriHandlers() {
     window.registerUriHandler({

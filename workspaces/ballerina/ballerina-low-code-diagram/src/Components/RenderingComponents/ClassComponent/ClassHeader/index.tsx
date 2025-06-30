@@ -17,8 +17,8 @@
  */
 import React, { useContext } from 'react';
 
-import { ClassIcon, DeleteButton, EditButton } from '@wso2-enterprise/ballerina-core';
-import { ClassDefinition } from '@wso2-enterprise/syntax-tree';
+import { ClassIcon, DeleteButton, EditButton } from '@wso2/ballerina-core';
+import { ClassDefinition } from '@wso2/syntax-tree';
 import classNames from 'classnames';
 
 import { Context } from '../../../../Context/diagram';

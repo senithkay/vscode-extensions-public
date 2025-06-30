@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { FunctionTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { FunctionTypeDesc } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../../Expression";
 import { ExpressionArrayComponent } from "../../../ExpressionArray";

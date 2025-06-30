@@ -17,8 +17,8 @@
  */
 
 import React, { PropsWithChildren, useContext } from 'react';
-import { Type } from '@wso2-enterprise/ballerina-core';
-import { CtrlClickWrapper } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2/ballerina-core';
+import { CtrlClickWrapper } from '@wso2/ballerina-core';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 
 interface CtrlClickProps {

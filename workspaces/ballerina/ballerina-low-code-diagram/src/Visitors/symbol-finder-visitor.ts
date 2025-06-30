@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { STSymbolInfo } from "@wso2-enterprise/ballerina-core";
+import { STSymbolInfo } from "@wso2/ballerina-core";
 import {
     ActionStatement,
     AssignmentStatement,
@@ -38,7 +38,7 @@ import {
     STNode,
     TypedBindingPattern,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { StatementViewState } from "../ViewState";
 

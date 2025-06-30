@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda no-empty
 import React, { useContext, useEffect } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Codicon, MultiSelect } from "@wso2-enterprise/ui-toolkit";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
+import { Codicon, MultiSelect } from "@wso2/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {

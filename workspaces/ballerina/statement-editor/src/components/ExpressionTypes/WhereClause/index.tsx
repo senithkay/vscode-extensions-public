@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
 
-import { STNode, WhereClause } from "@wso2-enterprise/syntax-tree";
+import { STNode, WhereClause } from "@wso2/syntax-tree";
 
 import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../../constants";
 import { getMinutiaeJSX } from "../../../utils";

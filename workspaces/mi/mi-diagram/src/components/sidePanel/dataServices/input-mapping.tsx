@@ -17,10 +17,10 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { Button, ComponentCard, ProgressIndicator, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, Typography } from '@wso2/ui-toolkit';
 import SidePanelContext from '../SidePanelContexProvider';
 import { AddMediatorProps, getParamManagerFromValues, getParamManagerValues } from '../../Form/common';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { Controller, useForm } from 'react-hook-form';
 import { ParamConfig, ParamManager, ParamValue } from '../../Form/ParamManager/ParamManager';
 import { sidepanelGoBack } from '..';

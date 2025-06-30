@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { PanelContainer, NodeList, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
-import { FlowNode, LineRange, SubPanel, SubPanelView, FUNCTION_TYPE, ToolData } from "@wso2-enterprise/ballerina-core";
+import { PanelContainer, NodeList, ExpressionFormField } from "@wso2/ballerina-side-panel";
+import { FlowNode, LineRange, SubPanel, SubPanelView, FUNCTION_TYPE, ToolData } from "@wso2/ballerina-core";
 import { InlineDataMapper } from "../../InlineDataMapper";
 import { HelperView } from "../HelperView";
 import FormGenerator from "../Forms/FormGenerator";

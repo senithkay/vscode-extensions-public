@@ -22,8 +22,8 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel, StartNodeType } from "./StartNodeModel";
 import { Colors } from "../../../resources/constants";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, Icon } from "@wso2/ui-toolkit";
 
 namespace S {
     export const Node = styled.div<{}>`

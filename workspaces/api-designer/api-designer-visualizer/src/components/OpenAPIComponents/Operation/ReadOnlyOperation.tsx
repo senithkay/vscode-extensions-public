@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation as O } from '../../../Definitions/ServiceDefinitions';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { getColorByMethod } from '../../Utils/OpenAPIUtils';
 import { MarkdownRenderer } from '../Info/ReadOnlyInfo';
 import { ReadOnlyParameters } from '../Parameters/ReadOnlyParameters';

@@ -19,7 +19,7 @@
 import React, { useEffect } from "react";
 
 import styled from "@emotion/styled";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";

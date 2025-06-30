@@ -28,13 +28,13 @@ import {
     RunExternalCommandResponse,
     SubPanel,
     SubPanelView,
-} from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+} from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { getFormProperties } from "../../../../utils/bi";
-import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { Icon, Overlay, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2/ballerina-side-panel";
+import { Icon, Overlay, ThemeColors, Typography } from "@wso2/ui-toolkit";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 import { BodyText } from "../../../styles";

@@ -17,12 +17,12 @@
  */
 
 import React, { useState } from 'react';
-import { Button, SidePanelBody, TextArea, CheckBox, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, SidePanelBody, TextArea, CheckBox, Typography } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
-import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-import { Type, TypeDataWithReferences, UpdateTypesResponse } from '@wso2-enterprise/ballerina-core';
+import { BallerinaRpcClient } from '@wso2/ballerina-rpc-client';
+import { Type, TypeDataWithReferences, UpdateTypesResponse } from '@wso2/ballerina-core';
 
 interface RecordFromJsonProps {
     name: string;

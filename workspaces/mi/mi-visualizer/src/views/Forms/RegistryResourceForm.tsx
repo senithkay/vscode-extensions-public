@@ -17,15 +17,15 @@
  */
 
 import { ReactNode, useEffect, useState } from "react";
-import { Dropdown, Button, TextField, FormView, FormActions, RadioButtonGroup, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest, POPUP_EVENT_TYPE, getProjectDetails } from "@wso2-enterprise/mi-core";
+import { Dropdown, Button, TextField, FormView, FormActions, RadioButtonGroup, Icon, Typography } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest, POPUP_EVENT_TYPE, getProjectDetails } from "@wso2/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { colors } from "@wso2-enterprise/ui-toolkit";
+import { colors } from "@wso2/ui-toolkit";
 import { RUNTIME_VERSION_440 } from "../../constants";
-import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { compareVersions } from "@wso2/mi-diagram/lib/utils/commons";
 import path from "path";
 
 export interface RegistryWizardProps {

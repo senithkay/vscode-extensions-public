@@ -17,7 +17,7 @@
  */
 
 import React from "react";
-import { ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors, Tooltip } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { BetaSVG } from "../../views/Connectors/Marketplace/BetaSVG";
 

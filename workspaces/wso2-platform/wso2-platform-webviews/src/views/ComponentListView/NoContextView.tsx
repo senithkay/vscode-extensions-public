@@ -17,8 +17,8 @@
  */
 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { ProgressIndicator } from "@wso2/ui-toolkit";
+import { CommandIds } from "@wso2/wso2-platform-core";
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";
 import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";

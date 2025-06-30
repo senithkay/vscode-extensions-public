@@ -19,7 +19,7 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
-import { CDConnection } from "@wso2-enterprise/ballerina-core";
+import { CDConnection } from "@wso2/ballerina-core";
 
 export class ConnectionNodeModel extends NodeModel {
     readonly node: CDConnection;

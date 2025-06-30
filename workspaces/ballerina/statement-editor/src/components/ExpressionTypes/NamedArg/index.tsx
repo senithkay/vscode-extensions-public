@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { NamedArg } from "@wso2-enterprise/syntax-tree";
+import { NamedArg } from "@wso2/syntax-tree";
 
 import { ModelType, StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { ExpressionComponent } from "../../Expression";

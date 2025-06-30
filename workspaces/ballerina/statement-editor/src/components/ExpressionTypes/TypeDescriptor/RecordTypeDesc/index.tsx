@@ -21,7 +21,7 @@ import React, { useContext } from "react";
 import {
     RecordTypeDesc,
     STKindChecker
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { FIELD_DESCRIPTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";

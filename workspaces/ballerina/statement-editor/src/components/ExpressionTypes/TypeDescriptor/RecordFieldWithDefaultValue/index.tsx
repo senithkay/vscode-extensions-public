@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { RecordFieldWithDefaultValue } from "@wso2-enterprise/syntax-tree";
+import { RecordFieldWithDefaultValue } from "@wso2/syntax-tree";
 
 import { FIELD_DESCRIPTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";

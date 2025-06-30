@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from "react";
 
-import { DIAGNOSTIC_SEVERITY, XMLToRecord } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { DIAGNOSTIC_SEVERITY, XMLToRecord } from "@wso2/ballerina-core";
+import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2/syntax-tree";
 
 import { TextPreloaderVertical } from "../PreLoader/TextPerloaderVertical";
 import { convertXmlToRecordUtil, getModulePartST, getRecordST, getRootRecord } from "../utils";
@@ -37,7 +37,7 @@ import {
     InputWrapper,
     useStyles,
 } from "../style";
-import { Button, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SidePanelTitleContainer, Typography } from "@wso2/ui-toolkit";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 
 interface RecordState {

@@ -23,7 +23,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ObjectOutputNode } from "../ObjectOutput";
 import { findInputNode } from "../../utils/node-utils";
 import { getInputPort, getOutputPort } from "../../utils/port-utils";
-import { IDMDiagnostic, Mapping } from "@wso2-enterprise/ballerina-core";
+import { IDMDiagnostic, Mapping } from "@wso2/ballerina-core";
 import { getTargetPortPrefix } from "../../utils/port-utils";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { removeMapping } from "../../utils/modification-utils";

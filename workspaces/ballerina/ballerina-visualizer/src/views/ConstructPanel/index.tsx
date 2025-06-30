@@ -17,12 +17,12 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { PanelContainer, NodeList } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer, NodeList } from "@wso2/ballerina-side-panel";
 import { useVisualizerContext } from '../../Context';
 import { StatementEditorComponent } from "../StatementEditorComponent"
-import { getAllVariables, getInitialSource, STModification } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { getAllVariables, getInitialSource, STModification } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { getSymbolInfo } from "@wso2/ballerina-low-code-diagram";
 import { constructList, getTemplateValues } from "./constructList";
 
 interface ConstructPanelProps {

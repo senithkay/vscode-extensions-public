@@ -19,7 +19,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2/ui-toolkit";
 
 import { DataMapperInputParam } from "./types";
 

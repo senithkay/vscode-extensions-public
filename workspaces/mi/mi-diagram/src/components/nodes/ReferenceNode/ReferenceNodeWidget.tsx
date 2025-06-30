@@ -21,13 +21,13 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ReferenceNodeModel } from "./ReferenceNodeModel";
 import { Colors, MEDIATORS, NODE_DIMENSIONS, OPEN_SEQUENCE_VIEW } from "../../../resources/constants";
-import { Aggregate, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Aggregate, STNode } from "@wso2/mi-syntax-tree/src";
+import { Menu, MenuItem, Popover, Tooltip } from "@wso2/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
-import { GetDefinitionResponse } from "@wso2-enterprise/mi-core";
+import { GetDefinitionResponse } from "@wso2/mi-core";
 import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
 

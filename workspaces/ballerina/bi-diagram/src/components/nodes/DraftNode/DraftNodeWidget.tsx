@@ -27,7 +27,7 @@ import {
     NODE_PADDING,
 } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";
-import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, ThemeColors } from "@wso2/ui-toolkit";
 
 export namespace NodeStyles {
     export const Node = styled.div`

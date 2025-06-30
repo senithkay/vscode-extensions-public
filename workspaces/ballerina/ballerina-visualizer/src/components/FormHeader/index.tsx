@@ -18,7 +18,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2/ui-toolkit';
 
 const HeaderContainer = styled.div`
     display: flex;

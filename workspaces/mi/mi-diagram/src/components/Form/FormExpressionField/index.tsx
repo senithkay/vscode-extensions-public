@@ -20,8 +20,8 @@ import { debounce } from 'lodash';
 import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
-import { FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { FormExpressionFieldValue } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import {
     Button,
     Codicon,
@@ -32,7 +32,7 @@ import {
     RequiredFormInput,
     TextField,
     Typography,
-} from '@wso2-enterprise/ui-toolkit';
+} from '@wso2/ui-toolkit';
 import { getHelperPane } from '../HelperPane';
 import {
     enrichExpressionValue,

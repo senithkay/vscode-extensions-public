@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, TextField, Typography } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { License as L } from '../../../Definitions/ServiceDefinitions';
 

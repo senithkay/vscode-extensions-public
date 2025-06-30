@@ -30,7 +30,7 @@ import {
     getStepOverBreakpoint,
     removeBreakpointFromSource,
     validateBreakpoints
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDebuggerRpcManager } from "./rpc-manager";
 

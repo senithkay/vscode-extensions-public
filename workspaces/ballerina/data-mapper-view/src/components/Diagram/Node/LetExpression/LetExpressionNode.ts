@@ -16,14 +16,14 @@
  * under the License.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
 import {
     ExpressionFunctionBody,
     LetExpression,
     LetVarDecl,
     NodePosition,
     STKindChecker
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

@@ -18,11 +18,11 @@
 
 import styled from "@emotion/styled";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 import { useState } from "react";
-import { DeployProjectRequest, DevantMetadata } from "@wso2-enterprise/mi-core";
-import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { DeployProjectRequest, DevantMetadata } from "@wso2/mi-core";
+import { Colors } from "@wso2/mi-diagram/lib/resources/constants";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 
 interface DeploymentOptionProps {
     title: string;

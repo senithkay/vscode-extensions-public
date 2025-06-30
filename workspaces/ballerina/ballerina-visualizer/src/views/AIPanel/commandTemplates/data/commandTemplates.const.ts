@@ -17,7 +17,7 @@
  */
 
 import { TemplateDefinition } from "../models/template.model";
-import { AIPanelPrompt, Command, TemplateId } from "@wso2-enterprise/ballerina-core/";
+import { AIPanelPrompt, Command, TemplateId } from "@wso2/ballerina-core/";
 
 // All command templates are defined here.
 export const commandTemplates = {

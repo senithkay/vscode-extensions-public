@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TRIGGER_CHARACTERS } from "@wso2-enterprise/ballerina-core";
+import { TRIGGER_CHARACTERS } from "@wso2/ballerina-core";
 
 // sizing
 export const NODE_WIDTH = 280;

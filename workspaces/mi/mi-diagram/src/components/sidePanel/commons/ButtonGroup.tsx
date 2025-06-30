@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { Button, Codicon, ComponentCard, Icon, IconLabel, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ComponentCard, Icon, IconLabel, Tooltip, Typography } from '@wso2/ui-toolkit';
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import styled from '@emotion/styled';
 import { Colors, DEFAULT_ICON } from '../../../resources/constants';
-import { ConnectorDependency } from '@wso2-enterprise/mi-core';
+import { ConnectorDependency } from '@wso2/mi-core';
 
 
 export const ButtonGrid = styled.div`

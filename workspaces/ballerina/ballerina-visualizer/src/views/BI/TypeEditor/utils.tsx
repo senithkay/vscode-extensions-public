@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { AvailableNode, Category, functionKinds, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
-import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
-import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2-enterprise/ui-toolkit';
+import { AvailableNode, Category, functionKinds, Item, VisibleTypeItem } from '@wso2/ballerina-core';
+import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2/type-editor';
+import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2/ui-toolkit';
 import { getFunctionItemKind, isDMSupportedType } from '../../../utils/bi';
 
 // TODO: Remove this order onces the LS is fixed

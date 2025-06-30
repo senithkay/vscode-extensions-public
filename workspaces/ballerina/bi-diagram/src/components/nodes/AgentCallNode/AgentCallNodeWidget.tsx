@@ -33,7 +33,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors, Tooltip } from "@wso2/ui-toolkit";
 import {
     MoreVertIcon,
     OpenAiIcon,

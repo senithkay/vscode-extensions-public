@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ActionIcon, AssignmentIcon, createElseStatement, createForeachStatement, createIfStatement, createModuleVarDecl, createPropertyStatement, createReturnStatement, createWhileStatement, ConnectorIcon, ForEachIcon, FunctionCallIcon, genVariableName, IfIcon, ModuleVariableIcon, PropertyIcon, ReturnIcon, WhileIcon } from "@wso2-enterprise/ballerina-core"
+import { ActionIcon, AssignmentIcon, createElseStatement, createForeachStatement, createIfStatement, createModuleVarDecl, createPropertyStatement, createReturnStatement, createWhileStatement, ConnectorIcon, ForEachIcon, FunctionCallIcon, genVariableName, IfIcon, ModuleVariableIcon, PropertyIcon, ReturnIcon, WhileIcon } from "@wso2/ballerina-core"
 
 export type Item = Category | Node;
 export type Category = {

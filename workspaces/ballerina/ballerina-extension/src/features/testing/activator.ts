@@ -28,7 +28,7 @@ import { BallerinaExtension, ExtendedLangClient, } from "../../core";
 import path from 'path';
 import { runHandler } from './runner';
 import { startWatchingWorkspace } from './discover';
-import { ExecutorPositionsResponse, ExecutorPosition, BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { ExecutorPositionsResponse, ExecutorPosition, BallerinaProject } from '@wso2/ballerina-core';
 
 enum EXEC_POSITION_TYPE {
   SOURCE = 'source',

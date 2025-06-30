@@ -18,7 +18,7 @@
 
 import React, { useContext } from "react";
 
-import { DoStatement as DoState, STNode } from "@wso2-enterprise/syntax-tree";
+import { DoStatement as DoState, STNode } from "@wso2/syntax-tree";
 
 import { DefaultConfig } from "../../..";
 import { Context } from "../../../Context/diagram";

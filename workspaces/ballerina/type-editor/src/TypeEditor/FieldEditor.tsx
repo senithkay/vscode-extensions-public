@@ -17,8 +17,8 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { Imports, Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Button, CheckBox, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Imports, Member, Type } from '@wso2/ballerina-core';
+import { Button, CheckBox, Codicon, TextField } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';

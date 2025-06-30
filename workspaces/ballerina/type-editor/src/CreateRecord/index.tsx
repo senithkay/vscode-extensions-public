@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 import { RecordConfigTypeSelector } from "../RecordConfigTypeSelector";
 import { RecordFromJson } from "../RecordFromJson";
 import { RecordFromXml } from "../RecordFromXml";

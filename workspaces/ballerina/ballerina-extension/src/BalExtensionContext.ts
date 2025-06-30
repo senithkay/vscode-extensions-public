@@ -19,7 +19,7 @@
 
 import { ExtensionContext } from "vscode";
 import { AgentChatContext } from "./views/agent-chat/activate";
-import { AIPanelPrompt } from "@wso2-enterprise/ballerina-core";
+import { AIPanelPrompt } from "@wso2/ballerina-core";
 
 export class BalExtensionContext {
     public context!: ExtensionContext;

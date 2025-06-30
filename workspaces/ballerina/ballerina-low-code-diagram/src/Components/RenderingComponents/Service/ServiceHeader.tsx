@@ -19,12 +19,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ServiceIconLight } from "@wso2-enterprise/ballerina-core";
+import { ServiceIconLight } from "@wso2/ballerina-core";
 import {
     ListenerDeclaration,
     ServiceDeclaration,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { Context as DiagramContext } from "../../../Context/diagram";
 import { HeaderActionsWithMenu } from "../../../HeaderActions";

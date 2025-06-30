@@ -18,7 +18,7 @@
 
 import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort/NodePortModel";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode } from "@wso2/mi-syntax-tree/src";
 import { NodeTypes } from "../../../resources/constants";
 import { getNodeIdFromModel } from "../../../utils/node";
 

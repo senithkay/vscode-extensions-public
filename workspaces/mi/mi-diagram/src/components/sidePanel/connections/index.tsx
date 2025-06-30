@@ -16,19 +16,19 @@
  * under the License.
  */
 
-import { Codicon, LinkButton, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, LinkButton, Tooltip, Typography } from "@wso2/ui-toolkit";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
-import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2/mi-core";
 import path from "path";
 import { MediatorPage } from "../mediators/Mediator";
 import { DEFAULT_ICON } from "../../../resources/constants";
 import { ButtonGroup, GridButton } from "../commons/ButtonGroup";
-import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DiagramService } from "@wso2/mi-syntax-tree/lib/src";
 
 const MessageWrapper = styled.div`
     display: flex;

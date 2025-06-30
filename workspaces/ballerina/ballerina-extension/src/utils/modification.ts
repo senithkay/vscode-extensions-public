@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { SyntaxTreeResponse, InsertorDelete, NOT_SUPPORTED_TYPE, STModification } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTreeResponse, InsertorDelete, NOT_SUPPORTED_TYPE, STModification } from "@wso2/ballerina-core";
 import { normalize } from "path";
 import { Position, Range, Uri, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";

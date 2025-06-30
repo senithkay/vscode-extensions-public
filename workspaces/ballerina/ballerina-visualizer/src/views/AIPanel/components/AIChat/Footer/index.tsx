@@ -20,7 +20,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import AIChatInput, { AIChatInputRef, TagOptions } from "../../AIChatInput";
 import { Input } from "../../AIChatInput/utils/inputUtils";
-import { AIPanelPrompt, Attachment, TemplateId } from "@wso2-enterprise/ballerina-core";
+import { AIPanelPrompt, Attachment, TemplateId } from "@wso2/ballerina-core";
 import { commandTemplates, suggestedCommandTemplates } from "../../../commandTemplates/data/commandTemplates.const";
 import { AttachmentOptions } from "../../AIChatInput/hooks/useAttachments";
 import { getTemplateTextById } from "../../../commandTemplates/utils/utils";

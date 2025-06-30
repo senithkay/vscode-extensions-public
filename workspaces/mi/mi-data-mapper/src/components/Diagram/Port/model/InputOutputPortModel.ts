@@ -16,7 +16,7 @@
  * under the License.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2/mi-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";

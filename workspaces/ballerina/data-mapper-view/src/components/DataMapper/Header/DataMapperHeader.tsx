@@ -20,7 +20,7 @@ import React from "react";
 
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon } from "@wso2/ui-toolkit";
 
 import { SelectionState, ViewOption } from "../DataMapper";
 import AutoMapButton from "./AutoMapButton";

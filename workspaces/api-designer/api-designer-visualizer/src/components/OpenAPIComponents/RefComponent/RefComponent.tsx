@@ -18,7 +18,7 @@
 import React, { ReactNode, useRef } from "react";
 import styled from "@emotion/styled";
 import { createPortal } from "react-dom";
-import { Button, Codicon, Overlay } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Overlay } from "@wso2/ui-toolkit";
 
 interface RefComponentContainerProps {
     sx?: any;

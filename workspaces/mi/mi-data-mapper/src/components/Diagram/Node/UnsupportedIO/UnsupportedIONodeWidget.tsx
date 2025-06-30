@@ -23,7 +23,7 @@ import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { TreeContainer } from "../commons/Tree/Tree";
-import { Divider, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Divider, Icon } from "@wso2/ui-toolkit";
 import { getEditorLineAndColumn } from "../../utils/common-utils";
 
 interface UnsupportedIOProp {

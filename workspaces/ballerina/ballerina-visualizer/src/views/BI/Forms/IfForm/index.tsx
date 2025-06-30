@@ -18,7 +18,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors, Typography } from "@wso2/ui-toolkit";
 
 import {
     FlowNode,
@@ -29,18 +29,18 @@ import {
     FormDiagnostics,
     Diagnostic,
     ExpressionProperty
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     FormValues,
     ExpressionEditor,
     ExpressionFormField,
     FormExpressionEditorProps
-} from "@wso2-enterprise/ballerina-side-panel";
+} from "@wso2/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
-import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2/bi-diagram";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 
 interface IfFormProps {
     fileName: string;

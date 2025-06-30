@@ -26,7 +26,7 @@ import {
 	type Project,
 	getComponentKindRepoSource,
 	parseGitURL,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { initGit } from "../git/main";

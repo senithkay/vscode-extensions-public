@@ -17,7 +17,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
 import {
 	AnydataTypeDesc,
 	AnyTypeDesc,
@@ -54,7 +54,7 @@ import {
 	TypedescTypeDesc,
 	UnionTypeDesc,
 	XmlTypeDesc
-} from '@wso2-enterprise/syntax-tree';
+} from '@wso2/syntax-tree';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";

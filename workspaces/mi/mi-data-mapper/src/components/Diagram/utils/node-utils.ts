@@ -26,7 +26,7 @@ import {
 } from 'ts-morph';
 import { BaseModel } from '@projectstorm/react-canvas-core';
 import { DefaultPortModel } from '@projectstorm/react-diagrams';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind } from '@wso2/mi-core';
 
 import {
     ArrayFilterNode,

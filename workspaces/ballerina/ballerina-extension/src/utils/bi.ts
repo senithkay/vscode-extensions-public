@@ -19,10 +19,10 @@ import { exec } from "child_process";
 import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { BallerinaProjectComponents, ComponentRequest, CreateComponentResponse, createFunctionSignature, EVENT_TYPE, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, ComponentRequest, CreateComponentResponse, createFunctionSignature, EVENT_TYPE, NodePosition, STModification, SyntaxTreeResponse } from "@wso2/ballerina-core";
 import { StateMachine, history, openView } from "../stateMachine";
 import { applyModifications, modifyFileContent, writeBallerinaFileDidOpen } from "./modification";
-import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker } from "@wso2/syntax-tree";
 import { URI } from "vscode-uri";
 
 export const README_FILE = "readme.md";

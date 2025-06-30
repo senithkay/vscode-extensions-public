@@ -17,12 +17,12 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { SqFlow } from "@wso2-enterprise/ballerina-core";
-import { Diagram } from "@wso2-enterprise/sequence-diagram";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { SqFlow } from "@wso2/ballerina-core";
+import { Diagram } from "@wso2/sequence-diagram";
 import styled from "@emotion/styled";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ThemeColors } from "@wso2/ui-toolkit";
+import { STNode } from "@wso2/syntax-tree";
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);

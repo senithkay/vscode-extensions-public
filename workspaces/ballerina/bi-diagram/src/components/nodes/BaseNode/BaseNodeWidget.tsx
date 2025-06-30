@@ -26,12 +26,12 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
-import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { ELineRange, FlowNode } from "@wso2/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { getNodeTitle, nodeHasError } from "../../../utils/node";
 import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";

@@ -17,9 +17,9 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
+import { CompletionItem } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr } from '../../../components/Diagram/utils/modification-utils';

@@ -18,7 +18,7 @@
 import {
     ResourceAccessorDefinition,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 interface MethodPath {
     method: string;

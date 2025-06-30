@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { TypeField } from "@wso2/ballerina-core";
+import { STNode } from "@wso2/syntax-tree";
 
 export interface ArrayElement {
 	member: EditableRecordField;

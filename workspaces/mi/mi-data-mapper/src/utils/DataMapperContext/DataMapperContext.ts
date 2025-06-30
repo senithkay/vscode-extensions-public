@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMDiagnostic, DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic, DMType, Range } from "@wso2/mi-core";
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableStatement } from "ts-morph";
 
 import { View } from "../../components/DataMapper/Views/DataMapperView";

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/wso2-platform-core";
+import type { NewComponentWebviewProps, Organization, Project } from "@wso2/wso2-platform-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";

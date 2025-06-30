@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DiagramService, Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range, TagRange } from '@wso2/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
 import { HelperPaneData } from '../../interfaces/mi-diagram';
 

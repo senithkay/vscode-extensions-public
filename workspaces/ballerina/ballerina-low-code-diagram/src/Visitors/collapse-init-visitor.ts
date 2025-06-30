@@ -18,7 +18,7 @@
 
 import {
     BlockStatement, DoStatement, ElseBlock, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
 import { DoStatementViewState } from "../ViewState/do-statement";

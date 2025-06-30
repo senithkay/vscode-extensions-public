@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { ExpressionRange, LinePosition } from "@wso2/ballerina-core";
 import {
     ExpressionFunctionBody,
     FieldAccess,
@@ -33,7 +33,7 @@ import {
     STKindChecker,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { getInnermostExpressionBody } from "../utils/dm-utils";
 

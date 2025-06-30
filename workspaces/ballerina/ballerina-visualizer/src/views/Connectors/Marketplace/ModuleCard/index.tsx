@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { ModuleIcon } from "@wso2/ballerina-low-code-diagram";
 
 import useStyles from "./style";
-import { BallerinaConstruct } from "@wso2-enterprise/ballerina-core";
-import { Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { BallerinaConstruct } from "@wso2/ballerina-core";
+import { Tooltip } from "@wso2/ui-toolkit";
 
 export interface ModuleCardProps {
     onSelectModule: (balModule: BallerinaConstruct) => void;

@@ -18,11 +18,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { SettingsIcon } from "@wso2-enterprise/ballerina-core";
+import { SettingsIcon } from "@wso2/ballerina-core";
 import {
     RequiredParam,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../Context/diagram";

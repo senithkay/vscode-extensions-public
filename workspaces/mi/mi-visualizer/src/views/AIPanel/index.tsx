@@ -17,9 +17,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Alert } from '@wso2-enterprise/ui-toolkit';
+import { AIMachineStateValue, AI_EVENT_TYPE } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
+import { Alert } from '@wso2/ui-toolkit';
 import { LoaderWrapper, ProgressRing } from './styles';
 import { AICodeGenerator }  from './component/AICodeGenerator';
 import { SignInToCopilotMessage } from '../LoggedOutWindow';

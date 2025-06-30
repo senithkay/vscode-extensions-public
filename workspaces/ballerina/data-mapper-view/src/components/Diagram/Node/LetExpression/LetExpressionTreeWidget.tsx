@@ -19,9 +19,9 @@
 import React, { ReactNode, useMemo } from 'react';
 
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Icon } from '@wso2/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { CaptureBindingPattern, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, STKindChecker } from "@wso2/syntax-tree";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

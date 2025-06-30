@@ -24,7 +24,7 @@ import {
 	type ProxyConfig,
 	ReadLocalProxyConfigResp,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";

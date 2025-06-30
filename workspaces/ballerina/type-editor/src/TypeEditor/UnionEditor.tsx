@@ -17,10 +17,10 @@
  */
 
 import React, { useRef, useState, useEffect } from "react";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { Type, Member, Imports } from "@wso2-enterprise/ballerina-core";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { Type, Member, Imports } from "@wso2/ballerina-core";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
 import { TypeField } from "./TypeField";
 
 namespace S {

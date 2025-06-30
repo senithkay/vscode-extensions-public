@@ -18,7 +18,7 @@
 import { createContext, useContext } from "react"
 import { RecordCreatorContext } from "../types"
 import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
-import { AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
+import { AddImportItemResponse } from "@wso2/ballerina-core";
 
 const defaultContext: any = {}
 

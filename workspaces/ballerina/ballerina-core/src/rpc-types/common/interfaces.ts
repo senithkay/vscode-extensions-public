@@ -19,7 +19,7 @@
 
 import { Diagnostic } from "vscode-languageserver-types";
 import { Completion } from "../../interfaces/extended-lang-client";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 
 export interface TypeResponse {
     data: Completion[];

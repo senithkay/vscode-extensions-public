@@ -25,20 +25,20 @@ import {
     FormActions,
     FormCheckBox,
     FormView,
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import {XMLBuilder, XMLParser, XMLValidator} from "fast-xml-parser";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { getArtifactNamesAndRegistryPaths } from "../AddToRegistry";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup } from "@wso2/mi-diagram";
+import { ParamConfig, ParamManager } from "@wso2/mi-diagram";
 
 export type Protocol = "http" | "https";
 

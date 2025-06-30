@@ -27,7 +27,7 @@ import { ListenerNodeFactory } from "../components/nodes/ListenerNode/ListenerNo
 import { LISTENER_NODE_WIDTH, NodeTypes, NODE_GAP_X, ENTRY_NODE_WIDTH } from "../resources/constants";
 import { ListenerNodeModel } from "../components/nodes/ListenerNode";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
-import { CDConnection, CDResourceFunction, CDFunction, CDService } from "@wso2-enterprise/ballerina-core";
+import { CDConnection, CDResourceFunction, CDFunction, CDService } from "@wso2/ballerina-core";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({

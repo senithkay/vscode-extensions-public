@@ -18,7 +18,7 @@
 
 import React, { useState } from "react";
 import { FlexRow, Question } from "../styles";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 
 interface SuggestionsListProps {
     questionMessages: Array<{ role: string; content: string; type: string }>;

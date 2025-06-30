@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { SCOPE } from '@wso2-enterprise/ballerina-core';
+import { SCOPE } from '@wso2/ballerina-core';
 import { BallerinaExtension } from '../core';
 import { WorkspaceConfiguration, workspace, Uri } from 'vscode';
 import * as fs from 'fs';

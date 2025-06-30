@@ -54,7 +54,7 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject, BallerinaProjectComponents, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
+import { BallerinaProject, BallerinaProjectComponents, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2/ballerina-core';
 import { openView, StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
 import { BreakpointManager } from './breakpoint-manager';

@@ -19,7 +19,7 @@
 import React, { useContext } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { Grid, GridItem, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Grid, GridItem, Tooltip, Typography } from "@wso2/ui-toolkit";
 
 import { MAX_COLUMN_WIDTH, SUGGESTION_COLUMN_SIZE } from "../../../../constants";
 import { Suggestion } from "../../../../models/definitions";

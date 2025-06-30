@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from 'react';
 
-import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Breadcrumbs, Codicon } from '@wso2/ui-toolkit';
+import { STKindChecker } from "@wso2/syntax-tree";
 
 import { SelectionState, ViewOption } from "../DataMapper";
 import { css } from '@emotion/css';

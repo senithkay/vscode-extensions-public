@@ -24,8 +24,8 @@ import { ServiceDesigner } from '../components/ServiceDesigner';
 import { AddArtifact } from '../components/AddArtifact';
 import { Form } from '../components/Form';
 import { Overview } from '../components/Overview';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
+import { MACHINE_VIEW } from '@wso2/mi-core';
+import { switchToIFrame } from '@wso2/playwright-vscode-tester';
 
 export default function createTests() {
   test.describe("Connector Tests", {

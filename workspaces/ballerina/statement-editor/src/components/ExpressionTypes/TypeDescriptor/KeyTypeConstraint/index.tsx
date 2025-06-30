@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { KeyTypeConstraint } from "@wso2-enterprise/syntax-tree";
+import { KeyTypeConstraint } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../../Expression";
 import { TokenComponent } from "../../../Token";

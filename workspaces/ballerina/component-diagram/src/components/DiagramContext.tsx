@@ -17,10 +17,10 @@
  */
 
 import React from "react";
-import { CDListener, CDModel, CDService } from "@wso2-enterprise/ballerina-core";
-import { CDAutomation } from "@wso2-enterprise/ballerina-core";
-import { CDConnection } from "@wso2-enterprise/ballerina-core";
-import { CDFunction, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
+import { CDListener, CDModel, CDService } from "@wso2/ballerina-core";
+import { CDAutomation } from "@wso2/ballerina-core";
+import { CDConnection } from "@wso2/ballerina-core";
+import { CDFunction, CDResourceFunction } from "@wso2/ballerina-core";
 export interface DiagramContextState {
     project: CDModel;
     expandedNodes: Set<string>; // Track which nodes are expanded by their UUID

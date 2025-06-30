@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { DMType, IOType } from "@wso2-enterprise/mi-core";
+import { DMType, IOType } from "@wso2/mi-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from './Search';
@@ -26,7 +26,7 @@ import { TreeContainer, TreeHeader } from './Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { getTypeName } from "../../utils/common-utils";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
-import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2/ui-toolkit";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { useShallow } from "zustand/react/shallow";
 

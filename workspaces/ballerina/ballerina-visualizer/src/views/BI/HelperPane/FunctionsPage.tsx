@@ -17,11 +17,11 @@
  */
 
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, Overlay, ThemeColors } from '@wso2/ui-toolkit';
 import { LibraryBrowser } from './LibraryBrowser';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { LineRange, FunctionKind, CompletionInsertText } from '@wso2-enterprise/ballerina-core';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2/ballerina-side-panel';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
+import { LineRange, FunctionKind, CompletionInsertText } from '@wso2/ballerina-core';
 import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../../utils/bi';
 import { debounce } from 'lodash';
 import { useMutation } from '@tanstack/react-query';

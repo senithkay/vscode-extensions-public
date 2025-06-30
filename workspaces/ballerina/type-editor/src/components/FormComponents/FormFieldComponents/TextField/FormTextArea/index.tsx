@@ -20,7 +20,7 @@ import React, { useRef, useState } from "react";
 
 import { useStyles } from "./style";
 import { cx } from "@emotion/css";
-import { TextArea, Typography } from "@wso2-enterprise/ui-toolkit";
+import { TextArea, Typography } from "@wso2/ui-toolkit";
 import { FormField } from "../../../../../types";
 
 interface FormTextAreaProps {

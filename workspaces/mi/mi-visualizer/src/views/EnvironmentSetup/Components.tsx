@@ -18,7 +18,7 @@
 
 import React from 'react';
 import styled from "@emotion/styled";
-import { Button, Icon, ProgressRing, VSCodeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, ProgressRing, VSCodeColors } from "@wso2/ui-toolkit";
 
 
 const Row = styled.div`

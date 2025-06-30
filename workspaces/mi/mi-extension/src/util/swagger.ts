@@ -18,7 +18,7 @@
 
 import { cloneDeep } from "lodash";
 import { COMMANDS, SWAGGER_PATH_TEMPLATE, SWAGGER_REL_DIR } from "../constants";
-import { SwaggerFromAPIResponse } from "@wso2-enterprise/mi-core";
+import { SwaggerFromAPIResponse } from "@wso2/mi-core";
 import { workspace, window } from "vscode";
 import path from "path";
 import * as vscode from 'vscode';

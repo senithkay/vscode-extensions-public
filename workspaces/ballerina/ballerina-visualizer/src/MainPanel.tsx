@@ -24,8 +24,8 @@ import {
     MACHINE_VIEW,
     PopupMachineStateValue,
     EVENT_TYPE,
-} from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+} from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { Global, css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { NavigationBar } from "./components/NavigationBar";
@@ -46,9 +46,9 @@ import {
     TestFunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
-import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ServiceDeclaration } from "@wso2/syntax-tree";
 import { URI, Utils } from "vscode-uri";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 import { PanelType, useVisualizerContext } from "./Context";
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
@@ -56,7 +56,7 @@ import { RecordEditor } from "./views/RecordEditor/RecordEditor";
 import PopupPanel from "./PopupPanel";
 import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard";
 import { EndpointList } from "./views/Connectors/EndpointList";
-import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { getSymbolInfo } from "@wso2/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";

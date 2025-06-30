@@ -23,7 +23,7 @@ import debounce from "lodash.debounce";
 import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, TextField } from '@wso2/ui-toolkit';
 import HeaderSearchBoxOptions from './HeaderSearchBoxOptions';
 import { DataMapperNodeModel } from '../../Diagram/Node/commons/DataMapperNode';
 import { SubMappingNode } from '../../Diagram/Node';

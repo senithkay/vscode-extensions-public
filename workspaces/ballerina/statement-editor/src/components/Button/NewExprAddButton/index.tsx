@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStatementRendererStyles } from "../../styles";

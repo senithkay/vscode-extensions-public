@@ -21,7 +21,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ActorNodeModel } from "./ActorNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ACTOR_NODE_WIDTH } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 import { AppIcon, PersonIcon, ClockIcon } from "../../../resources";
 
 export namespace NodeStyles {

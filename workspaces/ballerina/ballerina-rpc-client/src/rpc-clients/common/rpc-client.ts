@@ -46,7 +46,7 @@ import {
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
     showErrorMessage
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 

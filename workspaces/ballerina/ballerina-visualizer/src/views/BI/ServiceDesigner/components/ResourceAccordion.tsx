@@ -18,8 +18,8 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
-import { FunctionModel } from '@wso2-enterprise/ballerina-core';
+import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2/ui-toolkit';
+import { FunctionModel } from '@wso2/ballerina-core';
 
 type MethodProp = {
     color: string;

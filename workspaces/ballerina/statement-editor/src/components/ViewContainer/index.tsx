@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit';
+import { STKindChecker } from "@wso2/syntax-tree";
+import { Button, Codicon, SidePanelTitleContainer } from '@wso2/ui-toolkit';
 import { URI } from 'vscode-uri';
 
 import { StatementEditorContext } from "../../store/statement-editor-context";

@@ -17,10 +17,10 @@
  */
 import React from "react";
 
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon } from "@wso2/ui-toolkit";
 
 import { DiagnosticTooltip } from "./DiagnosticTooltip";
-import { DMDiagnostic } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic } from "@wso2/mi-core";
 
 export interface DiagnosticWidgetProps {
     diagnostic: DMDiagnostic,

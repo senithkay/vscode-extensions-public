@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { History } from "@wso2-enterprise/api-designer-core";
+import { History } from "@wso2/api-designer-core";
 
 export let history: History;
 

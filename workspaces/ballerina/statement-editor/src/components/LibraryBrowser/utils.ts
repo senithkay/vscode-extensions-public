@@ -19,7 +19,7 @@ import {
     LibraryInfo,
     LibrarySearchResponse,
     ModuleProperty
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
 export function filterByKeyword(libraryData: LibrarySearchResponse , searchTxt: string): LibrarySearchResponse {
     const filteredModuleList = getFilteredModulesList(libraryData.modules, searchTxt);

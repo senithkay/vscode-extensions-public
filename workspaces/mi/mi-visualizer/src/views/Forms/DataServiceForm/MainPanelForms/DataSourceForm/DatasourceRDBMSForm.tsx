@@ -16,7 +16,7 @@
  * under the License.
  */
 import React, { useEffect } from "react";
-import { TextField, Dropdown, FormCheckBox, FormGroup, CheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, FormCheckBox, FormGroup, CheckBox, PasswordField } from "@wso2/ui-toolkit";
 import {DataServicePropertyTable} from "../PropertyTable";
 import { driverMap } from "../../../DataSourceForm/types";
 

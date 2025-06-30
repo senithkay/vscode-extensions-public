@@ -17,7 +17,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, APIDesignerVisualizerAPI, SelectQuickPickItemReq, WebviewQuickPickItem, selectQuickPickItem, selectQuickPickItems, showConfirmMessage, ShowConfirmBoxReq, showInputBox, ShowWebviewInputBoxReq, showInfoNotification, showErrorNotification  } from "@wso2-enterprise/api-designer-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, APIDesignerVisualizerAPI, SelectQuickPickItemReq, WebviewQuickPickItem, selectQuickPickItem, selectQuickPickItems, showConfirmMessage, ShowConfirmBoxReq, showInputBox, ShowWebviewInputBoxReq, showInfoNotification, showErrorNotification  } from "@wso2/api-designer-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { ApiDesignerVisualizerRpcClient } from "./rpc-clients/api-designer-visualizer/rpc-client";
 

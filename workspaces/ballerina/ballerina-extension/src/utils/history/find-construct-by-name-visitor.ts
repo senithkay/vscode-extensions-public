@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ClassDefinition, ConstDeclaration, FunctionDefinition, ModuleVarDecl, ObjectMethodDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ClassDefinition, ConstDeclaration, FunctionDefinition, ModuleVarDecl, ObjectMethodDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2/syntax-tree";
 
 import { generateConstructIdStub, MODULE_DELIMETER, SUB_DELIMETER } from "./util";
 

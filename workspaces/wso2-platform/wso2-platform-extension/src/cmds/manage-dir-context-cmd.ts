@@ -21,7 +21,7 @@ import {
 	type ContextItemEnriched,
 	type IManageDirContextCmdParams,
 	type IOpenInConsoleCmdParams,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";

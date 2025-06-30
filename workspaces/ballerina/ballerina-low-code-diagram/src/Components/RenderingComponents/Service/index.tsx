@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react"
 
-import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration, STKindChecker } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { useSelectedStatus } from "../../../hooks";

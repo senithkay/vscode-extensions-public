@@ -22,7 +22,7 @@ import {
     ConnectorsRequest,
     getConnector,
     getConnectors
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ConnectorWizardRpcManager } from "./rpc-manager";
 

@@ -18,9 +18,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { AgentToolRequest, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { AgentToolRequest, FlowNode } from "@wso2/ballerina-core";
 import { URI, Utils } from "vscode-uri";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { AIAgentSidePanel } from "./AIAgentSidePanel";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 import { addToolToAgentNode, findAgentNodeFromAgentCallNode, updateFlowNodePropertyValuesWithKeys } from "./utils";

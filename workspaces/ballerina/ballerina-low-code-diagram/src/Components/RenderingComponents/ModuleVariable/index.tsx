@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from "react"
 
-import { ConfigurableIcon, DeleteButton, EditButton, ModuleVariableIcon } from "@wso2-enterprise/ballerina-core";
-import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ConfigurableIcon, DeleteButton, EditButton, ModuleVariableIcon } from "@wso2/ballerina-core";
+import { CaptureBindingPattern, ModuleVarDecl, QualifiedNameReference, STKindChecker, STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";

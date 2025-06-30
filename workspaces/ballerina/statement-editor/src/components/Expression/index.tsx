@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import SyntaxErrorWarning from "../../assets/icons/SyntaxErrorWarning";

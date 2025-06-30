@@ -18,7 +18,7 @@
 import { BezierCurve, Point } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Node } from "ts-morph";
-import { DMDiagnostic } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic } from "@wso2/mi-core";
 
 import { IntermediatePortModel } from "../../Port";
 import { calculateControlPointOffset } from "../../utils/diagram-utils";

@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { STKindChecker } from "@wso2/syntax-tree";
+import { Button } from "@wso2/ui-toolkit";
 
 import {
     CONFIGURABLE_VALUE_REQUIRED_TOKEN

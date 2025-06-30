@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {keywords} from "@wso2-enterprise/ballerina-core";
+import {keywords} from "@wso2/ballerina-core";
 
 export interface ParseError {
     position: number;

@@ -28,7 +28,7 @@ import {
     STNode,
     TypeDefinition,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { generateConstructIdStub, MODULE_DELIMETER } from "./util";
 

@@ -23,7 +23,7 @@ import {
 	type IOpenInConsoleCmdParams,
 	type Organization,
 	type Project,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, env, window } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";

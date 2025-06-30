@@ -17,13 +17,13 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup, CheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup, CheckBox, PasswordField } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
-import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 import { dataSourceParams } from "./ParamTemplate";
 import ParamField from "./ParamField";
-import { ParamManager } from "@wso2-enterprise/mi-diagram";
+import { ParamManager } from "@wso2/mi-diagram";
 import { useForm, FormProvider } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";

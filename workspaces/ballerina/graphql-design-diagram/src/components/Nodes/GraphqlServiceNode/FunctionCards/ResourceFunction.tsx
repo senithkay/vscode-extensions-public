@@ -20,8 +20,8 @@
 import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-core";
-import { Popover } from '@wso2-enterprise/ui-toolkit';
+import { GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2/ballerina-core";
+import { Popover } from '@wso2/ui-toolkit';
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";

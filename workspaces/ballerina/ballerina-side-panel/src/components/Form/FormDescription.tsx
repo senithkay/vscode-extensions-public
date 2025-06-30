@@ -18,8 +18,8 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { ThemeColors, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { NodeKind } from "@wso2-enterprise/ballerina-core";
+import { ThemeColors, Codicon } from "@wso2/ui-toolkit";
+import { NodeKind } from "@wso2/ballerina-core";
 
 import { FormField } from "./types";
 import { hasRequiredParameters, hasOptionalParameters, hasReturnType, isPrioritizedField } from "./utils";

@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { TypeKind } from '@wso2-enterprise/ballerina-core';
-import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
+import { TypeKind } from '@wso2/ballerina-core';
+import { Codicon, Item, Menu, MenuItem } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { MappingType, RecordFieldPortModel, ValueType } from '../Port';

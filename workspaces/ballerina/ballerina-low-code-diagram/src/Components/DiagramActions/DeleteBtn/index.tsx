@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { DELETE_CONNECTOR, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { DELETE_CONNECTOR, LowcodeEvent, STModification } from "@wso2/ballerina-core";
+import { STNode } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { useFunctionContext } from "../../../Context/Function";

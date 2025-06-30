@@ -21,12 +21,12 @@ import React, { useMemo, useState } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType, IOTypeResponse } from "@wso2-enterprise/mi-core";
+import { DMType, IOTypeResponse } from "@wso2/mi-core";
 import { Project, SyntaxKind, FunctionDeclaration } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
-import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { ErrorBoundary } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { hasFields } from "./components/Diagram/utils/node-utils";
 
 export { resetStoresForNewLoad } from "./store/store";

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon } from "@wso2/ui-toolkit";
 import React from "react";
 
 export interface Props {

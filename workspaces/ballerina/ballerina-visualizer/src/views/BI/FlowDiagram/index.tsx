@@ -17,9 +17,9 @@
  */
 
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { MemoizedDiagram } from "@wso2-enterprise/bi-diagram";
+import { MemoizedDiagram } from "@wso2/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -39,19 +39,19 @@ import {
     BISearchRequest,
     ToolData,
     DIRECTORY_MAP,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
 } from "../../../utils/bi";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
+import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2/ui-toolkit";
 import { applyModifications, textToModifications } from "../../../utils/utils";
 import { PanelManager, SidePanelView } from "./PanelManager";
 import { findFunctionByName, transformCategories } from "./utils";
-import { ExpressionFormField, Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField, Category as PanelCategory } from "@wso2/ballerina-side-panel";
 import { cloneDeep } from "lodash";
 import {
     findFlowNodeByModuleVarName,

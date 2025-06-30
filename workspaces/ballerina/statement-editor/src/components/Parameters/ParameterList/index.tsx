@@ -19,9 +19,9 @@
 import React, { useContext } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ParameterInfo, SymbolDocumentation } from "@wso2/ballerina-core";
+import { STNode } from "@wso2/syntax-tree";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

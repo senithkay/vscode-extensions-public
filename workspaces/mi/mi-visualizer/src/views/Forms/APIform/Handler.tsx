@@ -17,7 +17,7 @@
  */
 
 import styled from "@emotion/styled";
-import { TextField, Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, Codicon } from "@wso2/ui-toolkit";
 import PropTable from "./PropTable";
 import { useState } from "react";
 import { FieldValues, useController, UseControllerProps } from "react-hook-form";

@@ -19,7 +19,7 @@
 
 import { createContext, useContext } from "react";
 import { RpcClient } from "../RpcClient";
-import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/api-designer-core";
+import { MACHINE_VIEW, VisualizerLocation } from "@wso2/api-designer-core";
 
 export interface VisualizerContext {
     viewLocation: VisualizerLocation,

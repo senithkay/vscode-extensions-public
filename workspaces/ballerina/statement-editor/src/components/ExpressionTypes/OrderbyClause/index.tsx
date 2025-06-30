@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { OrderByClause } from "@wso2-enterprise/syntax-tree";
+import { OrderByClause } from "@wso2/syntax-tree";
 
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";

@@ -23,7 +23,7 @@ import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } f
 import { RPCLayer } from '../../RPCLayer';
 import { extension } from '../../BalExtensionContext';
 import { AIStateMachine } from './aiMachine';
-import { AIMachineEventType } from '@wso2-enterprise/ballerina-core';
+import { AIMachineEventType } from '@wso2/ballerina-core';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;

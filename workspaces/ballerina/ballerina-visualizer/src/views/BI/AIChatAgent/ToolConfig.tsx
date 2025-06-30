@@ -18,9 +18,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { FlowNode, ToolData } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { FlowNode, ToolData } from "@wso2/ballerina-core";
+import { FormField, FormValues } from "@wso2/ballerina-side-panel";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import ConfigForm from "./ConfigForm";
 import { URI } from "vscode-uri";
 import { Utils } from "vscode-uri";

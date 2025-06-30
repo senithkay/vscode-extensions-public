@@ -17,7 +17,7 @@
  */
 
 import React, { RefObject, useEffect, useRef, useState } from 'react';
-import { Codicon, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, getIcon, HelperPane } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 
 import { TypeHelperCategory, TypeHelperItem } from '.';

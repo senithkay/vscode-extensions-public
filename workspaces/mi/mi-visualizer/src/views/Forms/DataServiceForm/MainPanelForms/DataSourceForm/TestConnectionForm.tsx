@@ -16,8 +16,8 @@
  * under the License.
  */
 import { useEffect, useState } from "react";
-import { TextField, FormCheckBox, FormGroup, Button, FormActions } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { TextField, FormCheckBox, FormGroup, Button, FormActions } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 
 export interface TestConnectionFormProps {
     renderProps: any;

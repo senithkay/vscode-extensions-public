@@ -21,7 +21,7 @@ import { FlowNode, Branch, LinePosition } from "../../utils/types";
 import { useDiagramContext } from "../DiagramContext";
 import styled from "@emotion/styled";
 import { NODE_PADDING, POPUP_BOX_WIDTH } from "../../resources/constants";
-import { Button, PromptTextField, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, PromptTextField, ThemeColors } from "@wso2/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`

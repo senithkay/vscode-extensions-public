@@ -20,10 +20,10 @@
 import React from "react";
 import { ComponentView } from "./ComponentView";
 import { ProjectComponentProcessor } from "./util/project-component-processor";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { EVENT_TYPE, VisualizerLocation } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 
 
 

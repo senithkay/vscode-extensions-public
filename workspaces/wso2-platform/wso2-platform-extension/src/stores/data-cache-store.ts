@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type { CommitHistory, ComponentKind, DataCacheState, Environment, Organization, Project } from "@wso2-enterprise/wso2-platform-core";
+import type { CommitHistory, ComponentKind, DataCacheState, Environment, Organization, Project } from "@wso2/wso2-platform-core";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { getGlobalStateStore } from "./store-utils";

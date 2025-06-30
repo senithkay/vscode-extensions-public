@@ -25,8 +25,8 @@ import { log } from "console";
 import { prettyDOM, waitFor, waitForElementToBeRemoved } from "@testing-library/dom";
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { VisualizerContext, Context } from '@wso2-enterprise/mi-rpc-client';
+import { MACHINE_VIEW } from '@wso2/mi-core';
+import { VisualizerContext, Context } from '@wso2/mi-rpc-client';
 import { generateJsonFromXml } from './testJsonGenerator';
 
 // Error Boundary Component

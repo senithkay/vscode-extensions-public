@@ -19,7 +19,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2/ui-toolkit";
 import { ArrayLiteralExpression, Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
 import classnames from "classnames";
 
@@ -33,7 +33,7 @@ import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMIOConfigPanelS
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType } from "@wso2/mi-core";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { createSourceForUserInput, modifyChildFieldsOptionality } from "../../utils/modification-utils";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';

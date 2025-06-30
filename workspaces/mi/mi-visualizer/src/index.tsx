@@ -20,9 +20,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { VisualizerContextProvider } from "./Context";
 import { Visualizer } from "./Visualizer";
-import { SwaggerData } from "@wso2-enterprise/mi-core";
+import { SwaggerData } from "@wso2/mi-core";
 import Mustache from "mustache";
-import { escapeXml } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { escapeXml } from "@wso2/mi-diagram/lib/utils/commons";
 
 Mustache.escape = escapeXml;
 

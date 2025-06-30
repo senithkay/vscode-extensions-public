@@ -28,7 +28,7 @@ import {
     WriteOpenAPIContentRequest,
     WriteOpenAPIContentResponse,
     Schema
-} from "@wso2-enterprise/api-designer-core";
+} from "@wso2/api-designer-core";
 import { readFile, writeFile } from 'fs/promises';
 import yaml from 'js-yaml';
 import toJsonSchema from 'to-json-schema';

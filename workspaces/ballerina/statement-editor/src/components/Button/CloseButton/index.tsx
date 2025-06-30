@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit"
+import { Button, Codicon } from "@wso2/ui-toolkit"
 
 interface CloseButtonProps {
     onCancel: () => void;

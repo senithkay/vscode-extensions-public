@@ -20,17 +20,17 @@ import React, { ReactNode, useMemo, useState } from "react";
 
 // tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2/ballerina-core";
+import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Icon, ProgressRing, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ProgressRing, Tooltip } from "@wso2/ui-toolkit";
 
 export const LocalVarContainer = styled.div`
     display: flex;

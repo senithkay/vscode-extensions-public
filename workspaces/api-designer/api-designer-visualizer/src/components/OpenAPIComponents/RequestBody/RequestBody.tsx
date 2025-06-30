@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon, Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, Typography } from '@wso2/ui-toolkit';
 import { RequestBody as R, MediaType as M, ReferenceObject as RO } from '../../../Definitions/ServiceDefinitions';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { ReactNode, useContext, useState } from 'react';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
 import { MediaTypes } from '../../../constants';
 import { APIDesignerContext } from '../../../APIDesignerContext';

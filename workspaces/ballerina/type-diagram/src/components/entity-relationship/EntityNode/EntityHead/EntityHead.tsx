@@ -24,7 +24,7 @@ import { EntityHead, EntityName } from '../styles';
 import { CtrlClickGo2Source } from '../../../common/CtrlClickHandler/CtrlClickGo2Source';
 import { DiagramContext } from '../../../common';
 import styled from '@emotion/styled';
-import { Button, Item, Menu, MenuItem, Popover } from '@wso2-enterprise/ui-toolkit';
+import { Button, Item, Menu, MenuItem, Popover } from '@wso2/ui-toolkit';
 import { MoreVertIcon } from '../../../../resources';
 import { GraphQLIcon } from '../../../../resources/assets/icons/GraphqlIcon';
 

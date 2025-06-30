@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
 import React, { ReactElement, useContext, useEffect, useRef, useState } from "react";
 
-import { Margin, TopLevelPlusIcon } from "@wso2-enterprise/ballerina-core";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Margin, TopLevelPlusIcon } from "@wso2/ballerina-core";
+import { NodePosition } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 

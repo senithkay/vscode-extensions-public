@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { ForeachStatement } from "@wso2-enterprise/syntax-tree";
+import { ForeachStatement } from "@wso2/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";

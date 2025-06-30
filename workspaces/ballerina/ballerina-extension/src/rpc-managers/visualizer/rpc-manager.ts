@@ -26,7 +26,7 @@ import {
     VisualizerLocation,
     EVENT_TYPE,
     SHARED_COMMANDS
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { commands, window } from "vscode";

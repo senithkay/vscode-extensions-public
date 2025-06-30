@@ -26,12 +26,12 @@ import {
     ARROW_HEIGHT,
     CompletionItemKind,
     Position
-} from '@wso2-enterprise/ui-toolkit';
+} from '@wso2/ui-toolkit';
 
 import { ANIMATION } from './constant';
 import { getArrowPosition, getHelperPanePosition } from '../utils';
 import { TypeHelperComponent } from './TypeHelper';
-import { CodeData, FunctionKind } from '@wso2-enterprise/ballerina-core';
+import { CodeData, FunctionKind } from '@wso2/ballerina-core';
 
 /* Types */
 export type TypeHelperItem = {

@@ -19,7 +19,7 @@
 import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { InputWrapper, LabelWrapper, useStyles } from "../../../../../style";
-import { TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Typography } from "@wso2/ui-toolkit";
 import { getTooltipIconComponent } from "../../../Utils";
 import styled from "@emotion/styled";
 

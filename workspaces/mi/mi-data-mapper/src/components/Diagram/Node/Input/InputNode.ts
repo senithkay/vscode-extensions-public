@@ -21,7 +21,7 @@ import { ParameterDeclaration } from "ts-morph";
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { getSearchFilteredInput } from "../../utils/search-utils";
 import { getTypeAnnotation } from "../../utils/common-utils";
 

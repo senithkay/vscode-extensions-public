@@ -16,7 +16,7 @@
  * under the License.
  */
 import { Point } from "@projectstorm/geometry";
-import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, TypeKind } from "@wso2/ballerina-core";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -24,7 +24,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { getTypeName } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 import { findInputNode } from "../../utils/node-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";

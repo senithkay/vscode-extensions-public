@@ -17,7 +17,7 @@
  */
 
 import { AttachmentHandler } from "./attachmentHandler";
-import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { Attachment, AttachmentStatus } from "@wso2/ballerina-core";
 import { readFileAsText, validateFileSize, validateFileType } from "./attachmentUtils";
 
 /**

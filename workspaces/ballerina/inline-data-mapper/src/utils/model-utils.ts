@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { IDMModel, IOType, Mapping } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, IOType, Mapping } from "@wso2/ballerina-core";
 import { BaseVisitor } from "../visitors/BaseVisitor";
 
 export function traverseNode(model: IDMModel, visitor: BaseVisitor) {

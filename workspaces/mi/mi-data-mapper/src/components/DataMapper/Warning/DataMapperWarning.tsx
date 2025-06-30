@@ -18,7 +18,7 @@
 
 import React, { ReactNode } from 'react';
 
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon } from '@wso2/ui-toolkit';
 import classNames from "classnames";
 import { useStyles } from './style';
 

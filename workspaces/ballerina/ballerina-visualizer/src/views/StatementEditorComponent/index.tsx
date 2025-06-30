@@ -17,10 +17,10 @@
  */
 import React from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { StatementEditorWrapper } from "@wso2/ballerina-statement-editor";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 export interface StatementEditorComponentProps {
     label: string;

@@ -18,7 +18,7 @@
 
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode } from "@wso2/mi-syntax-tree/lib/src";
 
 export class EmptyNodeModel extends BaseNodeModel {
     readonly visible: boolean;

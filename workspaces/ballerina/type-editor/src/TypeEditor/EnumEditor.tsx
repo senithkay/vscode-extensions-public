@@ -17,9 +17,9 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, Icon, Codicon } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { Type, Member } from "@wso2-enterprise/ballerina-core";
+import { Type, Member } from "@wso2/ballerina-core";
 import { IdentifierField } from "./IdentifierField";
 
 namespace S {

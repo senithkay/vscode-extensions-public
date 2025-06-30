@@ -21,7 +21,7 @@ import {
     SelectClause,
     STKindChecker,
     Visitor,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
 

@@ -17,16 +17,16 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { AddMediatorProps, openPopup } from '../../Form/common';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../Form';
 import { sidepanelGoBack } from '..';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2/mi-core';
 import { getDssQueryXml, getDssResourceSelfClosingXml, getDssResourceXml } from '../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
 const cardStyle = {

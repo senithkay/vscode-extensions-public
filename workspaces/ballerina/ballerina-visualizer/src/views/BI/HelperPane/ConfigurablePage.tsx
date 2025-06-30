@@ -17,11 +17,11 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, OptionProps, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, OptionProps, TextField, Typography } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { LineRange, ConfigVariable, NodeProperties } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { HelperPaneVariableInfo } from "@wso2/ballerina-side-panel";
+import { LineRange, ConfigVariable, NodeProperties } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { convertToHelperPaneConfigurableVariable, filterHelperPaneVariables } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 import { FieldValues, useForm } from "react-hook-form";

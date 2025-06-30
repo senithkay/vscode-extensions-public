@@ -18,7 +18,7 @@
 
 import React, { useContext } from "react";
 
-import { NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
+import { NamedWorkerDeclaration } from "@wso2/syntax-tree";
 
 import { Context } from "../../../../Context/diagram";
 import { WorkerDeclarationViewState } from "../../../../ViewState/worker-declaration";

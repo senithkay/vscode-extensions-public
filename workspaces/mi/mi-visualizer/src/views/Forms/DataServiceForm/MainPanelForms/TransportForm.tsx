@@ -17,7 +17,7 @@
  */
 import styled from "@emotion/styled";
 import React, { Dispatch, SetStateAction } from "react";
-import {TextField, FormCheckBox} from "@wso2-enterprise/ui-toolkit";
+import {TextField, FormCheckBox} from "@wso2/ui-toolkit";
 import {DataServicePropertyTable} from "./PropertyTable";
 
 const CheckBoxContainer = styled.div`

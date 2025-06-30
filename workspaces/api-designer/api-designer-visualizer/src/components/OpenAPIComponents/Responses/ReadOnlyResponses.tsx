@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Tabs, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
+import { Tabs, Typography, ViewItem } from '@wso2/ui-toolkit';
 import { Responses as Rs, Response as R } from '../../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
 import { ReadOnlyResponse } from '../Response/ReadOnlyResponse';

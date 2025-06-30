@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { BallerinaConstruct } from "@wso2-enterprise/ballerina-core";
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { BallerinaConstruct } from "@wso2/ballerina-core";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
 
 import { getQualifiedNameReferenceNodeFromType } from '../../../../Utils/index'
 import { DefaultConnectorIcon, DefaultIconProps } from "../Icon/DefaultConnectorIcon";

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { AutoComplete, Divider, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Divider, ProgressRing, Tooltip } from '@wso2/ui-toolkit';
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
-import { ConnectorOperation } from '@wso2-enterprise/mi-core';
+import { ConnectorOperation } from '@wso2/mi-core';
 import { OperationsWrapper } from '../mediators/ModuleSuggestions';
 
 interface OperationsListProps {

@@ -17,7 +17,7 @@
  */
 
 import * as vscode from 'vscode';
-import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, ListRegistryArtifactsResponse, DataIntegrationResponse, CommonArtifactsResponse, AdvancedArtifactsResponse } from '@wso2-enterprise/mi-core';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, ListRegistryArtifactsResponse, DataIntegrationResponse, CommonArtifactsResponse, AdvancedArtifactsResponse } from '@wso2/mi-core';
 import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { DependencyDetails } from "@wso2-enterprise/mi-core";
-import { getParamManagerValues, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, FormActions, FormView, Typography } from "@wso2-enterprise/ui-toolkit";
+import { DependencyDetails } from "@wso2/mi-core";
+import { getParamManagerValues, ParamConfig, ParamManager } from "@wso2/mi-diagram";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, FormActions, FormView, Typography } from "@wso2/ui-toolkit";
 import { useState } from "react";
 import { Range } from "../../../../../syntax-tree/lib/src";
 

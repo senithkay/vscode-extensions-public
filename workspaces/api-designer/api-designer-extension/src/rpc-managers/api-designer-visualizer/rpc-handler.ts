@@ -32,7 +32,7 @@ import {
     importJSON,
     openView,
     writeOpenApiContent,
-} from "@wso2-enterprise/api-designer-core";
+} from "@wso2/api-designer-core";
 import { Messenger } from "vscode-messenger";
 import { ApiDesignerVisualizerRpcManager } from "./rpc-manager";
 

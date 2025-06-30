@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { Icon } from "@wso2-enterprise/ui-toolkit";
-import type { TypeHelperOperator } from "@wso2-enterprise/type-editor";
+import { Icon } from "@wso2/ui-toolkit";
+import type { TypeHelperOperator } from "@wso2/type-editor";
 
 export const TYPE_HELPER_OPERATORS: TypeHelperOperator[] = [
     {

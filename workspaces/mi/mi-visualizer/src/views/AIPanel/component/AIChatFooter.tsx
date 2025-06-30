@@ -18,7 +18,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { FlexRow, Footer, StyledTransParentButton, RippleLoader, FlexColumn } from "../styles";
-import { Codicon, ToggleSwitch } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ToggleSwitch } from "@wso2/ui-toolkit";
 import SuggestionsList from "./SuggestionsList";
 import { useMICopilotContext } from "./MICopilotContext";
 import { handleFileAttach } from "../utils";

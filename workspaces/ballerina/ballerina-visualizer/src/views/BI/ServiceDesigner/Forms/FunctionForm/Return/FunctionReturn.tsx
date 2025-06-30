@@ -17,9 +17,9 @@
  */
 
 import React, { useState } from 'react';
-import { TextField } from '@wso2-enterprise/ui-toolkit';
+import { TextField } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
-import { PropertyModel } from '@wso2-enterprise/ballerina-core';
+import { PropertyModel } from '@wso2/ballerina-core';
 import { ReadonlyField } from '../../../components/ReadonlyField';
 
 const NameContainer = styled.div`

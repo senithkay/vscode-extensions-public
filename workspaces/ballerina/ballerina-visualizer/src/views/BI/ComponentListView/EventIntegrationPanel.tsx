@@ -16,9 +16,9 @@
  * under the License.
  */
 import React, { useEffect, useState } from 'react';
-import { Icon } from '@wso2-enterprise/ui-toolkit';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, ServiceModel, SCOPE } from '@wso2-enterprise/ballerina-core';
+import { Icon } from '@wso2/ui-toolkit';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
+import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, ServiceModel, SCOPE } from '@wso2/ballerina-core';
 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';

@@ -18,8 +18,8 @@
 
 import React, { useContext } from "react";
 
-import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-core";
-import { Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { BallerinaConnectorInfo } from "@wso2/ballerina-core";
+import { Tooltip } from "@wso2/ui-toolkit";
 
 import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
 import { StatementEditorContext } from "../../store/statement-editor-context";

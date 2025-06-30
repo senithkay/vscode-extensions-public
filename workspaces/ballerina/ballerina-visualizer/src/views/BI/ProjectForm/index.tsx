@@ -17,11 +17,11 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Button, Icon, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, LocationSelector, TextField, Typography } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { BodyText } from "../../styles";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/ballerina-core";
 
 const FormContainer = styled.div`
     display: flex;

@@ -19,9 +19,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { NavButtonGroup } from "./NavButtonGroup";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { Breadcrumbs, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { HistoryEntry, MACHINE_VIEW } from "@wso2/ballerina-core";
+import { Breadcrumbs, Codicon, Typography } from "@wso2/ui-toolkit";
 
 interface NavigationBarProps {
     showHome?: boolean

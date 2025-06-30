@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox, Typography } from "@wso2-enterprise/ui-toolkit";
-import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox, Typography } from "@wso2/ui-toolkit";
+import { FormKeylookup, ParamManager } from "@wso2/mi-diagram";
 import styled from "@emotion/styled";
-import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
+import { Colors } from "@wso2/mi-diagram/lib/resources/constants";
 
 interface OptionProps {
     value: string;

@@ -22,7 +22,7 @@ import { CommandTemplates } from "../../../commandTemplates/data/commandTemplate
 import { Tag } from "../../../commandTemplates/models/tag.model";
 import { matchCommandTemplate } from "../utils/utils"
 import { PlaceholderTagMap } from "../../../commandTemplates/data/placeholderTags.const";
-import { Command, TemplateId } from "@wso2-enterprise/ballerina-core";
+import { Command, TemplateId } from "@wso2/ballerina-core";
 
 export enum SuggestionType {
     Command = "command",

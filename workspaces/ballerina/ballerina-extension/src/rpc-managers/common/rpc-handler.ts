@@ -38,7 +38,7 @@ import {
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
     showErrorMessage
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { CommonRpcManager } from "./rpc-manager";
 

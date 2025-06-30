@@ -31,7 +31,7 @@ import {
     RestParam,
     SlashToken,
     STKindChecker,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import "./style.scss";
 

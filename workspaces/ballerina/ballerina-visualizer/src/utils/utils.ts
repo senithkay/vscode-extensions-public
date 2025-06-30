@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import { STModification, FunctionParameters } from "@wso2-enterprise/ballerina-core";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { ParamConfig } from "@wso2-enterprise/ui-toolkit";
+import { STModification, FunctionParameters } from "@wso2/ballerina-core";
+import { BallerinaRpcClient } from "@wso2/ballerina-rpc-client";
+import { Parameter } from "@wso2/ballerina-side-panel";
+import { NodePosition } from "@wso2/syntax-tree";
+import { ParamConfig } from "@wso2/ui-toolkit";
 import { URI } from "vscode-uri";
 
 export interface MatchResult {

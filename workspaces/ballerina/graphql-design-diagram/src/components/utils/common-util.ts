@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, traversNode } from "@wso2/syntax-tree";
 
 import { NodeCategory, NodeType } from "../NodeFilter";
 import { GraphqlDesignModel, Position } from "../resources/model";

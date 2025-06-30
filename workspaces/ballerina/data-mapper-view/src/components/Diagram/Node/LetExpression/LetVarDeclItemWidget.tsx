@@ -18,10 +18,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
-import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
+import { LetVarDecl, STKindChecker } from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ViewOption } from "../../../DataMapper/DataMapper";

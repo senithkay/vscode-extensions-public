@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { NodePosition, QueryPipeline, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, QueryPipeline, STNode } from "@wso2/syntax-tree";
 
 import { ArrayType, DEFAULT_WHERE_INTERMEDIATE_CLAUSE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

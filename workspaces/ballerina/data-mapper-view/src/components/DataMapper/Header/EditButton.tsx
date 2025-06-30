@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Tooltip } from "@wso2/ui-toolkit";
 
 import { useMediaQuery } from "../utils";
 

@@ -27,7 +27,7 @@ import {
     SyntaxKind,
     Expression
 } from "ts-morph";
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2/mi-core";
 
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode } from "../Diagram/Node";

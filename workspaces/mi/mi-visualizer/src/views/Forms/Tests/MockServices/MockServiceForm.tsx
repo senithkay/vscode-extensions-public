@@ -17,20 +17,20 @@
  */
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContextMenu, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, ComponentCard, ContextMenu, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { getMockServiceXML } from "../../../../utils/template-engine/mustache-templates/TestSuite";
 import path from "path";
-import { MockResourceHeader, MockService, MockServiceResource } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { MockResourceHeader, MockService, MockServiceResource } from "@wso2/mi-syntax-tree/lib/src";
 import { AccordionContainer, verticalIconStyles } from "../TestSuiteForm";
 import styled from "@emotion/styled";
-import { getColorByMethod } from "@wso2-enterprise/service-designer/lib/components/ResourceAccordion/ResourceAccordion";
+import { getColorByMethod } from "@wso2/service-designer/lib/components/ResourceAccordion/ResourceAccordion";
 import { MockResourceEntry, MockResourceForm } from "./MockResourceForm";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup } from "@wso2/mi-diagram";
 
 export interface MockServiceFormProps {
     filePath?: string;

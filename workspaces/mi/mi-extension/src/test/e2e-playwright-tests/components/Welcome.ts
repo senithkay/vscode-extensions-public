@@ -17,8 +17,8 @@
  */
 
 import { Locator } from "@playwright/test";
-import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { ExtendedPage, getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { MACHINE_VIEW } from "@wso2/mi-core";
+import { ExtendedPage, getVsCodeButton, switchToIFrame } from "@wso2/playwright-vscode-tester";
 
 export class Welcome {
     private container!: Locator;

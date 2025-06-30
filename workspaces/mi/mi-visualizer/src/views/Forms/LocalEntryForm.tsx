@@ -18,12 +18,12 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { CreateLocalEntryRequest, CreateLocalEntryResponse, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { CreateLocalEntryRequest, CreateLocalEntryResponse, EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
 import { XMLValidator } from "fast-xml-parser";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -31,7 +31,7 @@ import * as yup from "yup";
 import CardWrapper from "./Commons/CardWrapper";
 import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "./AddToRegistry";
 import { TypeChip } from "./Commons";
-import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { compareVersions } from "@wso2/mi-diagram/lib/utils/commons";
 import { RUNTIME_VERSION_440 } from "../../constants";
 
 const SourceURLContainer = styled.div({

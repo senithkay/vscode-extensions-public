@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
 
 export function isQueryParam(param: STNode): boolean {
     if (STKindChecker.isRequiredParam(param)) {

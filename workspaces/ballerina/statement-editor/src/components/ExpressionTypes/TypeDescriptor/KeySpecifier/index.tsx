@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { KeySpecifier } from "@wso2-enterprise/syntax-tree";
+import { KeySpecifier } from "@wso2/syntax-tree";
 
 import { EXPR_CONSTRUCTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";

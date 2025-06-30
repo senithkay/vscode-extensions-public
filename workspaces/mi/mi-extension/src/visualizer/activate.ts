@@ -20,7 +20,7 @@ import * as vscode from 'vscode';
 import { commands, window } from 'vscode';
 import { getStateMachine, navigate, openView, refreshUI } from '../stateMachine';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
-import { EVENT_TYPE, MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, onDocumentSave } from '@wso2/mi-core';
 import { extension } from '../MIExtensionContext';
 import { importCapp } from '../util/importCapp';
 import { SELECTED_SERVER_PATH } from '../debugger/constants';

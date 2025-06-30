@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { ANALYZE_TYPE } from "@wso2-enterprise/ballerina-core";
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { ANALYZE_TYPE } from "@wso2/ballerina-core";
+import { FunctionDefinition } from "@wso2/syntax-tree";
 
 import { Context } from "../../../../Context/diagram";
 

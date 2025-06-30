@@ -19,7 +19,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Button, ButtonProps, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonProps, Codicon } from "@wso2/ui-toolkit";
 
 export interface DataMapperHeaderProps {
     onClose: () => void;

@@ -22,11 +22,11 @@ import {
     DeleteButton,
     EditButton,
     FunctionIcon
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     FunctionDefinition,
     STKindChecker
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../Context/diagram";

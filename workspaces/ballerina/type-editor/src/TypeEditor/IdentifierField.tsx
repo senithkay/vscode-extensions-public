@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { Type } from "@wso2-enterprise/ballerina-core";
-import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField/TextField";
+import { Type } from "@wso2/ballerina-core";
+import { TextField } from "@wso2/ui-toolkit/lib/components/TextField/TextField";
 import React, { ChangeEvent, forwardRef, useCallback, useState } from "react";
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import { URI, Utils } from "vscode-uri";
 import { debounce } from "lodash";
 

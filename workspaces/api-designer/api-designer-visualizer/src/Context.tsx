@@ -17,9 +17,9 @@
  */
 
 import React, { ReactNode, useState } from "react";
-import { Context, VisualizerContext} from "@wso2-enterprise/api-designer-rpc-client";
-import { RpcClient } from "@wso2-enterprise/api-designer-rpc-client/lib/RpcClient";
-import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/api-designer-core";
+import { Context, VisualizerContext} from "@wso2/api-designer-rpc-client";
+import { RpcClient } from "@wso2/api-designer-rpc-client/lib/RpcClient";
+import { MACHINE_VIEW, VisualizerLocation } from "@wso2/api-designer-core";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {

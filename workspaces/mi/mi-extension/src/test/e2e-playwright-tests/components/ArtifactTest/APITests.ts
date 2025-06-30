@@ -17,12 +17,12 @@
  */
 
 import { expect, Frame, Page } from "@playwright/test";
-import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { getVsCodeButton, switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
 import { copyFile, page } from "../../Utils";
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import path from "path";
 import os from "os";
 import { Form } from "../Form";

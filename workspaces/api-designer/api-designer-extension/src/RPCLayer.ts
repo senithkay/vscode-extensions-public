@@ -19,7 +19,7 @@
 import { WebviewView, WebviewPanel, window, QuickPickItem } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, VisualizerLocation, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged, selectQuickPickItem, WebviewQuickPickItem, selectQuickPickItems, showConfirmMessage, showInputBox, showInfoNotification, showErrorNotification } from '@wso2-enterprise/api-designer-core';
+import { stateChanged, getVisualizerState, VisualizerLocation, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged, selectQuickPickItem, WebviewQuickPickItem, selectQuickPickItems, showConfirmMessage, showInputBox, showInfoNotification, showErrorNotification } from '@wso2/api-designer-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { StateMachinePopup } from './stateMachinePopup';
 import path = require('path');

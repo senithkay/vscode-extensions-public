@@ -16,19 +16,19 @@
  * under the License.
  */
 
-import { Codicon, ProgressRing, TextField, Typography, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ProgressRing, TextField, Typography, LinkButton } from '@wso2/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage, sidepanelGoBack } from '..';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { ButtonGroup } from '../commons/ButtonGroup';
 import { DownloadPage } from '../mediators/DownloadPage';
 import { debounce } from 'lodash';
 import styled from '@emotion/styled';
 import { VSCodeLink } from '@vscode/webview-ui-toolkit/react';
 import { OperationsList } from './OperationsList';
-import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2/mi-core';
 
 const SearchStyle = {
     width: 'auto',

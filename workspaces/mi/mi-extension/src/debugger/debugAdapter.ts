@@ -28,7 +28,7 @@ import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
 import { INCORRECT_SERVER_PATH_MSG } from './constants';
 import { extension } from '../MIExtensionContext';
-import { EVENT_TYPE, miServerRunStateChanged } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, miServerRunStateChanged } from '@wso2/mi-core';
 import { DebuggerConfig } from './config';
 import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
 import { RPCLayer } from '../RPCLayer';

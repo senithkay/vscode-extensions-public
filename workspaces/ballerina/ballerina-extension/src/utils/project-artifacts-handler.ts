@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ProjectStructureArtifactResponse, DIRECTORY_MAP, ArtifactData } from "@wso2-enterprise/ballerina-core";
+import { ProjectStructureArtifactResponse, DIRECTORY_MAP, ArtifactData } from "@wso2/ballerina-core";
 
 // Define the base notification type
 interface NotificationType<T> {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2/mi-core";
 import { Node, PropertyAccessExpression, SourceFile } from "ts-morph";
 import { lowerFirst, upperFirst } from "lodash";
 import { InputOutputPortModel } from "../Port";

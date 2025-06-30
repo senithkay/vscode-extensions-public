@@ -20,7 +20,7 @@ import { test } from '@playwright/test';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { initTest, page } from './Utils';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { Overview } from './components/Overview';
 import { UnitTest } from './components/UnitTest';
 import { Sequence } from './components/ArtifactTest/Sequence';

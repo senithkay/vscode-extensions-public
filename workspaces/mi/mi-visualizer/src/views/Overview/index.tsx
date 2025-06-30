@@ -17,19 +17,19 @@
  */
 
 import React, { useEffect } from "react";
-import { DeployProjectRequest, EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { DeployProjectRequest, EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { ViewHeader } from "../../components/View";
-import { Alert, Button, Codicon, colors, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Alert, Button, Codicon, colors, Icon, PanelContent, ProgressRing, Typography } from "@wso2/ui-toolkit";
 import { ComponentDiagram } from "./ComponentDiagram";
 import styled from "@emotion/styled";
 import ReactMarkdown from "react-markdown";
 import { VSCodeLink, VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
 import { ProjectInformation } from "./ProjectInformation";
-import { ERROR_MESSAGES } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
+import { ERROR_MESSAGES } from "@wso2/mi-diagram/lib/resources/constants";
 import { DeploymentOptions } from "./DeploymentStatus";
 import { useQuery } from "@tanstack/react-query";
-import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2/wso2-platform-core";
 import ProjectStructureView from "./ProjectStructureView";
 
 export interface DevantComponentResponse {

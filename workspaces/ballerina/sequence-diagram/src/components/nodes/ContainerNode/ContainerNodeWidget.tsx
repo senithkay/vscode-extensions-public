@@ -20,7 +20,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { ContainerNodeModel } from "./ContainerNodeModel";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 // this node is represent the if-else block of a sequence diagram
 
 namespace ContainerNodeStyles {

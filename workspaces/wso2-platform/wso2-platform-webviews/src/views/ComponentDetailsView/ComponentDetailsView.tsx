@@ -28,7 +28,7 @@ import {
 	WebviewQuickPickItemKind,
 	getComponentKindRepoSource,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import classNames from "classnames";
 import React, { type FC, useEffect, useState, type ReactNode, useMemo } from "react";
 import { Banner } from "../../components/Banner";

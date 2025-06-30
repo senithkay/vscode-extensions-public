@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { TypeField } from "@wso2/ballerina-core";
+import { Button } from "@wso2/ui-toolkit";
 
 import { TypeProps } from "..";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";

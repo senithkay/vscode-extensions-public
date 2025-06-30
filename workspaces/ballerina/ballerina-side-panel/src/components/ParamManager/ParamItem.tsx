@@ -33,7 +33,7 @@ import {
     Key
 } from "./styles";
 import { Parameter } from "./ParamManager";
-import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon } from "@wso2/ui-toolkit";
 
 interface ParamItemProps {
     param: Parameter;

@@ -24,7 +24,7 @@ import {
     NodePosition,
     STKindChecker,
     STNode,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { ClauseAddButton } from "./ClauseAddButton";

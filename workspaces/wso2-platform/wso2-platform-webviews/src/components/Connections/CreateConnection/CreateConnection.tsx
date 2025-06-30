@@ -32,7 +32,7 @@ import {
 	ServiceInfoVisibilityEnum,
 	capitalizeFirstLetter,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import React, { useEffect, type FC } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";

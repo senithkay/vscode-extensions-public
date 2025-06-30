@@ -19,7 +19,7 @@
 import React, { useState, useEffect, memo } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { cloneDeep } from "lodash";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget } from "@wso2/ui-toolkit";
 
 import {
     clearDiagramZoomAndPosition,
@@ -42,7 +42,7 @@ import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 import { NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
-import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
+import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2/ballerina-core";
 import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
 import { BaseNodeModel } from "./nodes/BaseNode";
 

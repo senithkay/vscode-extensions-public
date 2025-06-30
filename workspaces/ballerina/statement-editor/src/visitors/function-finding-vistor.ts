@@ -19,7 +19,7 @@ import {
     FunctionDefinition,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 class FunctionFindingVisitor implements Visitor {
     private functions: FunctionDefinition[] = [];

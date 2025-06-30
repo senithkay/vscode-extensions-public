@@ -17,16 +17,16 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon, FormActions } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon, FormActions } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Range } from '@wso2/mi-syntax-tree/lib/src';
 import { ParamConfig } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
-import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2/mi-core';
 import { FormGenerator } from '../../..';
 
 const Field = styled.div`

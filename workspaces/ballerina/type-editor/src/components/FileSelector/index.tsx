@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from "react";
-import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Typography } from "@wso2/ui-toolkit";
 
 export interface FileSelectorProps {
     label: string;

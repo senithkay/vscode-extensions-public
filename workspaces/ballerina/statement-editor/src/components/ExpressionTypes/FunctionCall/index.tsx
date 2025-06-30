@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { FunctionCall, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FunctionCall, STKindChecker } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { CALL_CONFIG_TYPE, EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";

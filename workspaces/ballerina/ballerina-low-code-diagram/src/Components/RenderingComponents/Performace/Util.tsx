@@ -1,4 +1,4 @@
-import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode, traversNode } from "@wso2/syntax-tree";
 
 import { InvocationPerformanceVisitor } from "../../../Visitors/InvocationPerformanceVisitor";
 

@@ -21,7 +21,7 @@ import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./
 import { ClientCapabilities, Location } from "vscode-languageserver-protocol";
 import { DiagramDiagnostic, FunctionDefinitionInfo, NonPrimitiveBal } from "./config-spec";
 import { STModifyParams } from "./extended-lang-client";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",

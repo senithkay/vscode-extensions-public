@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 
 const Wrapper = styled.div`

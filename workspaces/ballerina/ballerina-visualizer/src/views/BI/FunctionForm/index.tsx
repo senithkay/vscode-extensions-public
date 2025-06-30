@@ -17,11 +17,11 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey, DIRECTORY_MAP, ProjectStructureArtifactResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey, DIRECTORY_MAP, ProjectStructureArtifactResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2/ballerina-core";
+import { Button, Codicon, Typography, View, ViewContent } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { FormField, FormImports, FormValues } from "@wso2/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
 import { TitleBar } from "../../../components/TitleBar";

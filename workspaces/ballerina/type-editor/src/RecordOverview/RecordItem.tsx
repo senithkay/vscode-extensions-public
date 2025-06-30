@@ -19,7 +19,7 @@
 import React from "react";
 import { RecordItemModel } from "../types";
 import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import { useStyles } from "../style";
 
 interface ParamItemProps {

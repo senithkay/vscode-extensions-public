@@ -11,9 +11,9 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Button, Codicon } from "@wso2/ui-toolkit";
+import { AI_EVENT_TYPE } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 import { AlertBox } from "../AlertBox/AlertBox";
 

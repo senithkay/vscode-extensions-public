@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2/ballerina-core';
 
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, TreeView, commands, window, workspace } from 'vscode';

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { FileStructure, ImportProjectRequest, ImportProjectResponse } from '@wso2-enterprise/mi-core';
+import { FileStructure, ImportProjectRequest, ImportProjectResponse } from '@wso2/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as childprocess from 'child_process';

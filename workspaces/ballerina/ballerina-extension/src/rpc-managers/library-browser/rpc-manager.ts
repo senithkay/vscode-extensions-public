@@ -24,7 +24,7 @@ import {
     LibraryDataRequest,
     LibraryDataResponse,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { getAllResources, getLibrariesList, getLibraryData } from "../../features/library-browser";
 
 export class LibraryBrowserRpcManager implements LibraryBrowserAPI {

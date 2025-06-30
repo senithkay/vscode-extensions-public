@@ -18,8 +18,8 @@
 
 import React, { useState } from 'react';
 
-import { DMType } from '@wso2-enterprise/mi-core';
-import { Icon, ProgressRing, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { DMType } from '@wso2/mi-core';
+import { Icon, ProgressRing, Tooltip, Typography } from '@wso2/ui-toolkit';
 import { useIONodesStyles } from '../../../styles';
 import styled from '@emotion/styled';
 

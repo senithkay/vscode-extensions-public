@@ -18,8 +18,8 @@
 
 import React, { useState } from "react";
 
-import { Dropdown, LocationSelector } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Dropdown, LocationSelector } from "@wso2/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 
 import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";

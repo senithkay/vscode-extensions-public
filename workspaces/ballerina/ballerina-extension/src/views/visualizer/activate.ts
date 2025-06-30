@@ -20,7 +20,7 @@ import * as vscode from 'vscode';
 import { PALETTE_COMMANDS } from '../../features/project/cmds/cmd-runner';
 import { StateMachine, openView } from '../../stateMachine';
 import { extension } from '../../BalExtensionContext';
-import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2/ballerina-core';
 import { ViewColumn } from 'vscode';
 import { buildProjectArtifactsStructure } from '../../utils/project-artifacts';
 

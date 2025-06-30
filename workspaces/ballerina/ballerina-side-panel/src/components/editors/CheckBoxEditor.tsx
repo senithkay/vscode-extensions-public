@@ -18,7 +18,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { CheckBoxGroup, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { CheckBoxGroup, FormCheckBox } from "@wso2/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 

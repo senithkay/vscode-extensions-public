@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { FileObject, ImageObject } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { FileObject, ImageObject } from "@wso2/mi-core";
 
 export type RpcClientType = ReturnType<typeof useVisualizerContext>["rpcClient"];
 export interface MarkdownRendererProps {

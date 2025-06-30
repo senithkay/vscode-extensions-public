@@ -16,7 +16,7 @@
  * under the License.
  */
 import { NodeModel, PortModel } from "@projectstorm/react-diagrams";
-import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind, Range } from "@wso2/mi-core";
 import {
     ts,
     Identifier,

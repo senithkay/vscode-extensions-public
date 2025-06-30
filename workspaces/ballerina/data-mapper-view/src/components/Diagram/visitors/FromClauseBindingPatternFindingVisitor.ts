@@ -19,7 +19,7 @@ import {
     FromClause,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 export class FromClauseBindingPatternFindingVisitor implements Visitor {
     private readonly bindingPatterns: STNode[];

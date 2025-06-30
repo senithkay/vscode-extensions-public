@@ -16,18 +16,18 @@
  * under the License.
  */
 
-import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2/ballerina-core";
+import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { LoadingContainer } from "../../styles";
 import { OperationForm } from "../../GraphQLDiagram/OperationForm";
 
 import { URI, Utils } from "vscode-uri";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 import { FieldCard } from "./FieldCard";
 import { debounce } from "lodash";
 

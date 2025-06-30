@@ -18,7 +18,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 
 export interface DataMapperPortRadioButtonProps {
 	checked: boolean;

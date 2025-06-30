@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from 'react';
 
-import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Breadcrumbs, Codicon } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 import { View } from "../Views/DataMapperView";
 import { extractLastPartFromLabel } from './utils';

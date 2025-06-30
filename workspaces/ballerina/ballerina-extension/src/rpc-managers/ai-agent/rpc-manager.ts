@@ -37,7 +37,7 @@ import {
     STModification,
     SyntaxTree,
     TextEdit
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri } from "vscode";
 import { URI, Utils } from "vscode-uri";

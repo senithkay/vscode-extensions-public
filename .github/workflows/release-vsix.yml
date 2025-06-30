@@ -197,7 +197,7 @@ jobs:
 
   Notify:
     needs: [Release]
-    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/vscode-extensions'}}
+    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2/vscode-extensions'}}
     runs-on: ubuntu-latest
     steps:
       - name: "Failure Notification"

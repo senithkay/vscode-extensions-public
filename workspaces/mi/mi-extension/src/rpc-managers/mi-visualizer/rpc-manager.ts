@@ -65,7 +65,7 @@ import {
     RuntimeServiceDetails,
     MavenDeployPluginDetails,
     ProjectConfig
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
 import fetch from 'node-fetch';

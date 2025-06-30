@@ -34,7 +34,7 @@ import {
 	getComponentKindRepoSource,
 	getTimeAgo,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import classNames from "classnames";
 import React, { type FC, type ReactNode, useState } from "react";
 import { Button } from "../../../components/Button";

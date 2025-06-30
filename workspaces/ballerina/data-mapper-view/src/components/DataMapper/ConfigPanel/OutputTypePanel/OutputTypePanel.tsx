@@ -20,7 +20,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Button, Codicon, ErrorBanner, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ErrorBanner, TruncatedLabel } from "@wso2/ui-toolkit";
 
 import { Title } from "../DataMapperConfigPanel";
 import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";

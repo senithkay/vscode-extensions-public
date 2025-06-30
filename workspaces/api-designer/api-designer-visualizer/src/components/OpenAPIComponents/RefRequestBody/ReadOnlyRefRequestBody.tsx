@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2/ui-toolkit';
 import { RequestBody } from '../../../Definitions/ServiceDefinitions';
 import styled from '@emotion/styled';
 import { ReadOnlyRequestBody } from '../RequestBody/ReadOnlyRequestBody';

@@ -19,10 +19,10 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { URI, Utils } from "vscode-uri";
-import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
-import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors, Overlay } from "@wso2/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import { FunctionForm } from "./views/BI";
 

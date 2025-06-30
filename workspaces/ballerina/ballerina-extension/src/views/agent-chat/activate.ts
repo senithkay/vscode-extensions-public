@@ -17,7 +17,7 @@
  */
 
 import * as vscode from 'vscode';
-import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { SHARED_COMMANDS } from '@wso2/ballerina-core';
 import { BallerinaExtension } from '../../core';
 import { ChatPanel } from './webview';
 

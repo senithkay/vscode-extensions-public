@@ -83,7 +83,7 @@ import {
 	RequestPromoteApprovalReq,
 	ToggleAutoBuildReq,
 	type IChoreoRPCClient,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import { ProgressLocation, window } from "vscode";
 import type { Messenger } from "vscode-messenger";
 

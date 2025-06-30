@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Mapping } from "@wso2-enterprise/ballerina-core";
+import { Mapping } from "@wso2/ballerina-core";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class MappingFindingVisitor implements BaseVisitor {

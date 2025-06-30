@@ -17,8 +17,8 @@
  */
 
 import { Frame, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { page } from '../Utils';
 import { ProjectExplorer } from "../components/ProjectExplorer";
 import { Overview } from "../components/Overview";

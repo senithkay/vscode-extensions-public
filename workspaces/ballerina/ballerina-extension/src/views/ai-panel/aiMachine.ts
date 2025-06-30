@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { AIMachineStateValue, AIPanelPrompt, AIMachineEventValue, AIMachineEventType, AIMachineContext, AIUserToken } from '@wso2-enterprise/ballerina-core';
+import { AIMachineStateValue, AIPanelPrompt, AIMachineEventValue, AIMachineEventType, AIMachineContext, AIUserToken } from '@wso2/ballerina-core';
 import { AiPanelWebview } from './webview';
 import { getAuthUrl, getLogoutUrl } from './auth';
 import { extension } from '../../BalExtensionContext';

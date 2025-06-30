@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, Typography } from '@wso2/ui-toolkit';
 import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -25,7 +25,7 @@ import { sidepanelAddPage } from '..';
 import { DownloadPage } from './DownloadPage';
 import { ButtonGroup } from '../commons/ButtonGroup';
 import { debounce } from 'lodash';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { OperationsList } from '../modules/OperationsList';
 
 interface ModuleSuggestionProps {

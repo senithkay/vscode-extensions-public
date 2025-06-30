@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-core";
-import { Grid } from '@wso2-enterprise/ui-toolkit';
+import { LibraryDataResponse, LibraryInfo } from "@wso2/ballerina-core";
+import { Grid } from '@wso2/ui-toolkit';
 
 import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 import { Library } from '../Library';

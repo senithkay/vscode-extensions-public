@@ -17,7 +17,7 @@
  */
 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { GitProvider, getShortenedHash, parseGitURL } from "@wso2-enterprise/choreo-core";
+import { GitProvider, getShortenedHash, parseGitURL } from "@wso2/choreo-core";
 import classnames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";

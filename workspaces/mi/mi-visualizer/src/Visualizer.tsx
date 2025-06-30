@@ -17,13 +17,13 @@
  */
 
 import React, { createRef, useEffect, useState } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { MachineStateValue, AIMachineStateValue, SwaggerData, VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { MachineStateValue, AIMachineStateValue, SwaggerData, VisualizerLocation } from "@wso2/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { AIPanel } from "./views/AIPanel";
-import { ErrorBoundary, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBoundary, ProgressIndicator } from "@wso2/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";
 import { RuntimeServicePanel } from "./RuntimeServicesPanel";

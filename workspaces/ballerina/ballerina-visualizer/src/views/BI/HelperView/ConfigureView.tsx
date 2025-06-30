@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { ConfigurePanelData, LineRange, TypeField } from "@wso2-enterprise/ballerina-core";
-import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
+import { ConfigurePanelData, LineRange, TypeField } from "@wso2/ballerina-core";
+import { ExpressionFormField } from "@wso2/ballerina-side-panel";
 import { useEffect, useState } from "react";
 import { PanelBody } from ".";
 import { MemoizedParameterBranch } from "./ConfigurePanel";

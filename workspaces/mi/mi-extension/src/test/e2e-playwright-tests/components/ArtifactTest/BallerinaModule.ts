@@ -17,7 +17,7 @@
  */
 
 import { expect, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
@@ -25,7 +25,7 @@ import { clearNotificationAlerts, page, showNotifications } from "../../Utils";
 import { ServiceDesigner } from "../ServiceDesigner";
 import { Form } from '../Form';
 import { Diagram } from '../Diagram';
-import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW } from "@wso2/mi-core";
 
 export class BallerinaModule {
 

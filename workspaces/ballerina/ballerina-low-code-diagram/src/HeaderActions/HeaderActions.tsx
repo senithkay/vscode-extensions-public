@@ -19,8 +19,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useRef, useState } from "react";
 
-import { DeleteButton, EditButton, ExpandButton } from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { DeleteButton, EditButton, ExpandButton } from "@wso2/ballerina-core";
+import { STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 // import { UnsupportedConfirmButtons } from "../../FormComponents/DialogBoxes/UnsupportedConfirmButtons";

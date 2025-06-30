@@ -17,13 +17,13 @@
  */
 
 import { RefObject } from 'react';
-import { FormExpressionEditorRef, HelperPane, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
+import { FormExpressionEditorRef, HelperPane, HelperPaneHeight } from '@wso2/ui-toolkit';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { SuggestionsPage } from './SuggestionsPage';
 import { ConfigureRecordPage } from './ConfigureRecordPage';
-import { CompletionInsertText, LineRange } from '@wso2-enterprise/ballerina-core';
-import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
+import { CompletionInsertText, LineRange } from '@wso2/ballerina-core';
+import { RecordTypeField } from '@wso2/ballerina-core';
 
 export type HelperPaneProps = {
     fieldKey: string;

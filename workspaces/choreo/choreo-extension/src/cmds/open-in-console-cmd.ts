@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, type Organization, type Project } from "@wso2/choreo-core";
 import { type ExtensionContext, type QuickPickItem, QuickPickItemKind, Uri, commands, env, window } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";

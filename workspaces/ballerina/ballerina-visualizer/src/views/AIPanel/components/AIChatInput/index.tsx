@@ -18,8 +18,8 @@
 
 import { useState, useRef, KeyboardEvent, useEffect, useLayoutEffect, useImperativeHandle, forwardRef } from "react";
 import styled from "@emotion/styled";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { AIPanelPrompt, Attachment, AttachmentStatus, Command, TemplateId } from "@wso2-enterprise/ballerina-core";
+import { Codicon } from "@wso2/ui-toolkit";
+import { AIPanelPrompt, Attachment, AttachmentStatus, Command, TemplateId } from "@wso2/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
 import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 import { AttachmentOptions, useAttachments } from "./hooks/useAttachments";

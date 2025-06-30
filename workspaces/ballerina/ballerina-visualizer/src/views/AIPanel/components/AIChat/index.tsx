@@ -32,15 +32,15 @@ import {
     AIPanelPrompt,
     Command,
     TemplateId,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Icon, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Button, Icon, Codicon, Typography } from "@wso2/ui-toolkit";
 
 import { AIChatInputRef } from "../AIChatInput";
 import ProgressTextSegment from "../ProgressTextSegment";
 import RoleContainer from "../RoleContainter";
-import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { Attachment, AttachmentStatus } from "@wso2/ballerina-core";
 import { findRegexMatches } from "../../../../utils/utils";
 
 import { AIChatView, Header, HeaderButtons, ChatMessage, Badge } from "../../styles";
@@ -726,7 +726,7 @@ const AIChat: React.FC = () => {
                     currentDiagnosticsRef.current = diagnostics;
                 } catch (error) {
                     // Add this catch block because `Add to Integration` button not appear for `/code`
-                    // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    // Related issue: https://github.com/wso2/vscode-extensions/issues/5065
                     console.log("A critical error occurred while post processing the response: ", error);
                     diagnostics = [];
                 }

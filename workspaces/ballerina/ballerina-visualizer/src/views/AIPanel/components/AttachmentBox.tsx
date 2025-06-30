@@ -19,8 +19,8 @@
  */
 
 import styled from "@emotion/styled";
-import { AttachmentStatus } from "@wso2-enterprise/ballerina-core";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { AttachmentStatus } from "@wso2/ballerina-core";
+import { Codicon } from "@wso2/ui-toolkit";
 
 export const AttachmentsContainer = styled.div`
     display: flex;

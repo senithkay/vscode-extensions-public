@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon } from "@wso2/ui-toolkit";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../../styles";
-import { StatusCodeResponse } from "@wso2-enterprise/ballerina-core";
+import { StatusCodeResponse } from "@wso2/ballerina-core";
 import { getDefaultResponse, HTTP_METHOD } from "../../../utils";
 
 interface ParamItemProps {

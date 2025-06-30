@@ -19,7 +19,7 @@ import { Response as R } from '../../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
 
 import SectionHeader from '../SectionHeader/SectionHeader';
-import { Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, Typography } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { ReadOnlyMediaType } from '../MediaType/ReadOnlyMediaType';
 import { ReadOnlyHeaders } from '../Headers/ReadOnlyHeaders';

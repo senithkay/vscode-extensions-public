@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { Item, Menu, MenuItem, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { Item, Menu, MenuItem, Tooltip } from "@wso2/ui-toolkit";
+import { STModification } from "@wso2/ballerina-core";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-types";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

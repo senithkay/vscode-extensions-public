@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2/ballerina-core";
+import { LetVarDecl, STKindChecker, STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { ExpressionInfo } from "../DataMapper";
@@ -34,9 +34,9 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SidePanel } from "@wso2/ui-toolkit";
 import { EmptyLocalVarPanel } from "./EmptyLocalVarPanel";
 import { hasErrorDiagnosis } from "../../../utils/st-utils";
 

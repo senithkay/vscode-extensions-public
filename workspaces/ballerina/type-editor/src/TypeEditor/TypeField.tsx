@@ -17,11 +17,11 @@
  */
 
 import React, { forwardRef, useRef, useState, useEffect, useCallback } from 'react';
-import { TextField, Position } from '@wso2-enterprise/ui-toolkit';
-import { AddImportItemResponse, Imports, Type } from '@wso2-enterprise/ballerina-core';
+import { TextField, Position } from '@wso2/ui-toolkit';
+import { AddImportItemResponse, Imports, Type } from '@wso2/ballerina-core';
 import { typeToSource } from './TypeUtil';
 import { TypeHelper, TypeHelperItem } from '../TypeHelper';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
 import { debounce } from 'lodash';
 import { useTypeHelperContext } from '../Context';

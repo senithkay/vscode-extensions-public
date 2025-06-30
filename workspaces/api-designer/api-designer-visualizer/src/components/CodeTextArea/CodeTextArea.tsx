@@ -17,7 +17,7 @@
  */
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { TextArea } from "@wso2-enterprise/ui-toolkit";
+import { TextArea } from "@wso2/ui-toolkit";
 
 interface RowRange {
     start: number;

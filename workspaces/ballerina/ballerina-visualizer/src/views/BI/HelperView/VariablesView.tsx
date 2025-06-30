@@ -16,13 +16,13 @@
  * under the License.
  */
 
-import { LineRange, VisibleType } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
+import { LineRange, VisibleType } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { ExpressionFormField } from "@wso2/ballerina-side-panel";
 import { useEffect, useState } from "react";
 import { VariableTree } from "./VariablePanel/VariablesTree";
 import styled from "@emotion/styled";
-import { SearchBox, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox, Typography, ThemeColors } from "@wso2/ui-toolkit";
 import { PanelBody } from ".";
 
 interface VariablesViewProps {

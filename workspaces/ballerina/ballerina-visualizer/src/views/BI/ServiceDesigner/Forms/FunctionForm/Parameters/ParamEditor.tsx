@@ -19,12 +19,12 @@
 
 import React from 'react';
 
-import { ActionButtons, Divider, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Divider, Dropdown, TextField, Typography } from '@wso2/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../../styles';
 import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
 import { PARAM_TYPES } from '../../../definitions';
-import { ParameterModel } from '@wso2-enterprise/ballerina-core';
+import { ParameterModel } from '@wso2/ballerina-core';
 
 const options = [{ id: "0", value: "QUERY" }, { id: "1", value: "Header" }];
 

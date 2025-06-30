@@ -23,7 +23,7 @@ import { initTest, page } from '../Utils';
 import { InboundEPForm } from '../components/InboundEp';
 import { Diagram } from '../components/Diagram';
 import { Overview } from '../components/Overview';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW } from '@wso2/mi-core';
 import { ProjectExplorer } from '../components/ProjectExplorer';
 
 export default function createTests() {

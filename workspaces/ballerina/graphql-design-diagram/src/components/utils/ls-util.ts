@@ -20,8 +20,8 @@ import {
     ExtendedLangClientInterface,
     GraphqlDesignService, GraphqlDesignServiceParams,
     SyntaxTree,
-} from "@wso2-enterprise/ballerina-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { STNode } from "@wso2/syntax-tree";
 import { URI } from "vscode-uri";
 
 export async function getModelForGraphqlService(

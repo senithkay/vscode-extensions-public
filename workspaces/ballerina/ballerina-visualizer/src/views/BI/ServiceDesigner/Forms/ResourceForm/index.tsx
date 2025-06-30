@@ -18,12 +18,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActionButtons, Divider, SidePanelBody, Typography, ProgressIndicator } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Divider, SidePanelBody, Typography, ProgressIndicator } from '@wso2/ui-toolkit';
 import { ResourcePath } from './ResourcePath/ResourcePath';
 import { ResourceResponse } from './ResourceResponse/ResourceResponse';
 import styled from '@emotion/styled';
 import { HTTP_METHOD } from '../../utils';
-import { FunctionModel, ParameterModel, PropertyModel, ReturnTypeModel } from '@wso2-enterprise/ballerina-core';
+import { FunctionModel, ParameterModel, PropertyModel, ReturnTypeModel } from '@wso2/ballerina-core';
 import { Parameters } from './Parameters/Parameters';
 
 const AdvancedParamTitleWrapper = styled.div`

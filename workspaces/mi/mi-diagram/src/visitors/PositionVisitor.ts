@@ -82,7 +82,7 @@ import {
     Rewrite,
     Query,
     ThrowError
-} from "@wso2-enterprise/mi-syntax-tree/lib/src";
+} from "@wso2/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { getTextSizes } from "../utils/node";
 

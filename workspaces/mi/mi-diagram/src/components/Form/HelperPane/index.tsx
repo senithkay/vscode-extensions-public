@@ -18,7 +18,7 @@
 
 import React, { CSSProperties, useState } from 'react';
 import { Position } from 'vscode-languageserver-types';
-import { HelperPane, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
+import { HelperPane, HelperPaneHeight } from '@wso2/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
 import { VariablesPage } from './VariablesPage';
 import { PayloadPage } from './PayloadPage';

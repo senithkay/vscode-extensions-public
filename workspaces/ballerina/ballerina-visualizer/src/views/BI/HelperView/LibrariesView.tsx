@@ -16,13 +16,13 @@
  * under the License.
  */
 
-import { Category, FUNCTION_TYPE, LineRange, LogIcon, NodePosition, BISearchRequest } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Category as PanelCategory, GroupList, Node, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
+import { Category, FUNCTION_TYPE, LineRange, LogIcon, NodePosition, BISearchRequest } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Category as PanelCategory, GroupList, Node, ExpressionFormField } from "@wso2/ballerina-side-panel";
 
 import { useEffect, useState } from "react";
 import { convertFunctionCategoriesToSidePanelCategories } from "../../../utils/bi";
-import { ProgressRing, SearchBox, SidePanelBody, Tooltip, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, SearchBox, SidePanelBody, Tooltip, Typography, ThemeColors } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import React from "react";
 import { debounce } from "lodash";

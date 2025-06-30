@@ -19,10 +19,10 @@
 import React, { useEffect, useState } from "react";
 
 import { ActionCard } from "./ActionCard";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { SearchBox, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-core";
+import { SearchBox, Typography, ThemeColors } from "@wso2/ui-toolkit";
+import { FunctionDefinitionInfo } from "@wso2/ballerina-core";
 
 export namespace S {
     export const Container = styled.div<{}>`

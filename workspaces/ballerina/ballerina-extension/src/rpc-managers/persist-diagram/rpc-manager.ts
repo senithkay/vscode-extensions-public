@@ -20,7 +20,7 @@
 import {
     PersistERModel,
     PersistDiagramAPI,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { commands } from "vscode";
 import { StateMachine } from "../../stateMachine";
 

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { TreeView, Typography } from '@wso2-enterprise/ui-toolkit';
+import { TreeView, Typography } from '@wso2/ui-toolkit';
 import { LeftPathContainer, PathContainer } from '../ComponentNavigator';
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';

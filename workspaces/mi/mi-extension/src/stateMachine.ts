@@ -13,7 +13,7 @@ import {
     SyntaxTreeMi,
     VisualizerLocation,
     webviewReady
-} from '@wso2-enterprise/mi-core';
+} from '@wso2/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview, webviews } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';

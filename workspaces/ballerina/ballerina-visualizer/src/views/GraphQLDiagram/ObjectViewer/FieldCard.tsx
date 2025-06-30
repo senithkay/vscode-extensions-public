@@ -17,9 +17,9 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, Confirm, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Confirm, Icon } from '@wso2/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { FunctionModel } from '@wso2-enterprise/ballerina-core';
+import { FunctionModel } from '@wso2/ballerina-core';
 
 type ContainerProps = {
     borderColor?: string;

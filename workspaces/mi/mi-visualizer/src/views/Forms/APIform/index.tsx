@@ -18,11 +18,11 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormActions, Dropdown, FormCheckBox, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Button, TextField, FormView, FormActions, Dropdown, FormCheckBox, RadioButtonGroup } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { FieldGroup } from "../Commons";
-import { CreateAPIRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { CreateAPIRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
+import { Range } from "@wso2/mi-syntax-tree/lib/src";
 import { getXML } from "../../../utils/template-engine/mustache-templates/templateUtils";
 import { ARTIFACT_TEMPLATES } from "../../../constants";
 import { FormHandler } from "./Handler";
@@ -30,7 +30,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import * as pathLib from "path";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup } from "@wso2/mi-diagram";
 
 const TitleBar = styled.div({
     display: 'flex',

@@ -18,7 +18,7 @@
 import path from 'path';
 import fs from 'fs';
 import { LanguageClient } from './lang-service/client';
-import { APIResource } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource } from '@wso2/mi-syntax-tree/lib/src';
 
 export async function generateJsonFromXml() {
     const langClient = new LanguageClient();

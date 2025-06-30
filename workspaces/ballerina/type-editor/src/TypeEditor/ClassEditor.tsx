@@ -17,8 +17,8 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { Imports, Type, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
-import { Codicon, Button, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { Imports, Type, TypeFunctionModel } from '@wso2/ballerina-core';
+import { Codicon, Button, TextField, LinkButton } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { TypeField } from './TypeField';
 import { IdentifierField } from './IdentifierField';

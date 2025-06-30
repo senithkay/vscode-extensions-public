@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { SCOPE } from "@wso2-enterprise/ballerina-core";
+import { SCOPE } from "@wso2/ballerina-core";
 
 const INTEGRATION_API_MODULES = ["http", "graphql", "tcp"];
 const EVENT_INTEGRATION_MODULES = ["kafka", "rabbitmq", "salesforce", "trigger.github", "mqtt", "asb"];

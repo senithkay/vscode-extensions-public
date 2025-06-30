@@ -19,7 +19,7 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing } from '@wso2/ui-toolkit';
 import classnames from "classnames";
 
 import { LinkConnectorNode } from './LinkConnectorNode';

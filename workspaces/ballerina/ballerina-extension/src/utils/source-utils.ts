@@ -20,7 +20,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
 import { Uri, Position } from 'vscode';
-import { ArtifactData, EVENT_TYPE, LinePosition, MACHINE_VIEW, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
+import { ArtifactData, EVENT_TYPE, LinePosition, MACHINE_VIEW, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2/ballerina-core';
 import path from 'path';
 import { openView, StateMachine } from '../stateMachine';
 import { ArtifactsUpdated, ArtifactNotificationHandler } from './project-artifacts-handler';

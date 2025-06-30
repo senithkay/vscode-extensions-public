@@ -47,8 +47,8 @@ import {
     TriggerModelsRequest,
     TriggerModelsResponse,
     DIRECTORY_MAP
-} from "@wso2-enterprise/ballerina-core";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { NodePosition } from "@wso2/syntax-tree";
 import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';

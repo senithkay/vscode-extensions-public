@@ -37,7 +37,7 @@ import {
 	type Project,
 	type ProxyDeploymentInfo,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 
 export const queryKeys = {

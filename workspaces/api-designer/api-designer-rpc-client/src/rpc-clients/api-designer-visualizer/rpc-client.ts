@@ -37,7 +37,7 @@ import {
     openView,
     writeOpenApiContent,
     Schema
-} from "@wso2-enterprise/api-designer-core";
+} from "@wso2/api-designer-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 

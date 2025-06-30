@@ -22,8 +22,8 @@ import {
     ICPServiceAPI,
     ICPEnabledRequest,
     ICPEnabledResponse,
-} from "@wso2-enterprise/ballerina-core";
-import { ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { ModulePart, NodePosition, STKindChecker } from "@wso2/syntax-tree";
 import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import { Uri } from "vscode";

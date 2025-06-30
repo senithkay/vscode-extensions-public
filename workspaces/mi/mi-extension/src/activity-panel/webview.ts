@@ -46,7 +46,7 @@ export class ActivityPanel implements vscode.WebviewViewProvider {
             '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
         // const codiconUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "resources", "codicons", "codicon.css"));
-        // const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+        // const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
         <!DOCTYPE html>

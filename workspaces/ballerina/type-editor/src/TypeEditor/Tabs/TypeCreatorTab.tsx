@@ -17,10 +17,10 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { TextField, Dropdown, Button, ProgressRing, Icon, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, Button, ProgressRing, Icon, Typography, ThemeColors } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Member, Type, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Member, Type, TypeNodeKind } from "@wso2/ballerina-core";
 import { RecordEditor } from "../RecordEditor";
 import { EnumEditor } from "../EnumEditor";
 import { UnionEditor } from "../UnionEditor";

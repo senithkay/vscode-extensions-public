@@ -18,8 +18,8 @@
 import React, { useRef, useState, useEffect } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { Codicon, Dropdown, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { TypeField } from "@wso2/ballerina-core";
+import { Codicon, Dropdown, Tooltip, Typography } from "@wso2/ui-toolkit";
 
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";

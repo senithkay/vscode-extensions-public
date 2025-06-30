@@ -28,7 +28,7 @@ import {
 	type Organization,
 	type Project,
 	getComponentKey,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import classNames from "classnames";
 import React, { useState, type FC } from "react";
 import { BreadCrumb, type BreadCrumbItem } from "../../../components/BreadCrumb";

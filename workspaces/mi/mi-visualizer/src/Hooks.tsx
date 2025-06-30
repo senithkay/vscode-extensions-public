@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 
 export const useIOTypes = (filePath: string, functionName: string, nonMappingFileContent: string) => {
     const { rpcClient } = useVisualizerContext();

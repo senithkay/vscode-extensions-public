@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ExtendedPage, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ExtendedPage, startVSCode, switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";

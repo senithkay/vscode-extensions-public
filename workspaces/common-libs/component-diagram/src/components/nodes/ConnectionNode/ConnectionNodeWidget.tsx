@@ -21,7 +21,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
 import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, CON_NODE_HEIGHT } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { DatabaseIcon, LinkIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";

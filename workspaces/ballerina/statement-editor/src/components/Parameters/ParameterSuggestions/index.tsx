@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2/ballerina-core";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
+import { Typography } from "@wso2/ui-toolkit";
 
 import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

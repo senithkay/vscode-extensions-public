@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon } from '@wso2/ui-toolkit';
 import { Headers as Hs, HeaderDefinition as H, ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Header } from '../Header/Header';

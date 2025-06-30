@@ -16,7 +16,7 @@
  * under the License.
  */
 import { Point } from "@projectstorm/geometry";
-import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, TypeKind } from "@wso2/ballerina-core";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

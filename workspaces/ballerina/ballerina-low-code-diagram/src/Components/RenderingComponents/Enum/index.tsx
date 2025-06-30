@@ -20,8 +20,8 @@
 // tslint:disable: no-unused-expression
 import React, { useContext, useState } from "react"
 
-import { EnumIcon } from "@wso2-enterprise/ballerina-core";
-import { EnumDeclaration, EnumMember, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { EnumIcon } from "@wso2/ballerina-core";
+import { EnumDeclaration, EnumMember, STKindChecker } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { HeaderActions } from "../../../HeaderActions";

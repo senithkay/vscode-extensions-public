@@ -36,7 +36,7 @@ import {
     VarIcon,
 } from "../../resources";
 import { NodeKind } from "../../utils/types";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 
 // VSCode chart colors - guaranteed to be available in all webviews
 // These colors are visually distinct and work well in both light and dark themes

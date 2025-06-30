@@ -19,9 +19,9 @@
 import React from "react";
 
 import { ParamIcon } from "./ParamIcon";
-import { CheckBox, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { CheckBox, Codicon } from "@wso2/ui-toolkit";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../../styles";
-import { ParameterModel } from "@wso2-enterprise/ballerina-core";
+import { ParameterModel } from "@wso2/ballerina-core";
 
 interface ParamItemProps {
     param: ParameterModel;

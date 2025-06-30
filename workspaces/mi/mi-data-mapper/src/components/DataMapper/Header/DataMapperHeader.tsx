@@ -23,12 +23,12 @@ import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
 import { DataMapperNodeModel } from "../../Diagram/Node/commons/DataMapperNode";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
+import { Button } from "@wso2/ui-toolkit";
 import AIMapButton from './AIMapButton';
-import { DataMapWriteRequest } from "@wso2-enterprise/mi-core";
+import { DataMapWriteRequest } from "@wso2/mi-core";
 import { FunctionDeclaration } from "ts-morph";
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2/mi-core";
 import { doesMappingExist } from "../../../index";
 
 export interface DataMapperHeaderProps {

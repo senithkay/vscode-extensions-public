@@ -18,7 +18,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { TextField } from "@wso2/ui-toolkit";
 import { useFormContext } from "../../context";
 import { capitalize } from "./utils";
 

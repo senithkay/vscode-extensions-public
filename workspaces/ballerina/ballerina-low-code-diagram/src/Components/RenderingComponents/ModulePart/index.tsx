@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STNode } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { getSTComponent } from "../../../Utils";

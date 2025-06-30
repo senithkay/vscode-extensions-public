@@ -20,7 +20,7 @@ import React, { useRef } from "react";
 
 import { Parameters } from "./ParamManager";
 import { useDrag, useDrop } from 'react-dnd';
-import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { cx } from "@emotion/css";

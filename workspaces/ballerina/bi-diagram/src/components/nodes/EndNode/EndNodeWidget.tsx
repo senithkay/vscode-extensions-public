@@ -18,7 +18,7 @@
 /** @jsxImportSource @emotion/react */
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 import { EndNodeModel } from "./EndNodeModel";
 import { END_NODE_WIDTH } from "../../../resources/constants";
 

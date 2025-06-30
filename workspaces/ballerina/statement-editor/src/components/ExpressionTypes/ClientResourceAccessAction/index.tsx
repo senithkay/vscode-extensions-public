@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ClientResourceAccessAction, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ClientResourceAccessAction, NodePosition } from "@wso2/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { EXPR_PLACEHOLDER } from "../../../utils/expressions";

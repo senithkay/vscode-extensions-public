@@ -17,10 +17,10 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { TextField, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
-import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Type } from "@wso2-enterprise/ballerina-core";
+import { BallerinaRpcClient, useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Type } from "@wso2/ballerina-core";
 import { RecordFromJson } from "../../RecordFromJson/RecordFromJson";
 import { RecordFromXml } from "../../RecordFromXml/RecordFromXml";
 import { debounce } from "lodash";

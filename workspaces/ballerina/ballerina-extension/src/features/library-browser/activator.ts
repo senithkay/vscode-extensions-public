@@ -24,7 +24,7 @@ import {
 	LibrariesListResponse,
 	LibraryKind,
 	LibrarySearchResponse
-} from '@wso2-enterprise/ballerina-core';
+} from '@wso2/ballerina-core';
 
 export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();

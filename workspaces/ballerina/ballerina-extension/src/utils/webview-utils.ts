@@ -84,7 +84,7 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
     const resourceRoot = isCodeServer ? RESOURCES_CDN : getVSCodeResourceURI(getWebViewResourceRoot(), webView);
 
     const codiconUri = webView.asWebviewUri(Uri.joinPath((ballerinaExtInstance.context as ExtensionContext).extensionUri, "resources", "codicons", "codicon.css"));
-    const fontsUri = webView.asWebviewUri(Uri.joinPath((ballerinaExtInstance.context as ExtensionContext).extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+    const fontsUri = webView.asWebviewUri(Uri.joinPath((ballerinaExtInstance.context as ExtensionContext).extensionUri, "node_modules", "@wso2", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
     return `
             <!DOCTYPE html>

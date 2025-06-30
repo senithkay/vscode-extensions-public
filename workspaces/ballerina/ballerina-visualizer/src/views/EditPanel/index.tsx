@@ -17,14 +17,14 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import { useVisualizerContext } from '../../Context';
 import { StatementEditorComponent } from "../StatementEditorComponent"
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { STModification } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { shouldSkipSemicolon } from "../ConstructPanel";
 import { fetchConnectorInfo, retrieveUsedAction } from "../Connectors/ConnectorWizard/utils";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 
 interface EditPanelProps {
     applyModifications: (modifications: STModification[]) => Promise<void>;

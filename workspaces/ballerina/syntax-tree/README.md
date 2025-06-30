@@ -1,10 +1,10 @@
-# @wso2-enterprise/syntax-tree
+# @wso2/syntax-tree
 
 ## Getting Started 
 
 ### Developer Guide
 
-> Avoid working directly on `wso2-enterprise/vscode-extensions`, fork this repository to your account first.
+> Avoid working directly on `wso2/vscode-extensions`, fork this repository to your account first.
 
 ```
 git clone https://github.com/<your-username>/vscode-extensions.git
@@ -17,10 +17,10 @@ After installing dependencies, you can build the entire monorepo with:
 rush build
 ```
 
-To build only the `@wso2-enterprise/syntax-tree` package and its dependencies, use:
+To build only the `@wso2/syntax-tree` package and its dependencies, use:
 
 ```
-rush build --to @wso2-enterprise/syntax-tree
+rush build --to @wso2/syntax-tree
 ```
 
 #### For local development

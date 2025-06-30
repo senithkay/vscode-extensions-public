@@ -18,7 +18,7 @@
 import { TestManagerServiceAPI, GetTestFunctionRequest, AddOrUpdateTestFunctionRequest, 
     TestSourceEditResponse, GetTestFunctionResponse, 
     getTestFunction, addTestFunction, updateTestFunction,  
-    SourceUpdateResponse} from "@wso2-enterprise/ballerina-core";
+    SourceUpdateResponse} from "@wso2/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 

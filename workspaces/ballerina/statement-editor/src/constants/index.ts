@@ -23,7 +23,7 @@ import {
     LocalVarDecl, LockStatement, MatchStatement,
     PanicStatement, ReturnStatement, RollbackStatement, TransactionStatement,
     WhileStatement
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import {
     BINDING_PATTERN_PLACEHOLDER, DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER,

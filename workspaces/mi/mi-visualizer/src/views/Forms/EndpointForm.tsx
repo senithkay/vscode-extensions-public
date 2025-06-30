@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { FormView } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { FormView } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
 
 export interface EndpointWizardProps {

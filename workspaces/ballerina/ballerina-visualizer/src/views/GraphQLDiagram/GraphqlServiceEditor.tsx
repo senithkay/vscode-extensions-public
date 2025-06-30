@@ -28,8 +28,8 @@ import {
     FunctionModelResponse,
     STModification,
     removeStatement,
-} from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+} from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import {
     Button,
     Codicon,
@@ -41,13 +41,13 @@ import {
     ThemeColors,
     Typography,
     ViewHeader,
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import React, { useEffect, useState } from "react";
 import { LoadingContainer } from "../styles";
 import styled from "@emotion/styled";
 import { OperationAccordion } from "./OperationAccordian";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import { OperationForm } from "./OperationForm";
 import { NodePosition } from "../BI/ServiceDesigner/components/TypeBrowser/TypeBrowser";
 import { applyModifications } from "../../utils/utils";

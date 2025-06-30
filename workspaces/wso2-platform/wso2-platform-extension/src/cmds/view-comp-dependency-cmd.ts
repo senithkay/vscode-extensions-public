@@ -24,7 +24,7 @@ import {
 	type ContextStoreComponentState,
 	type IViewDependencyCmdParams,
 	getComponentKey,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, ViewColumn, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

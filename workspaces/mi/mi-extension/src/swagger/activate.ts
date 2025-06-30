@@ -17,7 +17,7 @@
  */
 
 import { SwaggerWebview } from './webview';
-import { SwaggerData } from '@wso2-enterprise/mi-core';
+import { SwaggerData } from '@wso2/mi-core';
 
 export async function openSwaggerWebview(projectUri: string, swaggerData: SwaggerData) {
     if (!SwaggerWebview.webviews.has(projectUri)) {

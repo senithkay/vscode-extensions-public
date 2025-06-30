@@ -17,7 +17,7 @@
  */
 
 import { render } from "mustache";
-import { DataSourceTemplate } from "@wso2-enterprise/mi-core";
+import { DataSourceTemplate } from "@wso2/mi-core";
 
 interface Parameter {
     [key: string]: string | number | boolean;

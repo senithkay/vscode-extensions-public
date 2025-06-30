@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, CheckBox, Codicon, Tabs, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Tabs, Typography, ViewItem } from '@wso2/ui-toolkit';
 import { Responses as Rs, Response as R, ReferenceObject as Ro } from '../../../Definitions/ServiceDefinitions';
 import { useContext, useEffect, useState } from 'react';
 import { Response } from '../Response/Response';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import SectionHeader from '../SectionHeader/SectionHeader';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useVisualizerContext } from '@wso2/api-designer-rpc-client';
 import { StatusCodes } from '../../../constants';
 import { APIDesignerContext } from '../../../APIDesignerContext';
 

@@ -17,12 +17,12 @@
  */
 
 import { expect, Frame, Locator, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
 import * as fs from 'fs';
 import { dataFolder, newProjectPath, page } from '../Utils';
 import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType } from "@wso2/mi-core";
 
 export { IOType };
 export enum SchemaType {

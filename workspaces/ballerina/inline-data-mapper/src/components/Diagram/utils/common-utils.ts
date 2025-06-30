@@ -20,7 +20,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { getDMTypeDim } from "./type-utils";
 import { DataMapperLinkModel } from "../Link";
-import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, TypeKind } from "@wso2/ballerina-core";
 import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore } from "../../../store/store";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ErrorNodeKind } from "../../../components/DataMapper/Error/RenderingError";

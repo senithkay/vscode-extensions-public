@@ -19,7 +19,7 @@
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
+import { ContextMenu, Item } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { getFilterNodeMenuItem } from "../../../MenuItems/menuItems";

@@ -24,8 +24,8 @@ import type {} from "@projectstorm/react-diagrams-core";
 import type {} from "@projectstorm/react-diagrams";
 import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { IDMModel, Mapping } from "@wso2-enterprise/ballerina-core";
-import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
+import { IDMModel, Mapping } from "@wso2/ballerina-core";
+import { ErrorBoundary } from "@wso2/ui-toolkit";
 
 import { InlineDataMapper } from "./components/DataMapper/DataMapper";
 

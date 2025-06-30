@@ -19,14 +19,14 @@
 import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "react";
 
 
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { Grid, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
-import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
+import { Grid, ProgressRing, Typography } from '@wso2/ui-toolkit';
+import { LocalVarDecl } from "@wso2/syntax-tree";
 
 import ModuleCard from "./ModuleCard";
 import useStyles from "./style";
-import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaRpcClient, useRpcContext } from "@wso2/ballerina-rpc-client";
+import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2/ballerina-core";
 import SearchBar from "./SearchBar";
 import styled from "@emotion/styled";
 

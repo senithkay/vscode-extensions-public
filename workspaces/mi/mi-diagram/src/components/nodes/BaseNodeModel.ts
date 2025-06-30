@@ -17,15 +17,15 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { Connector, Query, STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Connector, Query, STNode, Tool } from "@wso2/mi-syntax-tree/lib/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
 import { Colors, DATA_SERVICE_NODES, NodeTypes } from "../../resources/constants";
-import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
+import { RpcClient } from '@wso2/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2/ui-toolkit";
 import { getDSInputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode, getDSOutputMappingsFromSTNode } from "../../utils/template-engine/mustach-templates/dataservice/ds";
 import { FirstCharToUpperCase } from "../../utils/commons";
 

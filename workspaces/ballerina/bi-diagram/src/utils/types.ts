@@ -59,6 +59,6 @@ export type {
     NodePosition,
     ToolData,
     AgentData,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
 export type FlowNodeStyle = "default" | "ballerina-statements";

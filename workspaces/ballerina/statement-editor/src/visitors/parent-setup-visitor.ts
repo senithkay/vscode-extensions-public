@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { STNode, Visitor } from "@wso2/syntax-tree";
 
 
 class ParentSetupVisitor implements Visitor {

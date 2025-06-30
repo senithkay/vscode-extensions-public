@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from "@emotion/styled";
-import { Typography, TextField, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { Typography, TextField, Dropdown } from '@wso2/ui-toolkit';
 
 export interface Schema {
     $schema?: string;

@@ -39,7 +39,7 @@ import { AsteriskToken,
     PlusToken,
     SlashToken,
     TrippleEqualToken,
-    TrippleGtToken } from "@wso2-enterprise/syntax-tree";
+    TrippleGtToken } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";

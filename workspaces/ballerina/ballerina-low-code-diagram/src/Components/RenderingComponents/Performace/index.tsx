@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 
 import { DefaultConfig } from "../../../Visitors/default";
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_SVG_HEIGHT, TRIGGER_SVG_WIDTH } from "../ActionInvocation/TriggerSVG";

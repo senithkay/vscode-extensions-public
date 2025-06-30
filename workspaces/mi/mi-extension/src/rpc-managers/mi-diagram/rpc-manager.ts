@@ -276,7 +276,7 @@ import {
     GetCodeDiagnosticsReqeust,
     GetCodeDiagnosticsResponse,
     getCodeDiagnostics
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
@@ -317,11 +317,11 @@ import { VisualizerWebview, webviews } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
 import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule, updatePomForClassMediator } from "../../util/onboardingUtils";
-import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Range as STRange } from '@wso2/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
-import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
-import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2/wso2-platform-core";
+import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2/wso2-platform-core";
 import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
 import { DebuggerConfig } from "../../debugger/config";
 

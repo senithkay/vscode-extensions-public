@@ -16,17 +16,17 @@
  * under the License.
  */
 import { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete, Dropdown } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { AutoComplete, Button, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete, Dropdown } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { preConfiguredProfiles, rdbmsTypes } from './types';
 import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues, carbonDatasourceInitialValues} from './typeValues';
-import { CreateMessageStoreRequest, EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { CreateMessageStoreRequest, EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import CardWrapper from "../Commons/CardWrapper";
 import { TypeChip } from "../Commons";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { ParamConfig, ParamManager } from "@wso2/mi-diagram";
 
 export type CustomParameter = {
     name: string,

@@ -19,7 +19,7 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import type { NewComponentWebviewProps } from "@wso2-enterprise/wso2-platform-core";
+import type { NewComponentWebviewProps } from "@wso2/wso2-platform-core";
 import React, { type FC } from "react";
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
 import type { z } from "zod";

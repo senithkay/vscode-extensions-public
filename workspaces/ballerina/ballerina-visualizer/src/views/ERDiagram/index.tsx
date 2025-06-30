@@ -17,10 +17,10 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { PersistERModel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PersistDiagram } from "@wso2-enterprise/persist-layer-diagram";
-import { Button, Icon, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { PersistERModel, VisualizerLocation } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { PersistDiagram } from "@wso2/persist-layer-diagram";
+import { Button, Icon, View, ViewContent } from "@wso2/ui-toolkit";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
 import styled from "@emotion/styled";

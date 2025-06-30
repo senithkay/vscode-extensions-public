@@ -24,16 +24,16 @@ import {
     createFunctionSignature,
     STModification,
     updateFunctionSignature,
-} from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Divider, Typography, Codicon, SidePanel, Confirm } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ballerina-core";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
+import { Button, Divider, Typography, Codicon, SidePanel, Confirm } from "@wso2/ui-toolkit";
 import {
     ExpressionFunctionBody,
     FunctionDefinition,
     NodePosition,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { camelCase } from "lodash";
 
 import { CurrentFileContext } from "../Context/current-file-context";

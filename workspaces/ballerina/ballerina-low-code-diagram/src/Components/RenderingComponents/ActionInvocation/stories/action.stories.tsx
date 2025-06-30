@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ActionStatement, FunctionDefinition, LocalVarDecl, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { ActionStatement, FunctionDefinition, LocalVarDecl, ModulePart, STKindChecker } from '@wso2/syntax-tree';
 
 import { ActionInvocation } from "..";
 import { Provider } from '../../../../Context/diagram';

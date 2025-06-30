@@ -18,8 +18,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import { BallerinaProjectComponents } from "@wso2/ballerina-core";
+import { LangClientRpcClient } from '@wso2/ballerina-rpc-client';
 import {
 	DiagramModel,
     DiagramModelGenerics
@@ -48,7 +48,7 @@ import { ModuleVariableNode } from '../Diagram/Node/ModuleVariable';
 import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
-import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ModulePart } from '@wso2/syntax-tree';
 import {
     getExpandedMappingHeaderNodeHeight,
     getFieldCountMismatchIndex,

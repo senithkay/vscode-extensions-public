@@ -36,7 +36,7 @@ import {
     getStepOverBreakpoint,
     removeBreakpointFromSource,
     validateBreakpoints
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 

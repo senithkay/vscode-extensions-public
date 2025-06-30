@@ -18,9 +18,9 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { Icon } from "@wso2/ui-toolkit";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { MACHINE_VIEW } from "@wso2/ballerina-core";
 
 const NavContainer = styled.div`
     display: flex;

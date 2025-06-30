@@ -16,8 +16,8 @@
  * under the License.
  */
 import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
-import {Configuration, Property} from "@wso2-enterprise/mi-core";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import {Configuration, Property} from "@wso2/mi-core";
+import { ParamConfig, ParamManager } from "@wso2/mi-diagram";
 
 export interface DataServicePropertyTableProps {
     setProperties: Dispatch<SetStateAction<any>>;

@@ -19,8 +19,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
 import React from "react";
 
-import { LabelEditIcon } from "@wso2-enterprise/ballerina-core";
-import { Item } from "@wso2-enterprise/ui-toolkit";
+import { LabelEditIcon } from "@wso2/ballerina-core";
+import { Item } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../../../../resources/model";

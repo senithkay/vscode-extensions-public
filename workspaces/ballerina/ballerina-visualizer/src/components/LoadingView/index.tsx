@@ -18,7 +18,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, ThemeColors } from '@wso2/ui-toolkit';
 
 const LoadingContainer = styled.div<{ fullHeight?: boolean }>`
     display: flex;

@@ -19,8 +19,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
+import { TruncatedLabel } from "@wso2/ui-toolkit";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";

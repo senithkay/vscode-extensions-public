@@ -19,7 +19,7 @@
  */
 
 import styled from "@emotion/styled";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 import { useState, useEffect } from "react";
 
 export const PreviewContainerDefault = styled.div`

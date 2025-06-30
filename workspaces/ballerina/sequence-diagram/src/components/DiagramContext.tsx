@@ -18,8 +18,8 @@
 
 import React from "react";
 import { Flow } from "../utils/types";
-import { SqParticipantType } from "@wso2-enterprise/ballerina-core";
-import { SqParticipant } from "@wso2-enterprise/ballerina-core";
+import { SqParticipantType } from "@wso2/ballerina-core";
+import { SqParticipant } from "@wso2/ballerina-core";
 
 export interface DiagramContextState {
     flow: Flow;

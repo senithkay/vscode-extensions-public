@@ -18,12 +18,12 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { FormView, Card, Typography, FormActions, Button } from "@wso2-enterprise/ui-toolkit";
-import { EVENT_TYPE, MACHINE_VIEW, DownloadProgressData } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { FormView, Card, Typography, FormActions, Button } from "@wso2/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, DownloadProgressData } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import AddInboundConnector from "./inboundConnectorForm";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { InboundEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { InboundEndpoint } from "@wso2/mi-syntax-tree/lib/src";
 import path from "path";
 
 const SampleGrid = styled.div`

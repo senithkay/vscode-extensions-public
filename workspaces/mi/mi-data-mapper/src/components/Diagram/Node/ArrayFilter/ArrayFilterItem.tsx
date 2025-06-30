@@ -18,8 +18,8 @@
 import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
-import { Button, Codicon, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { DMDiagnostic } from '@wso2-enterprise/mi-core';
+import { Button, Codicon, Tooltip } from '@wso2/ui-toolkit';
+import { DMDiagnostic } from '@wso2/mi-core';
 import { CallExpression, Node } from 'ts-morph';
 import classNames from 'classnames';
 

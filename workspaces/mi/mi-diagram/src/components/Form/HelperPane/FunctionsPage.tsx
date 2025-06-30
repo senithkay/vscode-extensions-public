@@ -18,9 +18,9 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Position } from 'vscode-languageserver-types';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2/ui-toolkit';
+import { HelperPaneFunctionInfo } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { debounce } from 'lodash';
 import { filterHelperPaneFunctionCompletionItems } from '../FormExpressionField/utils';
 

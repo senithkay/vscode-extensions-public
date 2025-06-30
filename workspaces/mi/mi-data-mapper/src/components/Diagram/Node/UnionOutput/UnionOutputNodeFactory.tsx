@@ -28,7 +28,7 @@ import { UnionOutputWidget } from "./UnionOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { UnionOutputNode, UNION_OUTPUT_NODE_TYPE } from './UnionOutputNode';
-import { TypeKind } from '@wso2-enterprise/mi-core';
+import { TypeKind } from '@wso2/mi-core';
 import { ObjectOutputWidget } from '../ObjectOutput/ObjectOutputWidget';
 import { UnsupportedIO } from '../UnsupportedIO/UnsupportedIONodeWidget';
 

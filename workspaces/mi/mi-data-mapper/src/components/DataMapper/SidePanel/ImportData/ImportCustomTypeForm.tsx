@@ -22,14 +22,14 @@ import {
     SidePanelTitleContainer,
     SidePanelBody,
     Codicon
-} from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+} from "@wso2/ui-toolkit";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
 import { FunctionDeclaration } from "ts-morph";
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType } from "@wso2/mi-core";
 import { useShallow } from "zustand/react/shallow";
 
 export interface ImportType {

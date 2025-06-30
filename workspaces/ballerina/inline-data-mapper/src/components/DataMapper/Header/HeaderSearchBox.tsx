@@ -23,7 +23,7 @@ import debounce from "lodash.debounce";
 import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { Codicon, SearchBox } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, SearchBox } from '@wso2/ui-toolkit';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";

@@ -19,7 +19,7 @@ import React, { useMemo } from "react";
 
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { Node, CallExpression } from "ts-morph";

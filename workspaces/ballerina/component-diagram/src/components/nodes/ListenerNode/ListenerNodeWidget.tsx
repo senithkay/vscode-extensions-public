@@ -26,10 +26,10 @@ import {
     AUTOMATION_LISTENER,
     LISTENER_NODE_HEIGHT,
 } from "../../../resources/constants";
-import { Button, Item, MenuItem, Menu, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, MenuItem, Menu, Popover, ThemeColors } from "@wso2/ui-toolkit";
 import { ClockIcon, ListenIcon } from "../../../resources";
 import { useDiagramContext } from "../../DiagramContext";
-import { CDListener } from "@wso2-enterprise/ballerina-core";
+import { CDListener } from "@wso2/ballerina-core";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 
 type NodeStyleProp = {

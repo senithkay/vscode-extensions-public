@@ -25,7 +25,7 @@ import {
     STNode,
     traversNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 import { DMNode } from "../../DataMapper/DataMapper";

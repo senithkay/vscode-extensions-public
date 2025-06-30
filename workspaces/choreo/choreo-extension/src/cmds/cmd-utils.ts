@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project, type UserInfo } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, type Organization, type Project, type UserInfo } from "@wso2/choreo-core";
 import { ProgressLocation, type QuickPickItem, QuickPickItemKind, type WorkspaceFolder, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { authStore, waitForLogin } from "../stores/auth-store";

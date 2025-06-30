@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { NodePosition, Diagnostic } from "@wso2-enterprise/syntax-tree";
-import { Item } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, Diagnostic } from "@wso2/syntax-tree";
+import { Item } from "@wso2/ui-toolkit";
 
 export interface ResponseConfig {
     id: number;

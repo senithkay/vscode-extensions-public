@@ -34,7 +34,7 @@ import {
     VisibleEndpoint,
     Visitor,
     WhileStatement
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";

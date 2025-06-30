@@ -25,7 +25,7 @@ import {
     ComponentModelDeprecated,
     Member,
     TypeFunctionModel
-} from '@wso2-enterprise/ballerina-core';
+} from '@wso2/ballerina-core';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { OverlayLayerFactory } from '../components/OverlayLoader';
 import { validate as validateUUID } from 'uuid';

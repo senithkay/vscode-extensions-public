@@ -17,7 +17,7 @@
  */
 
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Range } from '@wso2/mi-syntax-tree/lib/src';
 import { ExpressionFieldValue } from "../Form/ExpressionField/ExpressionInput";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../nodes/MediatorNode/MediatorNodeModel";

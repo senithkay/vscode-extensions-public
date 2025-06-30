@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode } from "@wso2/mi-syntax-tree/lib/src";
 import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 

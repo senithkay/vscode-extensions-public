@@ -19,8 +19,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useEffect, useState } from "react";
 
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STKindChecker, STNode } from "@wso2/syntax-tree";
+import { ContextMenu, Item } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { getDesignServiceField, getServiceFieldEdit } from "../MenuItems/menuItems";

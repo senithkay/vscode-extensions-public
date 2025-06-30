@@ -18,13 +18,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2/syntax-tree";
 
 import { createPropertyStatement } from "../utils";
 
 import { CreateRecord } from "../CreateRecord";
 import { UndoRedoManager } from "../components/UndoRedoManager";
-import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2/ballerina-statement-editor";
 import { Context } from "../Context";
 import { FormContainer } from "../style";
 import { RecordEditorCProps } from ".";

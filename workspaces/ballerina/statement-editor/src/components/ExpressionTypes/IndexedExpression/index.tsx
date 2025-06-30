@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { IndexedExpression } from "@wso2-enterprise/syntax-tree";
+import { IndexedExpression } from "@wso2/syntax-tree";
 
 import { EXPR_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

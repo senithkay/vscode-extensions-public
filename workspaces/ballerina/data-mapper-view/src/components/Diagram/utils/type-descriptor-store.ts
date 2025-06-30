@@ -19,17 +19,17 @@ import {
     ExpressionRange,
     LinePosition,
     TypeField
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     FunctionDefinition,
     NodePosition,
     traversNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { FnDefPositions, TypeFindingVisitor } from "../visitors/TypeFindingVisitor";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export enum TypeStoreStatus {

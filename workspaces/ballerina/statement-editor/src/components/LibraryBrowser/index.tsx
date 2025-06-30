@@ -21,8 +21,8 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
     LibraryDataResponse,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Icon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ballerina-core";
+import { Button, Codicon, Icon, ProgressRing, SearchBox, Typography } from "@wso2/ui-toolkit";
 import debounce from "lodash.debounce";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";

@@ -19,8 +19,8 @@
 import { ReactNode } from "react";
 import { IconType } from "react-icons";
 
-import { SymbolInfo } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { SymbolInfo } from "@wso2/ballerina-core";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 import { CodeAction, Diagnostic } from "vscode-languageserver-types";
 
 import { StmtEditorUndoRedoManager } from "../utils/undo-redo";

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { FeedbackMessage } from "@wso2-enterprise/ballerina-core";
+import { FeedbackMessage } from "@wso2/ballerina-core";
 import { Input, parseBadgeString } from "../../AIChatInput/utils/inputUtils";
 
 export function getConvoHistoryForFeedback(messages: Array<{ role: string; content: string; type: string }> ,index:number, isPositive: boolean):FeedbackMessage[] {

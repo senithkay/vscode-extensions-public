@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { BlockStatement, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, Visitor } from "@wso2/syntax-tree";
 
 export class BlockStatementFinder implements Visitor {
     public haveBlockStatement: boolean = false;

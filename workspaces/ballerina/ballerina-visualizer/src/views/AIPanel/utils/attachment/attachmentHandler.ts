@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Attachment } from "@wso2-enterprise/ballerina-core";
+import { Attachment } from "@wso2/ballerina-core";
 
 /**
  * The AttachmentHandler interface defines the contract for handling

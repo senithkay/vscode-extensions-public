@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CDAutomation, CDService } from "@wso2-enterprise/ballerina-core";
+import { CDAutomation, CDService } from "@wso2/ballerina-core";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 import { EntryNodeModel } from "../components/nodes/EntryNode";
 import { ListenerNodeModel } from "../components/nodes/ListenerNode";

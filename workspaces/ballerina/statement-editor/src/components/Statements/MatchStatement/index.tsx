@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { MatchStatement } from "@wso2-enterprise/syntax-tree";
+import { MatchStatement } from "@wso2/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";

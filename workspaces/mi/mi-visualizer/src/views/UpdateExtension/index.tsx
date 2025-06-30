@@ -17,7 +17,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 import { AlertBox } from "../AlertBox/AlertBox";
 

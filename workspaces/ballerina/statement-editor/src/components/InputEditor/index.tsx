@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
+import { ClickAwayListener } from "@wso2/ui-toolkit";
 import debounce from "lodash.debounce";
 
 import { CALL_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL, PARAM_CONSTRUCTOR } from "../../constants";

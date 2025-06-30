@@ -21,13 +21,13 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import hljs from "highlight.js";
 import yaml from "highlight.js/lib/languages/yaml";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import Badge from "./ChatBadge";
 // @ts-ignore
 import ballerina from "../../../languages/ballerina.js";
 import { SYSTEM_BADGE_SECRET, SYSTEM_ERROR_SECRET } from "./AIChatInput/constants";
 import ErrorBox from "./ErrorBox";
-import { ColorThemeKind } from "@wso2-enterprise/ballerina-core";
+import { ColorThemeKind } from "@wso2/ballerina-core";
 
 // Register custom languages with highlight.js
 hljs.registerLanguage("yaml", yaml);

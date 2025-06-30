@@ -29,10 +29,10 @@ import {
     CDListener,
     CDResourceFunction,
     CDFunction,
-} from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Diagram } from "@wso2-enterprise/component-diagram";
-import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Diagram } from "@wso2/component-diagram";
+import { ProgressRing, ThemeColors } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 const SpinnerContainer = styled.div`

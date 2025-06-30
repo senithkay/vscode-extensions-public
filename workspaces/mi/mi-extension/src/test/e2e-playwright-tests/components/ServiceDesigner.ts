@@ -17,7 +17,7 @@
  */
 
 import { Frame, Locator, Page, expect } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
 
 export class ServiceDesigner {
     private webView!: Frame;

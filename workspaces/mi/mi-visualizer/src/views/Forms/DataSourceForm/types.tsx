@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { ParamConfig } from "@wso2-enterprise/mi-diagram";
+import { ParamConfig } from "@wso2/mi-diagram";
 
 export interface OptionProps {
     value: string;

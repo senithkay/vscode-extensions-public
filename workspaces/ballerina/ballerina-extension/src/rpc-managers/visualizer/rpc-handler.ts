@@ -32,7 +32,7 @@ import {
     redo,
     undo,
     updateUndoRedoManager
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
 

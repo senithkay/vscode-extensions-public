@@ -24,14 +24,14 @@ import {
     getSource,
     ListenerConfigFormState,
     STSymbolInfo
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     ListenerDeclaration,
     NodePosition,
     ServiceDeclaration,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 export function recalculateItemIds(items: any[]) {
     items.forEach((item, index) => {

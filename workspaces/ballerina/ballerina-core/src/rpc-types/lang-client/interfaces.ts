@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 import { DocumentIdentifier, Range } from "../../interfaces/common";
 import { CodeAction, CodeActionContext, Diagnostic, LocationLink, Position, TextDocumentIdentifier, WorkspaceEdit, Location, TextDocumentItem } from "vscode-languageserver-types";
 import { Completion } from "../../interfaces/extended-lang-client";

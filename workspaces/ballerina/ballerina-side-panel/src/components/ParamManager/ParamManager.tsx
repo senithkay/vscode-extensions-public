@@ -21,12 +21,12 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { Codicon, ErrorBanner, LinkButton, RequiredFormInput, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, LinkButton, RequiredFormInput, ThemeColors } from '@wso2/ui-toolkit';
 import { FormField, FormValues } from '../Form/types';
 import { Controller } from 'react-hook-form';
 import { useFormContext } from '../../context';
-import { NodeKind } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { NodeKind } from '@wso2/ballerina-core';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import { EditorFactory } from '../editors/EditorFactory';
 import { getFieldKeyForAdvanceProp } from '../editors/utils';
 

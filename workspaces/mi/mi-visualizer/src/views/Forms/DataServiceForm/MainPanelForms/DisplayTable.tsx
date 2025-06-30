@@ -17,8 +17,8 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { ContainerProps } from "@wso2-enterprise/mi-diagram/lib/components/Form/ParamManager/ParamItem";
+import { Codicon } from "@wso2/ui-toolkit";
+import { ContainerProps } from "@wso2/mi-diagram/lib/components/Form/ParamManager/ParamItem";
 
 const ContentWrapper = styled.div<ContainerProps>`
     display: flex;

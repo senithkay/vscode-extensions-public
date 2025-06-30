@@ -17,7 +17,7 @@
  */
 
 import styled from "@emotion/styled";
-import { FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { FormCheckBox } from "@wso2/ui-toolkit";
 import { FieldValues, useController, UseControllerProps } from "react-hook-form";
 
 export type Entry = {

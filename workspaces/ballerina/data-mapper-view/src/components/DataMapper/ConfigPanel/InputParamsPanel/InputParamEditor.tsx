@@ -25,7 +25,7 @@ import { camelCase } from "lodash";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 
 import { DataMapperInputParam } from "./types";
-import { Button, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography } from "@wso2/ui-toolkit";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 interface InputParamEditorProps {

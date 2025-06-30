@@ -18,7 +18,7 @@
 
 import React, { forwardRef, useEffect, useState } from "react";
 import { Range } from 'vscode-languageserver-types';
-import { ComponentCard, RequiredFormInput, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, RequiredFormInput, Typography } from "@wso2/ui-toolkit";
 import ParameterManager, { Param } from "../GigaParamManager/ParameterManager";
 import { Element, cardStyle } from "../FormGenerator";
 import { FormTokenEditor } from "../FormTokenEditor";

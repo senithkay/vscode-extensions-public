@@ -19,13 +19,13 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { Divider, Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Divider, Dropdown, Typography } from '@wso2/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../../styles';
-import { LineRange, ParameterModel } from '@wso2-enterprise/ballerina-core';
-import { FormField, FormImports } from '@wso2-enterprise/ballerina-side-panel';
+import { LineRange, ParameterModel } from '@wso2/ballerina-core';
+import { FormField, FormImports } from '@wso2/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
 import { getImportsForProperty } from '../../../../../../utils/bi';
 

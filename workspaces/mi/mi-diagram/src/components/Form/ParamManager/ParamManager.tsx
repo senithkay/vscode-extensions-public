@@ -25,9 +25,9 @@ import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
-import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, LinkButton, Typography } from '@wso2/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
-import { ResourceType } from "@wso2-enterprise/mi-core";
+import { ResourceType } from "@wso2/mi-core";
 import { Range } from 'vscode-languageserver-types';
 import { VSCodeColors } from '../../../resources/constants';
 

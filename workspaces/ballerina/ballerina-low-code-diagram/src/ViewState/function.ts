@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { NodePosition, OnFailClause } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, OnFailClause } from "@wso2/syntax-tree";
 
 import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";
 import { START_SVG_HEIGHT } from "../Components/RenderingComponents/Start/StartSVG";

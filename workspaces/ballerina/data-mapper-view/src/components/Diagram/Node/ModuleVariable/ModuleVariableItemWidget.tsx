@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";

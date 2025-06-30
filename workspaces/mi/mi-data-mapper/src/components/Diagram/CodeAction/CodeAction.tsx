@@ -17,7 +17,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 
 import { CodeActionTooltip } from "./CodeActionTooltip";
 

@@ -18,9 +18,9 @@
  */
 
 import { useEffect, useState } from "react";
-import { FlowNode } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer } from '@wso2-enterprise/ballerina-side-panel';
+import { FlowNode } from '@wso2/ballerina-core';
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { PanelContainer } from '@wso2/ballerina-side-panel';
 import FormGenerator from '../../Forms/FormGenerator';
 
 export interface ConfigFormProps {

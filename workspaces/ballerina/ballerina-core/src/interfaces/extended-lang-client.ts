@@ -21,7 +21,7 @@ import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocument
 import { CMDiagnostics, ComponentModel } from "./component";
 import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Position, Range } from "./common";
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
-import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STNode } from "@wso2/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, PropertyTypeMemberInfo, DIRECTORY_MAP, Imports } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";

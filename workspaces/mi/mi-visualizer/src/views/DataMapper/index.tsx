@@ -18,9 +18,9 @@
 
 import React, { useEffect, useState } from "react";
 
-import { DataMapperView, resetStoresForNewLoad } from "@wso2-enterprise/mi-data-mapper";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { DataMapperView, resetStoresForNewLoad } from "@wso2/mi-data-mapper";
+import { ProgressIndicator } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 
 import { useIOTypes } from "../../Hooks";
 

@@ -19,10 +19,10 @@
 import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
 import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { ConfigurePanelData, LineRange, SubPanel, SubPanelView } from '@wso2-enterprise/ballerina-core';
+import { Button, Codicon } from '@wso2/ui-toolkit';
+import { ConfigurePanelData, LineRange, SubPanel, SubPanelView } from '@wso2/ballerina-core';
 import { LibrariesView } from './LibrariesView';
-import { ExpressionFormField } from '@wso2-enterprise/ballerina-side-panel';
+import { ExpressionFormField } from '@wso2/ballerina-side-panel';
 import { VariablesView } from './VariablesView';
 import { ConfigureView } from './ConfigureView';
 

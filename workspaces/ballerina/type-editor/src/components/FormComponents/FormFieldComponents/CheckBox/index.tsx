@@ -20,7 +20,7 @@ import React, { ReactNode } from "react";
 
 import { useStyles } from "./style";
 import { cx } from "@emotion/css";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 

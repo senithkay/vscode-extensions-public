@@ -20,7 +20,7 @@ import * as React from "react";
 import { useStyles } from "./style";
 import { Switch } from "@headlessui/react";
 import { FormGroup } from "../../../../style";
-import { Button, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Typography } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 export interface FormActionButtonsProps {

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
-import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2/mi-core';
+import { RpcClient } from '@wso2/mi-rpc-client';
+import { Range } from '@wso2/mi-syntax-tree/lib/src';
 import { ExpressionFieldValue, ParamConfig, ParamField, ParamValue } from '.';
 import { generateSpaceSeperatedStringFromParamValues } from '../../utils/commons';
 

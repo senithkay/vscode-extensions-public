@@ -16,9 +16,9 @@
  * under the License.
  */
 import React, { useEffect, useState } from "react";
-import { Button, Dropdown, FormActions, FormGroup, FormView, LocationSelector, OptionProps, TextField, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Button, Dropdown, FormActions, FormGroup, FormView, LocationSelector, OptionProps, TextField, ProgressRing } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";

@@ -18,7 +18,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 import { FormField } from "./types";
 import { useFormContext } from "../../context";
 

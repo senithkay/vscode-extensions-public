@@ -20,7 +20,7 @@ import axios from 'axios';
 import { extension } from '../../BalExtensionContext';
 import { AUTH_CLIENT_ID, AUTH_ORG, AUTH_REDIRECT_URL } from '../../features/ai/utils';
 import { AIStateMachine } from './aiMachine';
-import { AIMachineEventType } from '@wso2-enterprise/ballerina-core';
+import { AIMachineEventType } from '@wso2/ballerina-core';
 
 export interface AccessToken {
     accessToken: string;

@@ -28,7 +28,7 @@ import {
     SqNodeBranch as SNodeBranch,
     SqNodeProperties as NodeProperties,
     SqExpression as Expression,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 

@@ -18,8 +18,8 @@
 import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
-import { LibraryInfo, LibraryKind, LibrarySearchResponse } from '@wso2-enterprise/ballerina-core';
-import { LibraryBrowserRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import { LibraryInfo, LibraryKind, LibrarySearchResponse } from '@wso2/ballerina-core';
+import { LibraryBrowserRpcClient } from '@wso2/ballerina-rpc-client';
 
 import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from '../../../constants';
 

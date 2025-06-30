@@ -21,7 +21,7 @@ import type {
 	ComponentsListActivityViewProps,
 	NewComponentWebviewProps,
 	WebviewProps,
-} from "@wso2-enterprise/wso2-platform-core";
+} from "@wso2/wso2-platform-core";
 import React from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuthContextProvider } from "./providers/auth-ctx-provider";

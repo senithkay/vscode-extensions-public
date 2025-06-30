@@ -23,7 +23,7 @@ import {
     getLibrariesData,
     getLibrariesList,
     getLibraryData
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { LibraryBrowserRpcManager } from "./rpc-manager";
 

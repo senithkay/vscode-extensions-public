@@ -1,6 +1,6 @@
 import React from "react";
 
-import { FunctionDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ResourceAccessorDefinition } from "@wso2/syntax-tree";
 
 import { Provider } from "../Context/diagram";
 import { LowCodeDiagramProperties } from "../Context/types";

@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { ComponentCollapseIcon, ComponentExpandIcon } from '@wso2-enterprise/ballerina-core';
+import { ComponentCollapseIcon, ComponentExpandIcon } from '@wso2/ballerina-core';
 
 import './style.scss';
 

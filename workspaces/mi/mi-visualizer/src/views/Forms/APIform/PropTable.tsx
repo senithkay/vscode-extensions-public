@@ -17,7 +17,7 @@
  */
 
 import styled from "@emotion/styled";
-import { TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Codicon } from "@wso2/ui-toolkit";
 
 const Row = styled.div({
     display: 'grid',

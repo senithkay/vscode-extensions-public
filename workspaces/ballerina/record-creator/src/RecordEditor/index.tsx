@@ -18,10 +18,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { RecordTypeDesc, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { RecordTypeDesc, STNode, TypeDefinition } from "@wso2/syntax-tree";
 
 import { StatementEditorComponentProps } from "../types";
-import { RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { RecordCreatorRpcClient } from "@wso2/ballerina-rpc-client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RecordEditorWrapper } from "./RecordEditorWrapper";
 import { IntlProvider } from "react-intl";

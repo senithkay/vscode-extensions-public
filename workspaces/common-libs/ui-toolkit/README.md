@@ -1,11 +1,11 @@
-# @wso2-enterprise/ui-toolkit
+# @wso2/ui-toolkit
 
 ## Getting Started
 
 ### Developer Guide
 
 - Run `rush install ` to install all the dependencies including this module.
-- To build this module, please run `rush build -o "@wso2-enterprise/ui-toolkit"` from the root directory.
+- To build this module, please run `rush build -o "@wso2/ui-toolkit"` from the root directory.
 
 ### Directory Structure
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { API, Datamapper, NamedSequence, Proxy, Template, Task, InboundEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { API, Datamapper, NamedSequence, Proxy, Template, Task, InboundEndpoint } from "@wso2/mi-syntax-tree/lib/src";
 
 export enum DIAGRAM_KIND {
     API = "api",

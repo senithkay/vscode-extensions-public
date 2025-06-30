@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown } from '@wso2/ui-toolkit';
 import { RequestBody as R, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { useState } from 'react';

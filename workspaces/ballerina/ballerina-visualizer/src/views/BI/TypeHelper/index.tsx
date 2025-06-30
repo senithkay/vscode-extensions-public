@@ -16,20 +16,20 @@
  * under the License.
  */
 
-import { HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { HelperPaneHeight, Overlay, ThemeColors } from "@wso2/ui-toolkit";
 
 import { RefObject, useRef } from 'react';
 
 import { debounce } from 'lodash';
 import { useCallback, useState } from 'react';
-import { LineRange } from '@wso2-enterprise/ballerina-core';
+import { LineRange } from '@wso2/ballerina-core';
 import {
     TypeHelperCategory,
     TypeHelperComponent,
     TypeHelperItem,
     TypeHelperOperator
-} from '@wso2-enterprise/type-editor';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+} from '@wso2/type-editor';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from '../TypeEditor/utils';
 import { TYPE_HELPER_OPERATORS } from '../TypeEditor/constants';
 import { useMutation } from "@tanstack/react-query";

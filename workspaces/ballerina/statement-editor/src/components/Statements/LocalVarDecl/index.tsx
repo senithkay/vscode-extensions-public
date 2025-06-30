@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useContext } from "react";
 
-import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, STKindChecker } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, HTTP_ACTION } from "../../../constants";

@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from 'react'
 
-import { DeleteButton, EditButton, ListenerIcon } from '@wso2-enterprise/ballerina-core';
-import { ListenerDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { DeleteButton, EditButton, ListenerIcon } from '@wso2/ballerina-core';
+import { ListenerDeclaration, STKindChecker, STNode } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from '../../../Context/diagram';

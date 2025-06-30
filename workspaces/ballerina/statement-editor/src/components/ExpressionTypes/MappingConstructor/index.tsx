@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext } from "react";
 
-import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition } from "@wso2/syntax-tree";
 
 import { ArrayType, MAPPING_CONSTRUCTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

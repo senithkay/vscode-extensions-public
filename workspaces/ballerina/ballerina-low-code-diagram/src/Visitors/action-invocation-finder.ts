@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { RemoteMethodCallAction, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { RemoteMethodCallAction, STNode, Visitor } from "@wso2/syntax-tree";
 
 export class ActionInvocationFinder implements Visitor {
     // TODO: use the correct type once the syntax-tree types are updated

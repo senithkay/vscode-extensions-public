@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition } from "@wso2/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { ComponentInfo, HistoryEntry, STModification } from "@wso2-enterprise/ballerina-core";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
+import { ComponentInfo, HistoryEntry, STModification } from "@wso2/ballerina-core";
 
 export interface ModuleComponents {
     moduleVarDecls: ComponentInfo[];

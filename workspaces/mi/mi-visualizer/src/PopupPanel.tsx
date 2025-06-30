@@ -17,8 +17,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import styled from '@emotion/styled';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm/index";

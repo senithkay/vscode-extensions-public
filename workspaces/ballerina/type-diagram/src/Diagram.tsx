@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { NavigationWrapperCanvasWidget, ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { NavigationWrapperCanvasWidget, ProgressRing, ThemeColors } from '@wso2/ui-toolkit';
 import { createEntitiesEngine, entityModeller } from './utils';
 
 import { DiagramContainer, useStyles } from './utils/CanvasStyles';
@@ -29,7 +29,7 @@ import { dagreEngine } from './resources/constants';
 import { DesignDiagramContext } from './components/common';
 import { DiagramControls } from './components/Controls/DiagramControls';
 import { OverlayLayerModel } from './components/OverlayLoader';
-import { Type } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2/ballerina-core';
 import { focusToNode } from './utils/utils';
 import { graphqlModeller } from './utils/model-mapper/entityModelMapper';
 

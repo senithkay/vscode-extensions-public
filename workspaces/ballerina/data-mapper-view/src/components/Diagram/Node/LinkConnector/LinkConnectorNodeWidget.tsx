@@ -19,9 +19,9 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { FunctionCall, NodePosition, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { HistoryEntry, MACHINE_VIEW } from "@wso2/ballerina-core";
+import { FunctionCall, NodePosition, SpecificField, STKindChecker } from "@wso2/syntax-tree";
+import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2/ui-toolkit';
 import classnames from "classnames";
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
@@ -29,7 +29,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import { genArrayElementAccessExpr, getCollectClauseActions, getFieldLabel, getMappedFnNames, hasFieldAccessExpression } from '../../utils/dm-utils';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import { QueryExprMappingType } from '../QueryExpression';
 import { CodeActionWidget } from '../../CodeAction/CodeAction';
 import { AggregationFunctions } from '../../Label';

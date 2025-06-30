@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Typography } from '@wso2/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../../Definitions/ServiceDefinitions';
 import { PathsTreeView } from './PathsTreeView/PathsTreeView';

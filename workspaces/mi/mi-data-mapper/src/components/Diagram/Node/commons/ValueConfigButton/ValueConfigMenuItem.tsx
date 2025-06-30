@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Icon, Item, MenuItem, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Icon, Item, MenuItem, Tooltip } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 
 const useStyles = () => ({

@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ListBindingPattern } from "@wso2-enterprise/syntax-tree";
+import { ListBindingPattern } from "@wso2/syntax-tree";
 
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";

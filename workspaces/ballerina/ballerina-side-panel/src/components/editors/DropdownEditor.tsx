@@ -18,12 +18,12 @@
 
 import React from "react";
 
-import { Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown } from "@wso2/ui-toolkit";
 
 import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
-import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { SubPanel, SubPanelView } from "@wso2/ballerina-core";
 
 interface DropdownEditorProps {
     field: FormField;

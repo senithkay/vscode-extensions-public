@@ -24,8 +24,8 @@ import {
     FileListEntry,
     MACHINE_VIEW,
     VisualizerLocation
-} from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { NodePosition, STNode, traversNode } from "@wso2/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -53,12 +53,12 @@ import { useFileContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
 import { AutoMapError } from "./Error/AutoMapError";
 import { AUTO_MAP_IN_PROGRESS_MSG, AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/constants";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 import { AutoMapErrorComponent, IOErrorComponent, UnsupportedIOErrorComponent } from "./Error/DataMapperError";
 import { SkeletonLoader } from './SkeletonLoader/SkeletonLoader';
 

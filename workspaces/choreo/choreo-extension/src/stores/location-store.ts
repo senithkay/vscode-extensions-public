@@ -17,7 +17,7 @@
  */
 
 import { existsSync } from "fs";
-import type { ContextItemEnriched, ContextStoreComponentState, LocationStoreState } from "@wso2-enterprise/choreo-core";
+import type { ContextItemEnriched, ContextStoreComponentState, LocationStoreState } from "@wso2/choreo-core";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { getGlobalStateStore } from "./store-utils";

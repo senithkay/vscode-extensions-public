@@ -59,7 +59,7 @@ import {
     UnionTypeDesc,
     Visitor,
     WhereClause
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { END_OF_LINE_MINUTIAE } from "../constants";
 import { RemainingContent } from "../models/definitions";

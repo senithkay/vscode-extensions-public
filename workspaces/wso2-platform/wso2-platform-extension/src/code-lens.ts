@@ -17,7 +17,7 @@
  */
 
 import * as path from "path";
-import { CommandIds, type IViewDependencyCmdParams } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type IViewDependencyCmdParams } from "@wso2/wso2-platform-core";
 import * as vscode from "vscode";
 import * as yaml from "yaml";
 import { webviewStateStore } from "./stores/webview-state-store";

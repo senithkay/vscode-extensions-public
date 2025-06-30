@@ -17,7 +17,7 @@
  */
 
 import { useState, useRef, ChangeEvent } from "react";
-import { Attachment, Command } from "@wso2-enterprise/ballerina-core";
+import { Attachment, Command } from "@wso2/ballerina-core";
 
 export interface AttachmentOptions {
     multiple: boolean;

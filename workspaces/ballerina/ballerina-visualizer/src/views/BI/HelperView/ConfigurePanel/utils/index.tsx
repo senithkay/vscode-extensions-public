@@ -23,7 +23,7 @@ import {
     getFormattedModuleName,
     keywords,
     PrimitiveBalType,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     ClientResourceAccessAction,
     CommaToken,
@@ -40,7 +40,7 @@ import {
     STKindChecker,
     STNode,
     StringLiteral,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 const EXPR_PLACEHOLDER = "expr";
 

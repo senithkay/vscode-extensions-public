@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from "@emotion/styled";
-import { Typography, TextField, Button, Codicon, Dropdown, OptionProps } from '@wso2-enterprise/ui-toolkit';
+import { Typography, TextField, Button, Codicon, Dropdown, OptionProps } from '@wso2/ui-toolkit';
 import { SchemaTypes } from '../../constants';
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { css } from '@emotion/react';

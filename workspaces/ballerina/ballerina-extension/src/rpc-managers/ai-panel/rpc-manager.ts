@@ -56,8 +56,8 @@ import {
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse
-} from "@wso2-enterprise/ballerina-core";
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';

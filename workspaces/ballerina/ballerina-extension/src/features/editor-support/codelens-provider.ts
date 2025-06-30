@@ -27,8 +27,8 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { constructDebugConfig } from '../debugger';
-import { ExecutorPosition, ExecutorPositionsResponse, SyntaxTree } from '@wso2-enterprise/ballerina-core';
-import { traversNode } from '@wso2-enterprise/syntax-tree';
+import { ExecutorPosition, ExecutorPositionsResponse, SyntaxTree } from '@wso2/ballerina-core';
+import { traversNode } from '@wso2/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
 
 export enum EXEC_POSITION_TYPE {

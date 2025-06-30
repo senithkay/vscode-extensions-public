@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { NodePosition, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, Visitor } from "@wso2/syntax-tree";
 
 export class STNodeFindingVisitor implements Visitor {
     private position: NodePosition;

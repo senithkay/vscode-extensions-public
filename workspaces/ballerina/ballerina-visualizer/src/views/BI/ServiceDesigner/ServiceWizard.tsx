@@ -17,10 +17,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
-import { Stepper, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
+import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2/ballerina-core';
+import { Stepper, View, ViewContent } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
 import { LoadingContainer, LoadingOverlayContainer } from '../../styles';

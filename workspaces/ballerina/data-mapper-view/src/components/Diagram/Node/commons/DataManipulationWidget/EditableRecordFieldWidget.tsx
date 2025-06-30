@@ -19,13 +19,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, STModification, TypeField } from "@wso2/ballerina-core";
 import {
     MappingConstructor,
     NodePosition,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
@@ -62,7 +62,7 @@ import { OutputSearchHighlight } from "../Search";
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
 
 export interface EditableRecordFieldWidgetProps {

@@ -17,7 +17,7 @@
  */
 import React from "react";
 
-import { LocalVarDecl, STNode } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, STNode } from "@wso2/syntax-tree";
 import cn from "classnames";
 
 import { SimpleBBox, StatementViewState } from "../../../ViewState";

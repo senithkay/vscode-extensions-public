@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type { WebviewProps } from "@wso2-enterprise/wso2-platform-core";
+import type { WebviewProps } from "@wso2/wso2-platform-core";
 import React from "react";
 import { render } from "react-dom";
 import ChoreoWebview from "./ChoreoWebview";

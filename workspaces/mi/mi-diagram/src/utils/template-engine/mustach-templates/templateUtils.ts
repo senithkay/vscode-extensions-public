@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { STNode, Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { STNode, Switch } from "@wso2/mi-syntax-tree/lib/src";
 import { MEDIATORS } from "../../../resources/constants";
 
 export function getNewSubSequenceXml(name: string, st: STNode) {

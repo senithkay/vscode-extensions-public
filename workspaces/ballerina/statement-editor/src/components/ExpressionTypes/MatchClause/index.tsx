@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { MatchClause } from "@wso2-enterprise/syntax-tree";
+import { MatchClause } from "@wso2/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";

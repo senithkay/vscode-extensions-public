@@ -24,7 +24,7 @@ import {
     XMLToRecord,
     XMLToRecordParams,
     TypeDataWithReferences
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import { StateMachine } from "../../stateMachine";
 import path from "path";
 

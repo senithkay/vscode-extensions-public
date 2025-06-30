@@ -17,7 +17,7 @@
  */
 
 import React, { CSSProperties, useState } from "react";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 import { ApiIcon } from "../../resources";
 import { getAIColor, ThemeListener } from "../NodeIcon";
 

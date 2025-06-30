@@ -18,12 +18,12 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { getFormProperties } from "../../../../utils/bi";
-import { ExpressionFormField, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionFormField, PanelContainer } from "@wso2/ballerina-side-panel";
+import { ProgressRing, ThemeColors } from "@wso2/ui-toolkit";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 

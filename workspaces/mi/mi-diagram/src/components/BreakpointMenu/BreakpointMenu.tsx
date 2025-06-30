@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
-import { MenuItem } from "@wso2-enterprise/ui-toolkit";
+import { RpcClient } from "@wso2/mi-rpc-client";
+import { MenuItem } from "@wso2/ui-toolkit";
 import React from "react";
 import { BaseNodeModel } from "../nodes/BaseNodeModel";
 

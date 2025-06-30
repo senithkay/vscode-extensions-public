@@ -39,7 +39,7 @@ import {
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
 import { BACKEND_URL } from '../ai/utils';
-import { AIMachineEventType, BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { AIMachineEventType, BallerinaProject } from '@wso2/ballerina-core';
 import { getCurrentBallerinaProjectFromContext } from '../config-generator/configGenerator';
 import { BallerinaExtension } from 'src/core';
 import { getRefreshedAccessToken } from '../../../src/utils/ai/auth';

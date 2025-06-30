@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { InferParamList } from "@wso2-enterprise/syntax-tree";
+import { InferParamList } from "@wso2/syntax-tree";
 
 import { DEFAULT_IDENTIFIER } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";

@@ -83,7 +83,7 @@ importers:
       '@vscode/vsce':
         specifier: ^2.21.0
         version: 2.32.0
-      '@wso2-enterprise/api-chat-vscode-webviews':
+      '@wso2/api-chat-vscode-webviews':
         specifier: workspace:*
         version: link:../webviews
       copyfiles:
@@ -125,7 +125,7 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.2
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       classnames:
@@ -234,7 +234,7 @@ importers:
       '@types/ws':
         specifier: ^8.2.1
         version: 8.18.1
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
       handlebars:
@@ -307,19 +307,19 @@ importers:
       '@vscode/vsce':
         specifier: ^2.22.0
         version: 2.32.0
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-visualizer':
+      '@wso2/ballerina-visualizer':
         specifier: workspace:*
         version: link:../ballerina-visualizer
-      '@wso2-enterprise/font-wso2-vscode':
+      '@wso2/font-wso2-vscode':
         specifier: workspace:*
         version: link:../../common-libs/font-wso2-vscode
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/wso2-platform-core':
+      '@wso2/wso2-platform-core':
         specifier: workspace:*
         version: link:../../wso2-platform/wso2-platform-core
       cors-anywhere:
@@ -506,10 +506,10 @@ importers:
       '@date-io/date-fns':
         specifier: ^3.2.1
         version: 3.2.1(date-fns@4.1.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
       classnames:
@@ -750,10 +750,10 @@ importers:
       '@types/vscode-webview':
         specifier: ^1.57.3
         version: 1.57.5
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
       monaco-editor:
@@ -811,13 +811,13 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@types/react@18.2.0)(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       lodash:
@@ -884,61 +884,61 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-graphql-design-diagram':
+      '@wso2/ballerina-graphql-design-diagram':
         specifier: workspace:*
         version: link:../graphql-design-diagram
-      '@wso2-enterprise/ballerina-inline-data-mapper':
+      '@wso2/ballerina-inline-data-mapper':
         specifier: workspace:*
         version: link:../inline-data-mapper
-      '@wso2-enterprise/ballerina-low-code-diagram':
+      '@wso2/ballerina-low-code-diagram':
         specifier: workspace:*
         version: link:../ballerina-low-code-diagram
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ballerina-side-panel':
+      '@wso2/ballerina-side-panel':
         specifier: workspace:*
         version: link:../ballerina-side-panel
-      '@wso2-enterprise/ballerina-statement-editor':
+      '@wso2/ballerina-statement-editor':
         specifier: workspace:*
         version: link:../statement-editor
-      '@wso2-enterprise/bi-diagram':
+      '@wso2/bi-diagram':
         specifier: workspace:*
         version: link:../bi-diagram
-      '@wso2-enterprise/component-diagram':
+      '@wso2/component-diagram':
         specifier: workspace:*
         version: link:../../common-libs/component-diagram
-      '@wso2-enterprise/data-mapper-view':
+      '@wso2/data-mapper-view':
         specifier: workspace:*
         version: link:../data-mapper-view
-      '@wso2-enterprise/overview-view':
+      '@wso2/overview-view':
         specifier: workspace:*
         version: link:../overview-view
-      '@wso2-enterprise/persist-layer-diagram':
+      '@wso2/persist-layer-diagram':
         specifier: workspace:*
         version: link:../persist-layer-diagram
-      '@wso2-enterprise/record-creator':
+      '@wso2/record-creator':
         specifier: workspace:*
         version: link:../record-creator
-      '@wso2-enterprise/sequence-diagram':
+      '@wso2/sequence-diagram':
         specifier: workspace:*
         version: link:../sequence-diagram
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/type-diagram':
+      '@wso2/type-diagram':
         specifier: workspace:*
         version: link:../type-diagram
-      '@wso2-enterprise/type-editor':
+      '@wso2/type-editor':
         specifier: workspace:*
         version: link:../type-editor
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
-      '@wso2-enterprise/wso2-platform-core':
+      '@wso2/wso2-platform-core':
         specifier: workspace:*
         version: link:../../wso2-platform/wso2-platform-core
       highlight.js:
@@ -1080,13 +1080,13 @@ importers:
       '@projectstorm/react-diagrams-routing':
         specifier: ^7.1.3
         version: 7.1.3(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@types/react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       dagre:
@@ -1150,13 +1150,13 @@ importers:
       '@projectstorm/react-diagrams-routing':
         specifier: ^7.1.3
         version: 7.1.3(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@types/react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/bi-diagram':
+      '@wso2/bi-diagram':
         specifier: workspace:*
         version: link:../bi-diagram
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       dagre:
@@ -1226,22 +1226,22 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ballerina-statement-editor':
+      '@wso2/ballerina-statement-editor':
         specifier: workspace:*
         version: link:../statement-editor
-      '@wso2-enterprise/record-creator':
+      '@wso2/record-creator':
         specifier: workspace:*
         version: link:../record-creator
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       blueimp-md5:
@@ -1585,13 +1585,13 @@ importers:
       '@projectstorm/react-diagrams-core':
         specifier: ^6.7.4
         version: 6.7.4(lodash@4.17.21)(react@18.2.0)(resize-observer-polyfill@1.5.1)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       copyfiles:
@@ -1676,16 +1676,16 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       blueimp-md5:
@@ -1791,13 +1791,13 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       react:
@@ -1913,10 +1913,10 @@ importers:
       '@types/react-dom':
         specifier: 18.2.0
         version: 18.2.0
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       babel-loader:
@@ -1973,19 +1973,19 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ~1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ballerina-statement-editor':
+      '@wso2/ballerina-statement-editor':
         specifier: workspace:*
         version: link:../statement-editor
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       lodash.debounce:
@@ -2058,13 +2058,13 @@ importers:
       '@projectstorm/react-diagrams-routing':
         specifier: ^7.1.3
         version: 7.1.3(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@types/react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       dagre:
@@ -2137,16 +2137,16 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@19.1.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       classnames:
@@ -2331,10 +2331,10 @@ importers:
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       babel-loader:
@@ -2385,19 +2385,19 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ~1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client':
+      '@wso2/ballerina-rpc-client':
         specifier: workspace:*
         version: link:../ballerina-rpc-client
-      '@wso2-enterprise/ballerina-statement-editor':
+      '@wso2/ballerina-statement-editor':
         specifier: workspace:*
         version: link:../statement-editor
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       lodash:
@@ -2455,10 +2455,10 @@ importers:
 
   workspaces/bi/bi-extension:
     dependencies:
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../../ballerina/ballerina-core
-      '@wso2-enterprise/font-wso2-vscode':
+      '@wso2/font-wso2-vscode':
         specifier: workspace:*
         version: link:../../common-libs/font-wso2-vscode
       xstate:
@@ -2489,7 +2489,7 @@ importers:
       '@vscode/vsce':
         specifier: ^3.4.0
         version: 3.4.2
-      '@wso2-enterprise/playwright-vscode-tester':
+      '@wso2/playwright-vscode-tester':
         specifier: workspace:*
         version: link:../../common-libs/playwright-vscode-tester
       copy-webpack-plugin:
@@ -2683,10 +2683,10 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@19.1.0)
-      '@wso2-enterprise/choreo-core':
+      '@wso2/choreo-core':
         specifier: workspace:*
         version: link:../choreo-core
-      '@wso2-enterprise/choreo-vscode-webviews':
+      '@wso2/choreo-vscode-webviews':
         specifier: workspace:*
         version: link:../choreo-webviews
       byline:
@@ -2750,7 +2750,7 @@ importers:
       '@vscode/vsce':
         specifier: ^3.4.2
         version: 3.4.2
-      '@wso2-enterprise/playwright-vscode-tester':
+      '@wso2/playwright-vscode-tester':
         specifier: workspace:*
         version: link:../../common-libs/playwright-vscode-tester
       axios:
@@ -2813,10 +2813,10 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/choreo-core':
+      '@wso2/choreo-core':
         specifier: workspace:*
         version: link:../choreo-core
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       classnames:
@@ -2967,10 +2967,10 @@ importers:
       '@projectstorm/react-diagrams-routing':
         specifier: ^7.1.3
         version: 7.1.3(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@types/react@18.2.0)
-      '@wso2-enterprise/ballerina-core':
+      '@wso2/ballerina-core':
         specifier: workspace:*
         version: link:../../ballerina/ballerina-core
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../ui-toolkit
       dagre:
@@ -3102,13 +3102,13 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/font-wso2-vscode':
+      '@wso2/font-wso2-vscode':
         specifier: workspace:*
         version: link:../font-wso2-vscode
-      '@wso2-enterprise/syntax-tree':
+      '@wso2/syntax-tree':
         specifier: workspace:*
         version: link:../../ballerina/syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../ui-toolkit
       react:
@@ -3202,7 +3202,7 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ~1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/font-wso2-vscode':
+      '@wso2/font-wso2-vscode':
         specifier: workspace:*
         version: link:../font-wso2-vscode
       classnames:
@@ -3320,7 +3320,7 @@ importers:
       '@projectstorm/react-diagrams-routing':
         specifier: ^6.7.4
         version: 6.7.4(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.2.0)(react@18.2.0))(@types/react@18.2.0)(react@18.2.0))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@18.2.0)(resize-observer-polyfill@1.5.1)
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       dagre:
@@ -3363,7 +3363,7 @@ importers:
       '@types/vscode-webview':
         specifier: ^1.57.5
         version: 1.57.5
-      '@wso2-enterprise/mi-syntax-tree':
+      '@wso2/mi-syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
       vscode-languageserver-types:
@@ -3427,13 +3427,13 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/mi-core':
+      '@wso2/mi-core':
         specifier: workspace:*
         version: link:../mi-core
-      '@wso2-enterprise/mi-rpc-client':
+      '@wso2/mi-rpc-client':
         specifier: workspace:*
         version: link:../mi-rpc-client
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       ajv:
@@ -3586,16 +3586,16 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ~1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/mi-core':
+      '@wso2/mi-core':
         specifier: workspace:*
         version: link:../mi-core
-      '@wso2-enterprise/mi-rpc-client':
+      '@wso2/mi-rpc-client':
         specifier: workspace:*
         version: link:../mi-rpc-client
-      '@wso2-enterprise/mi-syntax-tree':
+      '@wso2/mi-syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
       copyfiles:
@@ -3791,22 +3791,22 @@ importers:
       '@vscode/vsce':
         specifier: ~3.4.2
         version: 3.4.2
-      '@wso2-enterprise/font-wso2-vscode':
+      '@wso2/font-wso2-vscode':
         specifier: workspace:*
         version: link:../../common-libs/font-wso2-vscode
-      '@wso2-enterprise/mi-core':
+      '@wso2/mi-core':
         specifier: workspace:*
         version: link:../mi-core
-      '@wso2-enterprise/mi-diagram':
+      '@wso2/mi-diagram':
         specifier: workspace:*
         version: link:../mi-diagram
-      '@wso2-enterprise/mi-rpc-client':
+      '@wso2/mi-rpc-client':
         specifier: workspace:*
         version: link:../mi-rpc-client
-      '@wso2-enterprise/mi-syntax-tree':
+      '@wso2/mi-syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/playwright-vscode-tester':
+      '@wso2/playwright-vscode-tester':
         specifier: workspace:*
         version: link:../../common-libs/playwright-vscode-tester
       adm-zip:
@@ -3924,13 +3924,13 @@ importers:
       '@vscode/test-electron':
         specifier: ^2.5.2
         version: 2.5.2
-      '@wso2-enterprise/mi-data-mapper-utils':
+      '@wso2/mi-data-mapper-utils':
         specifier: workspace:*
         version: link:../mi-data-mapper-utils
-      '@wso2-enterprise/mi-visualizer':
+      '@wso2/mi-visualizer':
         specifier: workspace:*
         version: link:../mi-visualizer
-      '@wso2-enterprise/wso2-platform-core':
+      '@wso2/wso2-platform-core':
         specifier: workspace:*
         version: link:../../wso2-platform/wso2-platform-core
       await-notify:
@@ -3975,10 +3975,10 @@ importers:
       '@types/vscode-webview':
         specifier: ^1.57.5
         version: 1.57.5
-      '@wso2-enterprise/mi-core':
+      '@wso2/mi-core':
         specifier: workspace:*
         version: link:../mi-core
-      '@wso2-enterprise/mi-syntax-tree':
+      '@wso2/mi-syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
       react:
@@ -4072,31 +4072,31 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/mi-component-diagram':
+      '@wso2/mi-component-diagram':
         specifier: workspace:*
         version: link:../mi-component-diagram
-      '@wso2-enterprise/mi-core':
+      '@wso2/mi-core':
         specifier: workspace:*
         version: link:../mi-core
-      '@wso2-enterprise/mi-data-mapper':
+      '@wso2/mi-data-mapper':
         specifier: workspace:*
         version: link:../mi-data-mapper
-      '@wso2-enterprise/mi-diagram':
+      '@wso2/mi-diagram':
         specifier: workspace:*
         version: link:../mi-diagram
-      '@wso2-enterprise/mi-rpc-client':
+      '@wso2/mi-rpc-client':
         specifier: workspace:*
         version: link:../mi-rpc-client
-      '@wso2-enterprise/mi-syntax-tree':
+      '@wso2/mi-syntax-tree':
         specifier: workspace:*
         version: link:../syntax-tree
-      '@wso2-enterprise/service-designer':
+      '@wso2/service-designer':
         specifier: workspace:*
         version: link:../../common-libs/service-designer
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
-      '@wso2-enterprise/wso2-platform-core':
+      '@wso2/wso2-platform-core':
         specifier: workspace:*
         version: link:../../wso2-platform/wso2-platform-core
       cron-expression-validator:
@@ -4318,10 +4318,10 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.4.0
         version: 1.4.0(react@19.1.0)
-      '@wso2-enterprise/wso2-platform-core':
+      '@wso2/wso2-platform-core':
         specifier: workspace:*
         version: link:../wso2-platform-core
-      '@wso2-enterprise/wso2-platform-vscode-webviews':
+      '@wso2/wso2-platform-vscode-webviews':
         specifier: workspace:*
         version: link:../wso2-platform-webviews
       byline:
@@ -4385,7 +4385,7 @@ importers:
       '@vscode/vsce':
         specifier: ^3.4.2
         version: 3.4.2
-      '@wso2-enterprise/playwright-vscode-tester':
+      '@wso2/playwright-vscode-tester':
         specifier: workspace:*
         version: link:../../common-libs/playwright-vscode-tester
       axios:
@@ -4448,10 +4448,10 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.4.0
         version: 1.4.0(react@18.2.0)
-      '@wso2-enterprise/ui-toolkit':
+      '@wso2/ui-toolkit':
         specifier: workspace:*
         version: link:../../common-libs/ui-toolkit
-      '@wso2-enterprise/wso2-platform-core':
+      '@wso2/wso2-platform-core':
         specifier: workspace:*
         version: link:../wso2-platform-core
       classnames:

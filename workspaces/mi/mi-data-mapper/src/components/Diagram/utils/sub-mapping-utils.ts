@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2/mi-core";
 import { Expression, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration, ts } from "ts-morph";
 
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";

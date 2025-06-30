@@ -29,7 +29,7 @@ import {
 import { isWindows } from '../../utils';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
-import { NoteBookCellOutput, NotebookCellMetaInfo } from '@wso2-enterprise/ballerina-core';
+import { NoteBookCellOutput, NotebookCellMetaInfo } from '@wso2/ballerina-core';
 
 const definedVariables = new Set();
 

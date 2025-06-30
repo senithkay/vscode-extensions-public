@@ -22,7 +22,7 @@ import {
     STKindChecker,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 export class InputNodeFindingVisitor implements Visitor {
     private inputNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[];

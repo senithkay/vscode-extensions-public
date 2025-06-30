@@ -15,18 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { LinePosition } from "@wso2-enterprise/ballerina-core";
+import { LinePosition } from "@wso2/ballerina-core";
 import {
     NodePosition,
     STNode,
     traversNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { URI } from "vscode-uri";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { getFnDefsForFnCalls } from "../../../utils/st-utils";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
 
 export interface FnDefInfo {
     fnCallPosition: LinePosition;

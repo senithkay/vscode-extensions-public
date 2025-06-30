@@ -17,13 +17,13 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
-import { Item } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Resource, Service, ServiceDesigner } from "@wso2/service-designer";
+import { Item } from "@wso2/ui-toolkit";
 import { View, ViewHeader, ViewContent } from "../../../components/View";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon, Switch } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Switch } from "@wso2/ui-toolkit";
 import { generateResourceData, onOperationEdit, onResourceCreate, onOperationCreate, onResourceEdit, generateOperationData } from "../../../utils/DSSResourceForm";
 import { ResourceForm, ResourceFormData } from "../../Forms/DataServiceForm/SidePanelForms/ResourceForm";
 import { OperationForm, OperationFormData } from "./SidePanelForms/OperationForm";

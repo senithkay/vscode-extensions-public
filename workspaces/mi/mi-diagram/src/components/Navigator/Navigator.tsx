@@ -18,18 +18,18 @@
 
 import React, { useEffect, useState } from "react";
 import { AllNodeModel } from "../../utils/diagram";
-import { Codicon, ProgressRing, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ProgressRing, TextField } from "@wso2/ui-toolkit";
 import { StartNodeModel } from "../nodes/StartNode/StartNodeModel";
 import { EmptyNodeModel } from "../nodes/EmptyNode/EmptyNodeModel";
 import { EndNodeModel } from "../nodes/EndNode/EndNodeModel";
 import { getNodeDescription } from "../../utils/node";
-import { Connector, STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Connector, STNode, Tool } from "@wso2/mi-syntax-tree/lib/src";
 import { ConditionNodeModel } from "../nodes/ConditionNode/ConditionNodeModel";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../nodes/MediatorNode/MediatorNodeModel";
 import { debounce } from "lodash";
 import { getMediatorIconsFromFont } from "../../resources/icons/mediatorIcons/icons";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import { FirstCharToUpperCase } from "../../utils/commons";
 import { TreeView } from "../TreeView/TreeView";

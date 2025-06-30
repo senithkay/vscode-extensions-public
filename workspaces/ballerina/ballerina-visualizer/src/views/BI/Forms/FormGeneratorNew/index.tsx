@@ -32,7 +32,7 @@ import {
     RecordTypeField,
     FormDiagnostics,
     Imports
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     FormField,
     FormValues,
@@ -41,9 +41,9 @@ import {
     FormExpressionEditorProps,
     PanelContainer,
     FormImports
-} from "@wso2-enterprise/ballerina-side-panel";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ballerina-side-panel";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, ThemeColors } from "@wso2/ui-toolkit";
 
 import {
     convertBalCompletion,

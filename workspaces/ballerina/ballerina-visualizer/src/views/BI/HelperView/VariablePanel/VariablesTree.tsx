@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { TypeWithIdentifier } from "@wso2-enterprise/ballerina-core";
+import { TypeWithIdentifier } from "@wso2/ballerina-core";
 import { PrimitiveType } from "./PrimitiveType";
 import { RecordTypeTree } from "./RecordType";
 

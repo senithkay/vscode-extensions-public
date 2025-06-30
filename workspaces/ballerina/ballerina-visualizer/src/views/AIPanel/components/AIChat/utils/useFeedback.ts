@@ -17,8 +17,8 @@
  */
 
 import { useCallback, useState } from 'react';
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { DiagnosticEntry } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { DiagnosticEntry } from "@wso2/ballerina-core";
 import { getConvoHistoryForFeedback } from "../utils/feedback";
 
 interface UseFeedbackOptions {

@@ -23,8 +23,8 @@ import { debounce } from 'lodash';
 
 import { css } from '@emotion/css';
 import { useMutation } from '@tanstack/react-query';
-import { HeaderExpressionEditor, CompletionItem, HeaderExpressionEditorRef, InputProps, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { HeaderExpressionEditor, CompletionItem, HeaderExpressionEditorRef, InputProps, Button, Codicon } from '@wso2/ui-toolkit';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { filterCompletions, getInnermostPropAsmtNode, shouldCompletionsAppear } from './utils';

@@ -18,7 +18,7 @@
 import * as React from "react";
 
 import { useStyles } from "./style";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2/ui-toolkit";
 import { ISSUES_URL } from "../../../../components/Diagram/utils/constants";
 
 interface ErrorScreenProps {

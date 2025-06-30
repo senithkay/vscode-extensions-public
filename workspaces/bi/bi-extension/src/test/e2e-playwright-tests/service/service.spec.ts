@@ -17,7 +17,7 @@
  */
 import { test } from '@playwright/test';
 import { addArtifact, initTest, page } from '../utils';
-import { Form, switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
+import { Form, switchToIFrame } from '@wso2/playwright-vscode-tester';
 import { ProjectExplorer } from '../ProjectExplorer';
 
 export default function createTests() {

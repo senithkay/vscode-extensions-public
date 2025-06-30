@@ -17,9 +17,9 @@
  */
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
-import { Button } from '@wso2-enterprise/ui-toolkit';
+import { Member, Type } from '@wso2/ballerina-core';
+import { Codicon } from '@wso2/ui-toolkit';
+import { Button } from '@wso2/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
 

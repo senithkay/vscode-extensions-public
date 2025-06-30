@@ -20,7 +20,7 @@ import {
     SelectClause,
     STKindChecker,
     Visitor,
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 export class QueryExprFindingVisitorByIndex implements Visitor {
     private queryExpression: QueryExpression;

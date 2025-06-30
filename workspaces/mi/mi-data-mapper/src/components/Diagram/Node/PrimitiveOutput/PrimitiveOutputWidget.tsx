@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, Codicon, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TruncatedLabel } from '@wso2/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Node } from "ts-morph";
 

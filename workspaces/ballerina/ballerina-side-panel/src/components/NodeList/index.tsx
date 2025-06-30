@@ -27,13 +27,13 @@ import {
     TextArea,
     ThemeColors,
     Tooltip,
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon, LogIcon } from "../../resources";
 import { Category, Item, Node } from "./types";
 import { cloneDeep, debounce } from "lodash";
 import GroupList from "../GroupList";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 
 namespace S {
     export const Container = styled.div<{}>`

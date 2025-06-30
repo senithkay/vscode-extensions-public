@@ -17,12 +17,12 @@
  */
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
-import { APIResource, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Diagram } from "@wso2-enterprise/mi-diagram";
-import { Switch } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { APIResource, Range } from "@wso2/mi-syntax-tree/lib/src";
+import { Diagram } from "@wso2/mi-diagram";
+import { Switch } from "@wso2/ui-toolkit";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { getColorByMethod } from "@wso2-enterprise/service-designer";
+import { getColorByMethod } from "@wso2/service-designer";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
 import styled from "@emotion/styled";

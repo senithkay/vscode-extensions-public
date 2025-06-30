@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Member, Type, TypeFunctionModel, TypeNodeKind } from '@wso2-enterprise/ballerina-core';
+import { Member, Type, TypeFunctionModel, TypeNodeKind } from '@wso2/ballerina-core';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode } from "@wso2/mi-syntax-tree/src";
 import { MEDIATORS, NODE_GAP } from "../resources/constants";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {

@@ -21,17 +21,17 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
-import { STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { STNode, Tool } from "@wso2/mi-syntax-tree/src";
+import { Menu, MenuItem, Popover, Tooltip } from "@wso2/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Connector } from "@wso2/mi-syntax-tree/lib/src";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import path from "path";
-import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2/mi-core";
 
 namespace S {
     export type NodeStyleProp = {

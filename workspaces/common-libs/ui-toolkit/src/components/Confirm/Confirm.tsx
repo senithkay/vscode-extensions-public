@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from "react";
-import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
+import "@wso2/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
 import { createPortal } from "react-dom";

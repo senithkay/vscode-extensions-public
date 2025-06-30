@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { APIResource, Range, NamedSequence, Proxy, TagRange } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { APIResource, Range, NamedSequence, Proxy, TagRange } from "@wso2/mi-syntax-tree/lib/src";
+import { RpcClient } from "@wso2/mi-rpc-client";
 import { EditSequenceFields } from "../views/Forms/EditForms/EditSequenceForm";
 import { ARTIFACT_TEMPLATES } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";

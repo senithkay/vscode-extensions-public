@@ -20,7 +20,7 @@ import React, { CSSProperties, ReactNode, useCallback, useMemo, useState } from 
 import { Range } from 'vscode-languageserver-types';
 
 import styled from "@emotion/styled";
-import { ErrorBanner, RequiredFormInput, TokenEditor, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, RequiredFormInput, TokenEditor, Typography } from "@wso2/ui-toolkit";
 
 import { getHelperPane } from "../HelperPane";
 

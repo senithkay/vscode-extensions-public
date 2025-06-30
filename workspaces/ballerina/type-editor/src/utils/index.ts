@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2/syntax-tree";
 import {
     DIAGNOSTIC_SEVERITY,
     JsonToRecord,
@@ -24,11 +24,11 @@ import {
     STModification,
     XMLToRecord,
     getComponentSource,
-} from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient, RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+} from "@wso2/ballerina-core";
+import { LangClientRpcClient, RecordCreatorRpcClient } from "@wso2/ballerina-rpc-client";
 import { RecordItemModel } from "../types";
 import { RefObject } from "react";
-import { ARROW_HEIGHT, ARROW_OFFSET, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH, Position } from "@wso2-enterprise/ui-toolkit";
+import { ARROW_HEIGHT, ARROW_OFFSET, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH, Position } from "@wso2/ui-toolkit";
 
 export const isNotSupportedType = (resp: JsonToRecord | NOT_SUPPORTED_TYPE): resp is NOT_SUPPORTED_TYPE => {
     return  !("diagnostics" in resp);

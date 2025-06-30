@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Query, ResultAttribute, ResultElement } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Query, ResultAttribute, ResultElement } from "@wso2/mi-syntax-tree/src";
 
 export function getDSInputMappingsFromSTNode(node: Query) {
     const data: any = {};

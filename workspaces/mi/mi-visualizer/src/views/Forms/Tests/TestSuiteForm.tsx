@@ -18,19 +18,19 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, ResourceType, RegistryArtifact } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, ResourceType, RegistryArtifact } from "@wso2/mi-core";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2/ui-toolkit";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { TestCaseEntry, TestCaseForm, TestSuiteType } from "./TestCaseForm";
-import { UnitTest, TestCase, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { UnitTest, TestCase, STNode } from "@wso2/mi-syntax-tree/lib/src";
 import path from "path";
 import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 import { SelectMockService } from "./MockServices/SelectMockService";
 import { MI_UNIT_TEST_GENERATION_BACKEND_URL } from "../../../constants";
-import { getParamManagerFromValues, getParamManagerValues, ParamConfig, ParamField, ParamManager, ParamValue } from "@wso2-enterprise/mi-diagram";
+import { getParamManagerFromValues, getParamManagerValues, ParamConfig, ParamField, ParamManager, ParamValue } from "@wso2/mi-diagram";
 import { normalize } from "upath";
 
 interface TestSuiteFormProps {

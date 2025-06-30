@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { NodeList, Category as PanelCategory, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { NodeList, Category as PanelCategory, FormField, FormValues } from "@wso2/ballerina-side-panel";
 import {
     BIAvailableNodesRequest,
     Category,
@@ -31,7 +31,7 @@ import {
     BISearchRequest,
     CodeData,
     AgentToolRequest,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
 import {
     convertBICategoriesToSidePanelCategories,

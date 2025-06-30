@@ -18,12 +18,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { CodeData, FlowNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { CodeData, FlowNode, NodeProperties } from "@wso2/ballerina-core";
+import { FormField, FormValues } from "@wso2/ballerina-side-panel";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { convertConfig } from "../../../utils/bi";
 import ConfigForm from "./ConfigForm";
-import { Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown } from "@wso2/ui-toolkit";
 import { cloneDeep } from "lodash";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 import { getAgentFilePath } from "./utils";

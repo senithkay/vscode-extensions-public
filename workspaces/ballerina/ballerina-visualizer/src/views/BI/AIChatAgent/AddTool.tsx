@@ -18,9 +18,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { FlowNode } from "@wso2-enterprise/ballerina-core";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { FlowNode } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { Button, Codicon, ThemeColors } from "@wso2/ui-toolkit";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 import { addToolToAgentNode, findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 

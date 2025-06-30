@@ -18,9 +18,9 @@
 import React from "react";
 
 import { useDMIOConfigPanelStore } from "../../../../store/store";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 import { Label } from "../../OverriddenLinkLayer/LabelWidget";
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType } from "@wso2/mi-core";
 import styled from "@emotion/styled";
 import { IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
 import { useShallow } from "zustand/react/shallow";

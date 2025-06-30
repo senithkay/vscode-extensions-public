@@ -20,7 +20,7 @@ import React, { FormEvent, useContext, useEffect, useState } from "react";
 
 import styled from '@emotion/styled';
 import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
-import { Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown } from "@wso2/ui-toolkit";
 
 import {
     ALL_LIBS_IDENTIFIER,

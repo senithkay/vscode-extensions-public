@@ -17,7 +17,7 @@
  */
 import React, { useContext } from "react";
 
-import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { useFunctionContext } from "../../../Context/Function";

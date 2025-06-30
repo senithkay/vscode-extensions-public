@@ -41,7 +41,7 @@ import {
     STModification,
     STSymbolInfo,
     SymbolDocumentation,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 import {
     Minutiae, ModuleVarDecl,
     NodePosition,
@@ -52,7 +52,7 @@ import {
     STNode,
     traversNode,
     TypeReference
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';

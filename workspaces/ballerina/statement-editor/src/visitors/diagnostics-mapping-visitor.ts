@@ -20,7 +20,7 @@ import {
     NodePosition,
     STNode,
     Visitor
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtOffset } from "../models/definitions";

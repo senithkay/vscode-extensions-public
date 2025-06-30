@@ -17,13 +17,13 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Codicon, FormActions, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, FormActions, LinkButton, Typography } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import FormGenerator from '../FormGenerator';
 import { useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Colors } from '../../../resources/constants';
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Range } from "@wso2/mi-syntax-tree/lib/src";
 
 const Container = styled.div`
     margin-top: 10px;

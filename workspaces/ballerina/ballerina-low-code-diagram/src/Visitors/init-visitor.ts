@@ -32,7 +32,7 @@ import {
     TypeCastExpression, TypeDefinition,
     Visitor,
     WhileStatement
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { Endpoint } from "../Types/type";
 import {

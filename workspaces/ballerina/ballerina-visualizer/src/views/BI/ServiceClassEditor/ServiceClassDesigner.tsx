@@ -16,20 +16,20 @@
  * under the License.
  */
 
-import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { Codicon, Typography, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton, View } from "@wso2-enterprise/ui-toolkit";
+import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE, MACHINE_VIEW } from "@wso2/ballerina-core";
+import { Codicon, Typography, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton, View } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { LoadingContainer } from "../../styles";
 import { FunctionCard } from "./FunctionCard";
 import { VariableCard } from "./VariableCard";
 import { OperationForm } from "../../GraphQLDiagram/OperationForm";
 import { VariableForm } from "./VariableForm";
 import { URI, Utils } from "vscode-uri";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer } from "@wso2/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2/ui-toolkit";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";

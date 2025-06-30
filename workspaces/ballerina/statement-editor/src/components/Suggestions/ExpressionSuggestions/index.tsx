@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { KeyboardNavigationManager } from "@wso2/ballerina-core";
+import { STKindChecker } from "@wso2/syntax-tree";
+import { SearchBox, Typography } from "@wso2/ui-toolkit";
 
 import {
     CALL_CONFIG_TYPE,

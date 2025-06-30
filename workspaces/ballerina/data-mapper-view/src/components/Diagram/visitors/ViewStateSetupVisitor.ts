@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ListConstructor, STKindChecker, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ListConstructor, STKindChecker, Visitor } from "@wso2/syntax-tree";
 
 import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 

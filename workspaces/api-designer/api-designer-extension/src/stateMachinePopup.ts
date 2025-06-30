@@ -19,7 +19,7 @@
 
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted, EVENT_TYPE } from '@wso2-enterprise/api-designer-core';
+import { PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted, EVENT_TYPE } from '@wso2/api-designer-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { StateMachine } from './stateMachine';

@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useState } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { NodePosition } from "@wso2/syntax-tree";
 import {
     EVENT_TYPE,
     LineRange,
@@ -28,8 +28,8 @@ import {
     DIRECTORY_MAP,
     ProjectStructureArtifactResponse,
     PropertyModel,
-} from "@wso2-enterprise/ballerina-core";
-import { Codicon, Icon, LinkButton, Typography, View } from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ballerina-core";
+import { Codicon, Icon, LinkButton, Typography, View } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";

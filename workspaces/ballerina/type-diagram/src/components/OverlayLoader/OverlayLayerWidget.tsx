@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, ThemeColors } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 
 import { OverlayLayerModel } from './OverlayLayerModel';

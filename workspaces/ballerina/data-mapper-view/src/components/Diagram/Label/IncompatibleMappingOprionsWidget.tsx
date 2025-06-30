@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Item, Menu, MenuItem } from '@wso2/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { RecordFieldPortModel, ValueType } from '../Port';

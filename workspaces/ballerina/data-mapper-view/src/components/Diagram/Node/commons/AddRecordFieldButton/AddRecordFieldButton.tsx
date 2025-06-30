@@ -17,7 +17,7 @@
  */
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Codicon, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, Tooltip } from "@wso2/ui-toolkit";
 
 import { getBalRecFieldName } from "../../../utils/dm-utils";
 import { useStyles } from "./styles";

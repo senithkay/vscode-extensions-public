@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TypeField } from "@wso2/ballerina-core";
+import { Codicon } from "@wso2/ui-toolkit";
 
 
 export function getTypeName(typeField: TypeField): string {

@@ -19,7 +19,7 @@
 import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2/ui-toolkit';
 import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -34,7 +34,7 @@ import {
 	useDMSubMappingConfigPanelStore
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
-import { DMType, IOType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMType, IOType, TypeKind } from '@wso2/mi-core';
 import FieldActionWrapper from '../commons/FieldActionWrapper';
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
 import { modifyChildFieldsOptionality } from '../../utils/modification-utils';

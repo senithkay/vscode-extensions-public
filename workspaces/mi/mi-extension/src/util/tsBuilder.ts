@@ -25,7 +25,7 @@ import * as ts from "typescript";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../constants";
 import { DMProject } from '../datamapper/DMProject';
 import { refreshUI } from '../stateMachine';
-import { IOType } from '@wso2-enterprise/mi-core';
+import { IOType } from '@wso2/mi-core';
 
 export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true, usedNames?: Set<string>): Promise<string> {
   const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment, usedNames);

@@ -23,8 +23,8 @@ import {
     ExpressionRange,
     PrimitiveBalType,
     TypeField,
-} from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+} from "@wso2/ballerina-core";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

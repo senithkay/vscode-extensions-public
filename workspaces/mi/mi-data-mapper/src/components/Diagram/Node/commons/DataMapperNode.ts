@@ -17,7 +17,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind } from '@wso2/mi-core';
 import { Node } from 'ts-morph';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';

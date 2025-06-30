@@ -21,7 +21,7 @@ import * as vscode from 'vscode';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { getStateMachine, refreshUI } from '../stateMachine';
-import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint, StepOverBreakpointResponse } from '@wso2-enterprise/mi-core';
+import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint, StepOverBreakpointResponse } from '@wso2/mi-core';
 import { checkServerReadiness, isADiagramView } from './debugHelper';
 import { webviews } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { CMCardinality as Cardinality } from '@wso2-enterprise/ballerina-core';
+import { CMCardinality as Cardinality } from '@wso2/ballerina-core';
 import { SharedLinkModel } from '../../common/shared-link/shared-link';
 
 export class EntityLinkModel extends SharedLinkModel {

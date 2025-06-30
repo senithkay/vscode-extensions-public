@@ -30,7 +30,7 @@ import {
     StepOverBreakpointResponse,
     ValidateBreakpointsRequest,
     ValidateBreakpointsResponse
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import * as vscode from "vscode";
 import { getStateMachine, refreshUI } from "../../stateMachine";
 

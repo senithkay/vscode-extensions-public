@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
 
-import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@wso2-enterprise/syntax-tree";
+import {FunctionDefinition, RequiredParam, RestParam, STKindChecker, STNode} from "@wso2/syntax-tree";
 
 import {BlockViewState} from "../../../ViewState";
 import {DefaultConfig} from "../../../Visitors/default";

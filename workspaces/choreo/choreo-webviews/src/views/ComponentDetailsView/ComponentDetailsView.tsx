@@ -28,7 +28,7 @@ import {
 	WebviewQuickPickItemKind,
 	getComponentKindRepoSource,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2/choreo-core";
 import classNames from "classnames";
 import React, { type FC, useEffect, useState, type ReactNode, useMemo } from "react";
 import { Banner } from "../../components/Banner";

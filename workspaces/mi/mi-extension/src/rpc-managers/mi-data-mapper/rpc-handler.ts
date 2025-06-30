@@ -46,7 +46,7 @@ import {
     DataMapWriteRequest,
     confirmMappingAction,
     authenticateUser
-} from "@wso2-enterprise/mi-core";
+} from "@wso2/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
 

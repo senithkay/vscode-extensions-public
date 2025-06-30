@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DiagramService, STNode } from "@wso2/mi-syntax-tree/lib/src";
 import { PromptObject } from "./interfaces/mi-copilot";
 import { Diagnostic } from "vscode-languageserver-types";
 import { NotificationType, RequestType } from "vscode-messenger-common";

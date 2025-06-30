@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { Button, FormActions, FormView } from "@wso2-enterprise/ui-toolkit";
-import { Keylookup } from "@wso2-enterprise/mi-diagram";
+import { Button, FormActions, FormView } from "@wso2/ui-toolkit";
+import { Keylookup } from "@wso2/mi-diagram";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";

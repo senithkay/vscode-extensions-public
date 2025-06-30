@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
 
 import { ArrayType } from "../../constants";
 import { ExpressionComponent } from "../Expression";

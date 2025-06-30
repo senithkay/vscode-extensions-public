@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Button, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, FormActions } from "@wso2/ui-toolkit";
 import { useForm } from "react-hook-form";
 import styled from "@emotion/styled";
 

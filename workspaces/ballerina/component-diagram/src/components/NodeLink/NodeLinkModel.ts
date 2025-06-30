@@ -17,7 +17,7 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2/ui-toolkit";
 import { NODE_LINK } from "../../resources/constants";
 import { NodeModel } from "../../utils/types";
 

@@ -31,7 +31,7 @@ import {
     TextField,
     Tooltip,
     Typography
-} from '@wso2-enterprise/ui-toolkit';
+} from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -47,15 +47,15 @@ import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { openPopup, deriveDefaultValue } from './common';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
+import { Range } from "@wso2/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
 import { StringWithParamManagerComponent } from './StringWithParamManager';
 import { isLegacyExpression, isValueExpression } from './utils';
 import { Colors } from '../../resources/constants';
 import ReactMarkdown from 'react-markdown';
 import GenerateDiv from './GenerateComponents/GenerateDiv';
-import { HelperPaneCompletionItem, HelperPaneData } from '@wso2-enterprise/mi-core';
+import { HelperPaneCompletionItem, HelperPaneData } from '@wso2/mi-core';
 import AIAutoFillBox from './AIAutoFillBox/AIAutoFillBox';
 
 const Field = styled.div`

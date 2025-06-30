@@ -18,7 +18,7 @@
 
 import { Page } from "@playwright/test";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { switchToIFrame } from "@wso2/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
 import { page } from "../../Utils";
 

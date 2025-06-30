@@ -17,14 +17,14 @@
  */
 
 import { useEffect, useState } from "react";
-import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBox, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { Task } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBox, FormCheckBox } from "@wso2/ui-toolkit";
+import { Task } from "@wso2/mi-syntax-tree/lib/src";
+import { useVisualizerContext } from "@wso2/mi-rpc-client";
+import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup, ParamConfig, ParamManager } from "@wso2/mi-diagram";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";

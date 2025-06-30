@@ -18,8 +18,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { ErrorIcon, WarningIcon } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { ErrorIcon, WarningIcon } from "@wso2/ballerina-core";
+import { NodePosition, ResourceAccessorDefinition } from "@wso2/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../Context/diagram";

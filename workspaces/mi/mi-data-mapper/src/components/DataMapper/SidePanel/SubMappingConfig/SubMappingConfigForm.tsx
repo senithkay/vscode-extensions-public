@@ -27,10 +27,10 @@ import {
     SidePanelBody,
     SidePanelTitleContainer,
     TextField
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2/mi-core";
 import { Controller, useForm } from 'react-hook-form';
 
 import { useDMSubMappingConfigPanelStore, SubMappingConfigFormData } from "../../../../store/store";

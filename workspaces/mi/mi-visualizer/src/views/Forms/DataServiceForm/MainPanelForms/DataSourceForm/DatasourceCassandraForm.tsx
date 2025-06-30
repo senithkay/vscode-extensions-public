@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from "react";
-import { TextField, Dropdown, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, RadioButtonGroup } from "@wso2/ui-toolkit";
 
 export interface DataSourceCassandraFormProps {
     renderProps: any;

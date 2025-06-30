@@ -20,7 +20,7 @@ import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 
 import { IntermediatePortModel } from "../../Port";
 import { calculateControlPointOffset } from "../../utils/diagram-utils";
-import { IDMDiagnostic } from "@wso2-enterprise/ballerina-core";
+import { IDMDiagnostic } from "@wso2/ballerina-core";
 
 export const LINK_TYPE_ID = "datamapper-link";
 

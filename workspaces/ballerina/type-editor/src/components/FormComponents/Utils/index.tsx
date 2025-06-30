@@ -17,10 +17,10 @@
  */
 import React from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { DiagnosticData, DiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
-import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition } from "@wso2/syntax-tree";
+import { LangClientRpcClient } from "@wso2/ballerina-rpc-client";
+import { DiagnosticData, DiagnosticsResponse } from "@wso2/ballerina-core";
+import { Codicon, Tooltip, Typography } from "@wso2/ui-toolkit";
 import * as monaco from "monaco-editor";
 import { VERSION } from "../../../types";
 

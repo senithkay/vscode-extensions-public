@@ -18,7 +18,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Typography } from "@wso2/ui-toolkit";
 
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";

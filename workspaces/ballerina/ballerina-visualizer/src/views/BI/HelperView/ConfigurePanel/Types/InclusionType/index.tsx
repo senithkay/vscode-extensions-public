@@ -19,7 +19,7 @@
 import React, { useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2/ui-toolkit";
 
 import { TypeProps } from "../../index";
 import { useStmtEditorHelperPanelStyles } from "../../styles";

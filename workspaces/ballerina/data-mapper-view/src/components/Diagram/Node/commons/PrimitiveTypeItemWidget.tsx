@@ -19,8 +19,8 @@
 import React, { useState } from "react";
 
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { TypeField } from "@wso2/ballerina-core";
+import { TruncatedLabel } from "@wso2/ui-toolkit";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';

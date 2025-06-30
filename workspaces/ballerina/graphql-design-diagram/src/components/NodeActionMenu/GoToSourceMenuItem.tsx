@@ -19,7 +19,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-submodule-imports
 import React from "react";
 
-import { Codicon, Item, MenuItem } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Item, MenuItem } from "@wso2/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../resources/model";

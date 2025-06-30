@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Alert, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2/mi-core';
+import { Alert, ContextMenu, Icon } from '@wso2/ui-toolkit';
 import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { Fragment, useEffect, useState } from 'react';
 import { EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../../constants';
 

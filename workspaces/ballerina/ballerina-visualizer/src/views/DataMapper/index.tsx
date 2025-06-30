@@ -18,12 +18,12 @@
 
 import React, { useMemo } from "react";
 
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { STModification, HistoryEntry } from "@wso2-enterprise/ballerina-core";
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
-import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
-import { View } from "@wso2-enterprise/ui-toolkit";
+import { DataMapperView } from "@wso2/data-mapper-view";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { STModification, HistoryEntry } from "@wso2/ballerina-core";
+import { FunctionDefinition } from "@wso2/syntax-tree";
+import { RecordEditor, StatementEditorComponentProps } from "@wso2/record-creator";
+import { View } from "@wso2/ui-toolkit";
 import { URI, Utils } from "vscode-uri";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { FunctionForm } from "../BI";

@@ -17,11 +17,11 @@
  */
 
 import React, { createRef, useEffect } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
+import { useVisualizerContext } from "@wso2/api-designer-rpc-client";
+import { MachineStateValue } from "@wso2/api-designer-core";
 import MainPanel from "./MainPanel";
 import styled from "@emotion/styled";
-import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBoundary } from "@wso2/ui-toolkit";
 
 const LoaderWrapper = styled.div`
     display: flex;

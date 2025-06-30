@@ -17,7 +17,7 @@
  */
 import { expect, test } from '@playwright/test';
 import { addArtifact, enableICP, initTest, page } from '../utils';
-import { Form, switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
+import { Form, switchToIFrame } from '@wso2/playwright-vscode-tester';
 import { ConfigEditor } from '../ConfigEditor';
 import { config } from 'process';
 

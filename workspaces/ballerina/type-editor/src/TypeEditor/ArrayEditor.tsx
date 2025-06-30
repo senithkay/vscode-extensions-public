@@ -17,10 +17,10 @@
  */
 
 import styled from "@emotion/styled";
-import { Imports, Member, Type, TypeProperty } from "@wso2-enterprise/ballerina-core";
+import { Imports, Member, Type, TypeProperty } from "@wso2/ballerina-core";
 import React, { useRef } from "react";
 import { TypeField } from "./TypeField";
-import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField/TextField";
+import { TextField } from "@wso2/ui-toolkit/lib/components/TextField/TextField";
 
 interface ArrayEditorProps {
     type: Type;

@@ -84,7 +84,7 @@ import {
     Rewrite,
     Query,
     ThrowError
-} from "@wso2-enterprise/mi-syntax-tree/lib/src";
+} from "@wso2/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
@@ -100,7 +100,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
-import { BreakpointPosition, GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { BreakpointPosition, GetBreakpointsResponse } from "@wso2/mi-core";
 import { DataServiceNodeModel } from "../components/nodes/DataServiceNode/DataServiceNodeModel";
 import { AiAgentNodeModel } from "../components/nodes/AIAgentNode/AiAgentNodeModel";
 

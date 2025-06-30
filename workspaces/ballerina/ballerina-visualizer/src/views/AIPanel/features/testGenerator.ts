@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { Attachment } from "@wso2-enterprise/ballerina-core";
+import { Attachment } from "@wso2/ballerina-core";
 
 export interface TestGeneratorIntermediaryState {
     content: [string, Attachment[]];

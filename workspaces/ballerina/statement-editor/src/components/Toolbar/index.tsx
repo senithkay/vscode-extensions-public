@@ -18,9 +18,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useMemo } from "react";
 
-import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
+import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2/ballerina-core";
+import { STKindChecker, STNode } from "@wso2/syntax-tree";
+import { Button, Codicon, Divider, Icon } from "@wso2/ui-toolkit";
 
 import {
     ADD_CONFIGURABLE_LABEL,
@@ -123,7 +123,7 @@ export default function Toolbar() {
     const createNewConfigurable = () => {
         const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
         // TODO: Use the expected type provided by the LS, once it is available
-        //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/112)
+        //  (https://github.com/wso2/internal-support-ballerina/issues/112)
         const configurableType = CONFIGURABLE_TYPE_STRING;
 
         const confName = genVariableName('conf', getAllVariables(stSymbolInfo));
