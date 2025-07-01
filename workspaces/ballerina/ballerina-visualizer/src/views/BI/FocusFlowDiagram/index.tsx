@@ -1,20 +1,29 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 import { debounce } from "lodash";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import {
     Category as PanelCategory,
-} from "@wso2-enterprise/ballerina-side-panel";
+} from "@wso2/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { MemoizedDiagram } from "@wso2-enterprise/bi-diagram";
+import { MemoizedDiagram } from "@wso2/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -33,7 +42,7 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     TextEdit
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
@@ -44,8 +53,8 @@ import {
     isNaturalFunction,
     updateLineRange,
 } from "../../../utils/bi";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ProgressRing, ProgressIndicator, ThemeColors, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
+import { View, ProgressRing, ProgressIndicator, ThemeColors, CompletionItem } from "@wso2/ui-toolkit";
 import { EXPRESSION_EXTRACTION_REGEX } from "../../../constants";
 
 const Container = styled.div`

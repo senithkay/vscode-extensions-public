@@ -1,5 +1,5 @@
-import { LangClientRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
+import { LangClientRpcClient } from '@wso2/ballerina-rpc-client';
+import { FunctionDefinition } from '@wso2/syntax-tree';
 import { create } from 'zustand';
 
 export interface DataMapperState {

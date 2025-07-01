@@ -155,7 +155,7 @@ Fixed: Artifact creation in windows ([#943](https://github.com/wso2/mi-vscode/is
 
 ### New Features
 
-Added: Devant support ([#290](https://github.com/wso2-enterprise/devant/issues/290))  
+Added: Devant support ([#290](https://github.com/wso2/devant/issues/290))  
 Added: Ballerina modules generation support ([#942](https://github.com/wso2/mi-vscode/issues/942))
 
 ### Fixed

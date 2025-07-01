@@ -11,13 +11,13 @@
  * associated services.
  */
 
-import { AnydataType, AnyType, OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, AnyType, OtherBalType, PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
 import {
 	ExpressionFunctionBody,
 	SelectClause,
 	STKindChecker,
 	STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { useDMStore } from "../../../store/store";
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";

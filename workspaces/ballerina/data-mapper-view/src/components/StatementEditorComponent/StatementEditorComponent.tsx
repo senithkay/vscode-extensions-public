@@ -1,9 +1,9 @@
 // tslint:disable: no-implicit-dependencies
 import React from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { STModification } from "@wso2/ballerina-core";
+import { LangClientRpcClient, LibraryBrowserRpcClient } from "@wso2/ballerina-rpc-client";
+import { StatementEditorWrapper } from "@wso2/ballerina-statement-editor";
 
 import { ExpressionInfo } from "../DataMapper/DataMapper";
 

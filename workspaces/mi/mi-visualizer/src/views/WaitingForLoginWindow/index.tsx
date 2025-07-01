@@ -13,8 +13,8 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2/mi-core';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 
 import { AlertBox } from "../AlertBox/AlertBox";
 

@@ -8,7 +8,7 @@
     "CORE_RPC_TYPE_DIR": "../../ballerina/ballerina-core/",
     "EXT_RPC_MANAGER_DIR": "../../ballerina/ballerina-extension/",
     "RPC_CLIENT_DIR": "../../ballerina/ballerina-rpc-client/",
-    "CORE_MODULE_NAME": "@wso2-enterprise/ballerina-core"
+    "CORE_MODULE_NAME": "@wso2/ballerina-core"
   },
   "scripts": {
     "generate": "node index.js"

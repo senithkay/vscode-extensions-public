@@ -1,4 +1,4 @@
-import { type AuthState, CommandIds, type ContextStoreState, type WebviewState } from "@wso2-enterprise/wso2-platform-core";
+import { type AuthState, CommandIds, type ContextStoreState, type WebviewState } from "@wso2/wso2-platform-core";
 import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, window } from "vscode";
 import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";

@@ -11,7 +11,7 @@
  * associated services.
  */
 import { CallExpression, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from "ts-morph";
-import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, CompletionItemKind } from "@wso2/ui-toolkit";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 import { View } from "../Views/DataMapperView";
 import { READONLY_MAPPING_FUNCTION_NAME } from "./constants";

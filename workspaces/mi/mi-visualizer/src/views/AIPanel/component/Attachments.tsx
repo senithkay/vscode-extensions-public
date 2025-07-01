@@ -1,8 +1,8 @@
 import React from "react";
 
 import { FlexRow } from "../styles";
-import { FileObject, ImageObject } from '@wso2-enterprise/mi-core';import { getFileIcon } from "../utils";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { FileObject, ImageObject } from '@wso2/mi-core';import { getFileIcon } from "../utils";
+import { Button, Codicon } from "@wso2/ui-toolkit";
 
 interface AttachmentProps {
     attachments: FileObject[] | ImageObject[];

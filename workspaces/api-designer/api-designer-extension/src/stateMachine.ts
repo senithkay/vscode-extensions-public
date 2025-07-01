@@ -10,7 +10,7 @@ import {
     MachineStateValue,
     VisualizerLocation,
     webviewReady
-} from '@wso2-enterprise/api-designer-core';
+} from '@wso2/api-designer-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';

@@ -1,5 +1,5 @@
 {
-    "name": "@wso2-enterprise/ballerina-statement-editor",
+    "name": "@wso2/ballerina-statement-editor",
     "version": "3.4.2",
     "description": "Ballerina Statement Editor",
     "files": [
@@ -21,10 +21,10 @@
         "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
     },
     "dependencies": {
-        "@wso2-enterprise/syntax-tree": "workspace:*",
-        "@wso2-enterprise/ballerina-core": "workspace:*",
-        "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
-        "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "@wso2/syntax-tree": "workspace:*",
+        "@wso2/ballerina-core": "workspace:*",
+        "@wso2/ballerina-rpc-client": "workspace:*",
+        "@wso2/ui-toolkit": "workspace:*",
         "@vscode/webview-ui-toolkit": "^1.2.0",
         "@emotion/styled": "^11.10.5",
         "@emotion/react": "^11.9.3",
@@ -61,7 +61,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+        "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
     },
     "author": "wso2",
     "license": "UNLICENSED",

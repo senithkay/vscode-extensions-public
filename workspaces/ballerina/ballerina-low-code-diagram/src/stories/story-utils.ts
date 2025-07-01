@@ -1,4 +1,4 @@
-import { BallerinaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-core";
+import { BallerinaLanguageClient, WSConnection } from "@wso2/ballerina-core";
 // tslint:disable-next-line: no-implicit-dependencies
 import { Uri } from "monaco-editor";
 

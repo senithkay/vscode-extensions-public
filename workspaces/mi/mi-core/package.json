@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/mi-core",
+  "name": "@wso2/mi-core",
   "version": "1.0.0",
   "description": "Contains models related to MI APIs",
   "main": "lib/index.js",
@@ -22,12 +22,12 @@
   "dependencies": {
     "@types/vscode-webview": "^1.57.5",
     "vscode-messenger-common": "^0.5.1",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
+    "@wso2/mi-syntax-tree": "workspace:*",
     "vscode-languageserver-types": "~3.17.5"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
