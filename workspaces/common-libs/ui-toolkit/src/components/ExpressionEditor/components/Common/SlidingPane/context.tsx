@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 
 
 interface SlidingPaneContextType {
-  currentPage: string;
+  getCurrentPage: () => string;
   nextPage:string;
   prevPage: string;
   height:string;
@@ -13,7 +13,8 @@ interface SlidingPaneContextType {
   setPrevPage:(prevPage:string) => void;
   setHeight:(height:string) => void;
   setWidth:(width:number) => void;
-  setcurrentPage:(currentPage:string) => void;
+  moveToNext: (nextPage:string) => void;
+  moveToPrev: () => void;
 }
 export const SlidingPaneContext = createContext<SlidingPaneContextType | undefined>(undefined);
 

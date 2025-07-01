@@ -23,23 +23,35 @@ const SlidingWindowContainer = styled.div`
 `;
 
 export const SlidingWindow = ({children}:SlidingWindowProps) => {
-    const [currentPage, setCurrentPage] = useState("PAGE1");
+    const [visitedPages, setVisitedPages] = useState<string[]>(["PAGE1"]);
     const [nextPage, setNextPage] = useState<string>();     
     const [prevPage, setPrevPage] = useState<string>();
     const [height, setHeight] = useState(DEFAULT_SLIDING_WINDOW_HEIGHT);
     const [width, setWidth] = useState(DEFAULT_SLIDING_WINDOW_WIDTH);
 
+    const getCurrentPage = () => {
+        if (visitedPages.length === 0) {
+            //TODO: set a proper fall back
+            return "PAGE1";
+        }
+        return visitedPages[visitedPages.length - 1];
+    };  
+
     const moveToNext = (nextPage:string) => {
-        setCurrentPage(nextPage);
+        setVisitedPages([...visitedPages, nextPage]);
     };
 
-    const moveToPrev = (prevPage:string) => {
-        setCurrentPage(prevPage);
+    const moveToPrev = () => {
+        if (visitedPages.length > 1) {
+            const visitedPagesCopy = [...visitedPages];
+            visitedPagesCopy.pop();
+            setVisitedPages(visitedPagesCopy);
+        }
     };
     return (
         <SlidingPaneContext.Provider 
             value={{ 
-                currentPage: currentPage, 
+                getCurrentPage: getCurrentPage,
                 nextPage: nextPage, 
                 prevPage: prevPage, 
                 height: height,
@@ -50,7 +62,8 @@ export const SlidingWindow = ({children}:SlidingWindowProps) => {
                 setNextPage: setNextPage, 
                 setPrevPage: setPrevPage, 
                 setHeight: setHeight,
-                setcurrentPage: setCurrentPage
+                moveToNext: moveToNext,
+                moveToPrev: moveToPrev,
             }}>
             <SlidingWindowContainer style={{ height: height, width: width }}>
                 {children}
@@ -82,8 +95,9 @@ type SlidingPaneProps = {
 }
 
 export const SlidingPane = ({  children, name, paneHeight, paneWidth}:SlidingPaneProps) => {
-    const { currentPage, nextPage, prevPage,  setHeight, setWidth } = useSlidingPane();
+    const { getCurrentPage, nextPage, prevPage,  setHeight, setWidth } = useSlidingPane();
     let index = 100;
+    const currentPage = getCurrentPage();
     if (name === currentPage) {
         setHeight(paneHeight || DEFAULT_SLIDING_WINDOW_HEIGHT);
         setWidth(paneWidth || DEFAULT_SLIDING_WINDOW_WIDTH);
@@ -136,13 +150,13 @@ type SlidingPaneNavContainerProps = {
 }
 
 export const SlidingPaneNavContainer = ({children, to}: SlidingPaneNavContainerProps) => {
-    const { setNextPage,setcurrentPage, currentPage, setPrevPage  } = useSlidingPane();
-
+    const { setNextPage, moveToNext, getCurrentPage, setPrevPage  } = useSlidingPane();
+    const currentPage = getCurrentPage();
     const handleNavigation = () => {
         setPrevPage(currentPage);
         setNextPage(to);
         setTimeout(() => {
-            setcurrentPage(to);
+            moveToNext(to);
         }, 100);
     }
 
@@ -163,9 +177,9 @@ export const SlidingPaneNavContainer = ({children, to}: SlidingPaneNavContainerP
 }
 
 export const SlidingPaneBackButton = ({children}:{children:ReactNode}) => {
-    const { setcurrentPage, prevPage } = useSlidingPane();
+    const { moveToPrev } = useSlidingPane();
     return (
-        <InvisibleButton onClick={()=>setcurrentPage(prevPage)}>
+        <InvisibleButton onClick={()=>moveToPrev()}>
             {children}
         </InvisibleButton>
     )
