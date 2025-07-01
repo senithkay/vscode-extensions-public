@@ -18,11 +18,11 @@ import { Combobox } from '@headlessui/react'
 
 import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
-import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
-import { Button } from '@wso2-enterprise/ui-toolkit';
-import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
+import { Codicon, Typography } from '@wso2/ui-toolkit';
+import { Button } from '@wso2/ui-toolkit';
+import { CommonRPCAPI, STModification } from '@wso2/ballerina-core';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2/ballerina-rpc-client';
 
 const ComboboxButtonContainerActive = cx(css`
     width: 20%;

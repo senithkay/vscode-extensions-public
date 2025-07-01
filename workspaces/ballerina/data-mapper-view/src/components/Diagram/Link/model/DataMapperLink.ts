@@ -1,6 +1,6 @@
 import { BezierCurve, Point } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { IntermediatePortModel } from "../../Port";

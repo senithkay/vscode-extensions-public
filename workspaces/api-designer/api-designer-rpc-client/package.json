@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/api-designer-rpc-client",
+  "name": "@wso2/api-designer-rpc-client",
   "version": "1.0.0",
   "description": "Contains RPC related client registrations",
   "main": "lib/index.js",
@@ -23,13 +23,13 @@
     "@types/vscode-webview": "^1.57.3",
     "vscode-messenger-common": "^0.4.5",
     "vscode-messenger-webview": "^0.4.5",
-    "@wso2-enterprise/api-designer-core": "workspace:*",
+    "@wso2/api-designer-core": "workspace:*",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

@@ -61,7 +61,7 @@ Replace `<package-name>` with the name of the package you want to build.
 
 Example:
 ```bash
-rush build --to @wso2-enterprise/ballerina-visualizer
+rush build --to @wso2/ballerina-visualizer
 ```
 
 ### Adding a New Package

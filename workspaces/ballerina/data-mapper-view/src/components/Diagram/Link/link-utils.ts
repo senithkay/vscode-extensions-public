@@ -1,4 +1,4 @@
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField } from "@wso2/ballerina-core";
 
 import { MappingType, RecordFieldPortModel } from "../Port";
 import {

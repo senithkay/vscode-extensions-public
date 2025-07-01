@@ -90,7 +90,7 @@ Steps follows in code completions can summerized as following,
 1. Clone the repository.
 
     ```sh
-    git clone https://github.com/wso2-enterprise/ballerina-plugin-vscode.git
+    git clone https://github.com/wso2/ballerina-plugin-vscode.git
     ```
 
 2. Build the extension with the current implentation to install and build the requirements using following command

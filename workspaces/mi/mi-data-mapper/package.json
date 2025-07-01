@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/mi-data-mapper",
+  "name": "@wso2/mi-data-mapper",
   "version": "1.0.0",
   "description": "MI Data Mapper",
   "files": [
@@ -14,9 +14,9 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@wso2-enterprise/mi-core": "workspace:*",
-    "@wso2-enterprise/mi-rpc-client": "workspace:*",
-    "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2/mi-core": "workspace:*",
+    "@wso2/mi-rpc-client": "workspace:*",
+    "@wso2/ui-toolkit": "workspace:*",
     "@projectstorm/react-canvas-core": "^6.7.4",
     "@projectstorm/react-diagrams": "^6.7.4",
     "@projectstorm/react-diagrams-core": "^6.7.4",
@@ -68,7 +68,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/vscode-extensions.git"
+    "url": "git+https://github.com/wso2/vscode-extensions.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

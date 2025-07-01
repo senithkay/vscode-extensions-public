@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/ballerina-core",
+  "name": "@wso2/ballerina-core",
   "version": "1.0.0",
   "description": "Contains types related to the Ballerina extension",
   "main": "lib/index.js",
@@ -13,7 +13,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@wso2-enterprise/syntax-tree": "workspace:*",
+    "@wso2/syntax-tree": "workspace:*",
     "vscode-languageserver-protocol": "^3.17.5",
     "vscode-languageserver-types": "^3.17.5",
     "vscode-messenger-common": "^0.5.1",
@@ -45,7 +45,7 @@
   "author": "WSO2",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

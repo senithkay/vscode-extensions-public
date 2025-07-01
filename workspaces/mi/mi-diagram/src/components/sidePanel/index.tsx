@@ -1,7 +1,7 @@
-import { Codicon, Drawer, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Drawer, ProgressRing, Typography } from '@wso2/ui-toolkit';
 import React, { useEffect, useState, useContext, ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { DiagramService, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range } from '@wso2/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
 import { getAllDataServiceForms } from './mediators/Values';
@@ -9,7 +9,7 @@ import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useVisualizerContext } from '@wso2/mi-rpc-client';
 import { getMediatorIconsFromFont } from '../../resources/icons/mediatorIcons/icons';
 import { MediatorPage } from './mediators/Mediator';
 

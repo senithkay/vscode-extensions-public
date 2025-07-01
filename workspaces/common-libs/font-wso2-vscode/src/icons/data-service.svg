@@ -1,10 +1,19 @@
 <!--
- ~   Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- ~   
- ~   This software is the property of WSO2 LLC. and its suppliers, if any.
- ~   Dissemination of any information or reproduction of any material contained
- ~   herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- ~   You may not alter or remove any copyright or other notice from copies of this content.
+ ~ Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ ~
+ ~ WSO2 LLC. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied. See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
 -->
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.20005 5.89998C1.42096 5.89998 1.60005 6.07906 1.60005 6.29998C1.60005 6.31505 1.61849 6.4294 1.89341 6.6122C2.14906 6.7822 2.54346 6.95272 3.06171 7.10338C4.09286 7.40313 5.52905 7.59998 7.10005 7.59998C7.87492 7.59998 8.50322 7.52734 8.94852 7.45513C9.17116 7.41903 9.34876 7.38292 9.47812 7.35553C9.50198 7.35048 9.52543 7.34545 9.54761 7.3407C9.58304 7.33311 9.61522 7.32622 9.64066 7.32101C9.64066 7.32101 9.64412 7.32029 9.64623 7.31985C9.6736 7.31415 9.74164 7.29998 9.80005 7.29998C10.021 7.29998 10.2 7.47906 10.2 7.69998C10.2 7.90996 10.0382 8.08216 9.83251 8.09868C9.82733 8.0996 9.81735 8.10142 9.80123 8.10473C9.77859 8.10936 9.75283 8.11489 9.72117 8.12167C9.6987 8.12649 9.67326 8.13194 9.64385 8.13817C9.50759 8.16703 9.31644 8.20592 9.07658 8.24482C8.59688 8.32261 7.92517 8.39998 7.10005 8.39998C5.47104 8.39998 3.95723 8.19682 2.83839 7.87158C2.28164 7.70973 1.80104 7.5115 1.45044 7.27837C1.11911 7.05805 0.800049 6.7349 0.800049 6.29998C0.800049 6.07906 0.979135 5.89998 1.20005 5.89998Z" fill="#97B8C2"/>

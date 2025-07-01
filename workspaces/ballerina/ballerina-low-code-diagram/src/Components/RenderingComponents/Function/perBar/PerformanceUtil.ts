@@ -1,5 +1,5 @@
-import { ANALYZE_TYPE, TopBarData } from "@wso2-enterprise/ballerina-core";
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { ANALYZE_TYPE, TopBarData } from "@wso2/ballerina-core";
+import { FunctionDefinition } from "@wso2/syntax-tree";
 
 export function generatePerfData(model: FunctionDefinition) {
     let concurrency: string;

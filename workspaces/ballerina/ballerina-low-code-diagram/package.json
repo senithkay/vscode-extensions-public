@@ -1,5 +1,5 @@
 {
-    "name": "@wso2-enterprise/ballerina-low-code-diagram",
+    "name": "@wso2/ballerina-low-code-diagram",
     "version": "3.4.3",
     "description": "Ballerina Low Code Diagram",
     "files": [
@@ -21,8 +21,8 @@
         "storybook:setup": "node tools/setup-storybook.js"
     },
     "dependencies": {
-        "@wso2-enterprise/ballerina-core": "workspace:*",
-        "@wso2-enterprise/syntax-tree": "workspace:*",
+        "@wso2/ballerina-core": "workspace:*",
+        "@wso2/syntax-tree": "workspace:*",
         "@date-io/date-fns": "^3.2.1",
         "classnames": "^2.5.1",
         "clipboard-copy": "^4.0.1",
@@ -106,7 +106,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+        "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
     },
     "author": "wso2",
     "license": "UNLICENSED",

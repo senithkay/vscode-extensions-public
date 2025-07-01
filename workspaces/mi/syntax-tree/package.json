@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/mi-syntax-tree",
+  "name": "@wso2/mi-syntax-tree",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",

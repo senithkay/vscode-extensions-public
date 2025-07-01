@@ -1,5 +1,5 @@
-import { ConfigOverlayFormStatus, ConnectorInfo, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LineRange, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus, ConnectorInfo, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LineRange, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2/ballerina-core";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
 
 import { PlusViewState } from "../ViewState";
 

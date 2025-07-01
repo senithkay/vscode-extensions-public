@@ -1,7 +1,7 @@
 
 import React from "react";
 
-import { ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
+import { ProgressIndicator, TextField } from "@wso2/ui-toolkit";
 
 export interface FunctionNameEditorProps {
     value: string;

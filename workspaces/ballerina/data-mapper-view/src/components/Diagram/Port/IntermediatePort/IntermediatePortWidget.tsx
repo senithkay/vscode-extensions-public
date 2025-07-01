@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 
 import { IntermediatePortModel } from "./IntermediatePortModel";
-import { Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
 

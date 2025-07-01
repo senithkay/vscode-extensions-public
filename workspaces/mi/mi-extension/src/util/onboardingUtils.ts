@@ -9,7 +9,7 @@ import { extension } from '../MIExtensionContext';
 import { copyMavenWrapper } from '.';
 import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
 import { COMMANDS } from '../constants';
-import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
+import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2/mi-core';
 import { parseStringPromise } from 'xml2js';
 import { LATEST_CAR_PLUGIN_VERSION } from './templates';
 import { runCommand, runBasicCommand } from '../test-explorer/runner';

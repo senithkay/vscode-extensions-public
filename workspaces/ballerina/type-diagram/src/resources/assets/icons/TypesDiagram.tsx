@@ -11,7 +11,7 @@
  * associated services.
  */
 import React from 'react';
-import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ThemeColors } from '@wso2/ui-toolkit';
 
 export function TypesDiagramIcon() {
     return (

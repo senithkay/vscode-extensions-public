@@ -1,7 +1,7 @@
 
 
-import { VisualizerLocation, AIPanelAPI } from '@wso2-enterprise/ballerina-core';
-import { AiPanelRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { VisualizerLocation, AIPanelAPI } from '@wso2/ballerina-core';
+import { AiPanelRpcClient } from "@wso2/ballerina-rpc-client";
 
 
 interface ChatMessage {

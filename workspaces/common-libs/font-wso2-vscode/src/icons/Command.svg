@@ -1,10 +1,19 @@
 <!--
- ~   Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- ~   
- ~   This software is the property of WSO2 LLC. and its suppliers, if any.
- ~   Dissemination of any information or reproduction of any material contained
- ~   herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- ~   You may not alter or remove any copyright or other notice from copies of this content.
+ ~ Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ ~
+ ~ WSO2 LLC. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied. See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
 -->
 <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2.8 12.9C2.8 12.8334 2.76667 12.8 2.7 12.8C2.7 12.7334 2.66667 12.7 2.6 12.7C2.53333 12.6334 2.5 12.6 2.5 12.6C2.43333 12.6 2.36667 12.6 2.3 12.6C2.16667 12.6 2.06667 12.6 2 12.6C1.93333 12.6667 1.86667 12.7334 1.8 12.8C1.73333 12.8667 1.7 12.9334 1.7 13C1.7 13.0667 1.7 13.1667 1.7 13.3C1.7 13.3667 1.7 13.4667 1.7 13.6C1.7 13.6667 1.73333 13.7334 1.8 13.8C1.86667 13.8667 1.93333 13.9334 2 14C2.06667 14 2.16667 14 2.3 14C2.36667 14 2.43333 14 2.5 14C2.56667 14 2.6 13.9667 2.6 13.9C2.66667 13.8334 2.73333 13.7667 2.8 13.7C2.8 13.6334 2.8 13.5667 2.8 13.5H3C3 13.7667 2.93333 13.9667 2.8 14.1C2.66667 14.1667 2.5 14.2 2.3 14.2C2.1 14.2 1.96667 14.2 1.9 14.2C1.76667 14.1334 1.66667 14.0667 1.6 14C1.53333 13.8667 1.5 13.7667 1.5 13.7C1.43333 13.5667 1.4 13.4334 1.4 13.3C1.4 13.1667 1.43333 13.0334 1.5 12.9C1.5 12.8334 1.53333 12.7334 1.6 12.6C1.66667 12.5334 1.76667 12.4667 1.9 12.4C2.03333 12.4 2.16667 12.4 2.3 12.4C2.36667 12.4 2.43333 12.4 2.5 12.4C2.63333 12.4 2.73333 12.4334 2.8 12.5C2.86667 12.5667 2.9 12.6334 2.9 12.7C2.96667 12.7667 3 12.8334 3 12.9H2.8Z" fill="black"/>

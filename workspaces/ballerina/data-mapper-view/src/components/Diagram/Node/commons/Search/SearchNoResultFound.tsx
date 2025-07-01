@@ -16,7 +16,7 @@ import React from "react";
 import { css } from "@emotion/css";
 
 import { TreeContainer } from "../Tree/Tree";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2/ui-toolkit";
 
 interface SearchNoResultFoundProps {
     kind: SearchNoResultFoundKind;

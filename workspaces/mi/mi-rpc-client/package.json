@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/mi-rpc-client",
+  "name": "@wso2/mi-rpc-client",
   "version": "1.0.0",
   "description": "Contains RPC related client registrations",
   "main": "lib/index.js",
@@ -23,14 +23,14 @@
     "@types/vscode-webview": "^1.57.5",
     "vscode-messenger-common": "^0.5.1",
     "vscode-messenger-webview": "^0.5.1",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
-    "@wso2-enterprise/mi-core": "workspace:*",
+    "@wso2/mi-syntax-tree": "workspace:*",
+    "@wso2/mi-core": "workspace:*",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "url": "git+https://github.com/wso2/ballerina-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

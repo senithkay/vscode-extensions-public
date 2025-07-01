@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AnydataType, PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, TypeField, TypeKind } from "@wso2/ballerina-core";
 import {
     ListConstructor,
     MappingConstructor,
@@ -18,7 +18,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode
-} from "@wso2-enterprise/syntax-tree";
+} from "@wso2/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";

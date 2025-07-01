@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button, CheckBox, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { Type } from '@wso2-enterprise/ballerina-core';
+import { Button, CheckBox, Codicon } from '@wso2/ui-toolkit';
+import { Type } from '@wso2/ballerina-core';
 
 interface AdvancedOptionsProps {
     type: Type;

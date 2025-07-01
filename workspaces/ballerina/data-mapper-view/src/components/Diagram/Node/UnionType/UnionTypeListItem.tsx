@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js no-submodule-imports
 import React, { useState } from "react";
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { Icon, ProgressRing, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STNode } from "@wso2/syntax-tree";
+import { Icon, ProgressRing, Tooltip, Typography } from "@wso2/ui-toolkit";
 
 import { IDataMapperContext} from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getModification } from "../../utils/modifications";

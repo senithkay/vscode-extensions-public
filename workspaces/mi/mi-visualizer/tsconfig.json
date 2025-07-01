@@ -34,7 +34,7 @@
       "node_modules/@types"
     ],
     "paths": {
-      "@wso2-enterprise/mi-diagram": ["../mi-diagram/lib"],
+      "@wso2/mi-diagram": ["../mi-diagram/lib"],
       "react": ["./node_modules/@types/react"]
     }
   },

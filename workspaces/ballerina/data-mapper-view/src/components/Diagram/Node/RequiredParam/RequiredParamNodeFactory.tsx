@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType } from "@wso2/ballerina-core";
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
