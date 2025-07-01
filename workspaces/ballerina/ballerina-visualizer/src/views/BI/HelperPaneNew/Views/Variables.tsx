@@ -1,6 +1,5 @@
-import { SlidingPaneNavContainer } from "@wso2-enterprise/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane"
+import { SlidingPaneNavContainer } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane"
 import { ExpandableList } from "../Components/ExpandableList"
-import { Codicon } from "@wso2-enterprise/ui-toolkit"
 import { VariableTypeIndifcator } from "../Components/VariableTypeIndicator"
 
 const variablesList = [

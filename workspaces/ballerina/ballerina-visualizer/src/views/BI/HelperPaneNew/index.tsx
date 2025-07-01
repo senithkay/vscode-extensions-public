@@ -8,12 +8,11 @@
  */
 
 import { RefObject, useState } from 'react';
-import { Codicon, FormExpressionEditorRef, HelperPane, HelperPaneCustom, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
-import { LineRange } from '@wso2-enterprise/ballerina-core';
-import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
 import { ExpandableList } from './Components/ExpandableList';
-import { CopilotFooter, PevButton, SlidingPane, SlidingPaneBackButton, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2-enterprise/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
 import { Variables } from './Views/Variables';
+import { LineRange, RecordTypeField } from '@wso2/ballerina-core';
+import { Codicon, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight } from '@wso2/ui-toolkit';
+import { SlidingWindow, SlidingPane, SlidingPaneNavContainer, CopilotFooter, SlidingPaneHeader, PevButton } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
 
 export type HelperPaneNewProps = {
     fieldKey: string;
