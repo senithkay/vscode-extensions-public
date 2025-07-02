@@ -1,20 +1,22 @@
 import { createContext, useContext } from "react";
+import { VisitedPagesElement } from ".";
 
 
 interface SlidingPaneContextType {
-  getCurrentPage: () => string;
-  nextPage:string;
-  prevPage: string;
+  prevPage: VisitedPagesElement;
   height:string;
   width:number;
-  next:(nextPage:string) => void;
-  prev:(nextPage:string) => void;
-  setNextPage:(nextPage:string) => void;
-  setPrevPage:(prevPage:string) => void;
+  setPrevPage:(prevPage:VisitedPagesElement) => void;
   setHeight:(height:string) => void;
   setWidth:(width:number) => void;
-  moveToNext: (nextPage:string) => void;
+  moveToNext: (nextPage:VisitedPagesElement) => void;
   moveToPrev: () => void;
+  visitedPages: VisitedPagesElement[];
+  setVisitedPages: (visitedPages:VisitedPagesElement[]) => void;
+  clearAnimations: boolean;
+  setClearAnimations: (clearAnimations:boolean) => void;
+  params: any
+  setParams: (data:any)=>void,
 }
 export const SlidingPaneContext = createContext<SlidingPaneContextType | undefined>(undefined);
 

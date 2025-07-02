@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject, useState } from 'react';
+import { RefObject } from 'react';
+
 import { ExpandableList } from './Components/ExpandableList';
 import { Variables } from './Views/Variables';
 import { LineRange, RecordTypeField } from '@wso2/ballerina-core';
 import { Codicon, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight } from '@wso2/ui-toolkit';
-import { SlidingWindow, SlidingPane, SlidingPaneNavContainer, CopilotFooter, SlidingPaneHeader, PevButton } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
+import { CopilotFooter, SlidingPane, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
 
 export type HelperPaneNewProps = {
     fieldKey: string;
@@ -70,14 +71,15 @@ const HelperPaneNewEl = ({
             <HelperPaneCustom.Body >
                 <SlidingWindow>
                     <SlidingPane paneHeight='200px' name="PAGE1">
+                         <SlidingPaneHeader> Categories</SlidingPaneHeader>
                         <ExpandableList>
-                            <SlidingPaneNavContainer to="PAGE3">
+                            <SlidingPaneNavContainer to="PAGE1">
                                 <ExpandableList.Item>
                                     <Codicon name="bracket-dot" />
                                     <span>Construct Record</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
-                            <SlidingPaneNavContainer to="PAGE2">
+                            <SlidingPaneNavContainer to="PAGE2" data={10}>
                                 <ExpandableList.Item>
                                     <Codicon name="lightbulb" />
                                     <span>Suggestions</span>
@@ -111,14 +113,14 @@ const HelperPaneNewEl = ({
                                 <Codicon name="add"/> <span>Generate with BI Copilot</span>
                         </CopilotFooter>
                     </SlidingPane>
-                        <SlidingPane name="PAGE3">
-                                <SlidingPaneHeader> This is Page 3</SlidingPaneHeader>
-                            Page3
-                            <PevButton/>
 
-                        <CopilotFooter >
+
+                    <SlidingPane name="PAGE3">
+                        <SlidingPaneHeader> This is Page 3</SlidingPaneHeader>
+                            Page3
+                        {/* <CopilotFooter >
                                 <Codicon name="add"/> <span>Generate with BI Copilot</span>
-                        </CopilotFooter>
+                        </CopilotFooter> */}
                     </SlidingPane>
                 </SlidingWindow>
             </HelperPaneCustom.Body>
