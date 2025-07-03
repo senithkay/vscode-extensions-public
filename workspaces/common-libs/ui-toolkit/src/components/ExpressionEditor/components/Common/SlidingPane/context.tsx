@@ -15,8 +15,7 @@ interface SlidingPaneContextType {
   setVisitedPages: (visitedPages:VisitedPagesElement[]) => void;
   clearAnimations: boolean;
   setClearAnimations: (clearAnimations:boolean) => void;
-  params: any
-  setParams: (data:any)=>void,
+  getParams: ()=>any
 }
 export const SlidingPaneContext = createContext<SlidingPaneContextType | undefined>(undefined);
 

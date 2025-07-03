@@ -7,13 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject } from 'react';
+import { RefObject, useLayoutEffect, useRef, useState } from 'react';
 
 import { ExpandableList } from './Components/ExpandableList';
 import { Variables } from './Views/Variables';
 import { LineRange, RecordTypeField } from '@wso2/ballerina-core';
 import { Codicon, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight } from '@wso2/ui-toolkit';
 import { CopilotFooter, SlidingPane, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
+import { CreateValue } from './Views/CreateValue';
+
+
+const getRecordType = (recordTypeField: RecordTypeField) => {
+    return recordTypeField;
+}
 
 export type HelperPaneNewProps = {
     fieldKey: string;
@@ -46,6 +52,24 @@ const HelperPaneNewEl = ({
     updateImports,
     isAssignIdentifier
 }: HelperPaneNewProps) => {
+
+    const [position, setPosition] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const paneRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (anchorRef.current) {
+            const host = anchorRef.current.shadowRoot?.host as HTMLElement | undefined;
+            const target = host || (anchorRef.current as unknown as HTMLElement);
+            if (target && target.getBoundingClientRect) {
+                const rect = target.getBoundingClientRect();
+                setPosition({
+                    top: rect.bottom + window.scrollY,
+                    left: rect.left + window.scrollX,
+                });
+            }
+        }
+    }, [anchorRef]);
+    
     const handleChange = (value: string, isRecordConfigureChange?: boolean) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         const updatedCursorPosition = cursorPosition + value.length;
@@ -66,17 +90,19 @@ const HelperPaneNewEl = ({
             onClose();
         }
     };
-    return (
-        <HelperPaneCustom >
+
+
+     return (
+        <HelperPaneCustom>
             <HelperPaneCustom.Body >
                 <SlidingWindow>
                     <SlidingPane paneHeight='200px' name="PAGE1">
-                         <SlidingPaneHeader> Categories</SlidingPaneHeader>
+                        <SlidingPaneHeader> Categories</SlidingPaneHeader>
                         <ExpandableList>
-                            <SlidingPaneNavContainer to="PAGE1">
+                            <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
                                 <ExpandableList.Item>
                                     <Codicon name="bracket-dot" />
-                                    <span>Construct Record</span>
+                                    <span>Create Value</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
                             <SlidingPaneNavContainer to="PAGE2" data={10}>
@@ -109,9 +135,11 @@ const HelperPaneNewEl = ({
                     <SlidingPane name="PAGE2">
                         <SlidingPaneHeader> Variables</SlidingPaneHeader>
                         <Variables/>
-                        <CopilotFooter >
-                                <Codicon name="add"/> <span>Generate with BI Copilot</span>
-                        </CopilotFooter>
+                    </SlidingPane>
+
+                    <SlidingPane name="CREATE_VALUE" paneHeight='400px'>
+                        <SlidingPaneHeader> Create Value</SlidingPaneHeader>
+                        <CreateValue fileName={fileName}/>
                     </SlidingPane>
 
 

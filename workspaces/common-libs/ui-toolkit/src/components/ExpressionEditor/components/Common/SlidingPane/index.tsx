@@ -5,7 +5,7 @@ import { Codicon } from "../../../../Codicon/Codicon";
 import { Divider } from "../../../../Divider/Divider";
 
 const DEFAULT_SLIDING_WINDOW_HEIGHT = '200px';
-const DEFAULT_SLIDING_WINDOW_WIDTH = 320;
+const DEFAULT_SLIDING_WINDOW_WIDTH = 370;
 
 type SlidingWindowProps = {
     children: React.ReactNode;
@@ -14,8 +14,9 @@ type SlidingWindowProps = {
 const SlidingWindowContainer = styled.div`
     display: flex;
     position: relative;
-    overflow: hidden;
     width: 320px;
+    overflow-x: scroll;
+    overflow-y: scroll;
     height: 200px;
     padding: 8px;
     background-color: var(--vscode-dropdown-background);
@@ -34,7 +35,6 @@ export const SlidingWindow = ({children}:SlidingWindowProps) => {
         params: {}
     }]); 
     const [prevPage, setPrevPage] = useState<VisitedPagesElement>();
-    const [viewParams, setViewParams] = useState<any>();
     const [height, setHeight] = useState(DEFAULT_SLIDING_WINDOW_HEIGHT);
     const [width, setWidth] = useState(DEFAULT_SLIDING_WINDOW_WIDTH);
     const [clearAnimations, setClearAnimations] = useState(false);
@@ -43,6 +43,12 @@ export const SlidingWindow = ({children}:SlidingWindowProps) => {
     const moveToNext = (nextPage:VisitedPagesElement) => {
         setVisitedPages([...visitedPages, nextPage]);
     };
+
+    const getParams = () => {
+        if (visitedPages.length>0){
+            return visitedPages[visitedPages.length - 1].params;
+        }
+    }
 
     const moveToPrev = () => {
         if (visitedPages.length > 1) {
@@ -64,11 +70,9 @@ export const SlidingWindow = ({children}:SlidingWindowProps) => {
                 setVisitedPages: setVisitedPages,
                 clearAnimations: clearAnimations,
                 setClearAnimations: setClearAnimations,
-                // Add missing properties below
                 prevPage: prevPage,
-                params: viewParams,
-                setParams: setViewParams,
-                setPrevPage: setPrevPage
+                setPrevPage: setPrevPage,
+                getParams: getParams
             }}>
             <SlidingWindowContainer style={{ height: height, width: width }}>
                 {children}
@@ -81,13 +85,13 @@ export const SlidingPaneContainer = styled.div<{ index: number; isCurrent?: bool
   position: absolute;
   top: 0;
   left: 0;
-  width: 320px;
+  width: 100%;
   padding: 8px;
   height: 100%;
   display: flex;
   flex-direction: column;
   transition: ${({ clearAnimations }:{clearAnimations:boolean}) =>
-    clearAnimations ? 'none' : 'transform 0.3s ease-in-out, width 0.3s ease-in-out'};
+        clearAnimations ? 'none' : 'transform 0.3s ease-in-out, width 0.3s ease-in-out'};
   transform: ${({ index }: { index: number }) => `translateX(${index * 100}%)`};
 `;
 
@@ -121,6 +125,7 @@ export const SlidingPane = ({  children, name, paneHeight, paneWidth}:SlidingPan
         prevVisitedPagesLength.current = visitedPages.length;
     }, [visitedPages, name, currentPage, setClearAnimations, setHeight, setWidth, paneHeight, paneWidth]);
 
+    if (name !== currentPage.name) return;
     return (
         <SlidingPaneContainer index={index} clearAnimations={clearAnimations}>
             {children}
@@ -153,6 +158,14 @@ const SlidingPaneNavContainerElm = styled.div`
         cursor: pointer;
     }
 `
+export const SlidingPaneCallbackCOntainer = styled.div`
+    width: 100%;
+    padding: 8px;
+    &:hover {
+        background-color:rgb(29, 29, 29);
+        cursor: pointer;
+    }
+`
 
 type SlidingPaneNavContainerProps = {
     children?: React.ReactNode;
@@ -161,10 +174,9 @@ type SlidingPaneNavContainerProps = {
 }
 
 export const SlidingPaneNavContainer = ({children, to, data}: SlidingPaneNavContainerProps) => {
-    const { moveToNext, setParams  } = useSlidingPane();
+    const { moveToNext  } = useSlidingPane();
     const handleNavigation = () => {
         if (!to) return;
-        setParams(data)
         moveToNext({
             name: to,
             params: data
@@ -178,9 +190,11 @@ export const SlidingPaneNavContainer = ({children, to, data}: SlidingPaneNavCont
                     <div>
                         {children}
                     </div>
-                    <div style={{marginLeft: '8px', display: 'flex', alignItems: 'center'}}>
-                        <Codicon name="chevron-right" /> 
-                    </div>
+                    {
+                        to?<div style={{marginLeft: '8px', display: 'flex', alignItems: 'center'}}>
+                            <Codicon name="chevron-right" /> 
+                        </div>:null
+                    }
                 </div>
             </InvisibleButton>
         </SlidingPaneNavContainerElm>
@@ -192,25 +206,33 @@ export const SlidingPaneBackButton = ({children}:{children:ReactNode}) => {
     const handleBackNavigation = () => {
         const prevPage =  visitedPages[visitedPages.length - 2];
         setPrevPage(prevPage);
-         setTimeout(() => {
-             moveToPrev();
+        setTimeout(() => {
+            moveToPrev();
         }, 50);
        
     }
     return (
-       <>
+        <>
             {visitedPages.length > 1 && (
                 <InvisibleButton onClick={handleBackNavigation}>
                     <>{children}</>
                 </InvisibleButton>
             )}
-       </>
+        </>
     )
 }
 
+const StickyHeader = styled.div`
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--vscode-dropdown-background, #1e1e1e);
+`;
+
+
 export const SlidingPaneHeader = ({children}: {children:ReactNode}) => {
     return (
-        <div>
+        <StickyHeader>
             <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                 <SlidingPaneBackButton>
                     <Codicon name="chevron-left" />
@@ -218,7 +240,7 @@ export const SlidingPaneHeader = ({children}: {children:ReactNode}) => {
                 {children}
             </div>
             <Divider/>
-        </div>
+        </StickyHeader>
     )
 }
 

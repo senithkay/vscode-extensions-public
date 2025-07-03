@@ -1,21 +1,9 @@
+import { ThemeColors } from "@wso2/ui-toolkit";
 import { pad } from "lodash";
 
 const getTypeColor = (type: string, isRow: boolean): string => {
-    if (!isRow) {
-        return '#CCCCCC'; 
-    }
-    switch (type) {
-        case 'int':
-            return '#007ACC';
-        case 'string':
-            return '#33FF57';
-        case 'boolean':
-            return '#3357FF'; 
-        case 'float':
-            return '#F0E68C';
-        default:
-            return '#CCCCCC'; 
-    }
+    //TODO: change if need
+    return ThemeColors.PRIMARY
 }
 
 type VariableTypeIndifcatorProps = {
@@ -24,8 +12,8 @@ type VariableTypeIndifcatorProps = {
 }
 export const VariableTypeIndifcator = ({type, isRow = true}: VariableTypeIndifcatorProps) => {
     return (
-        <div style={{color: getTypeColor(type, isRow), fontWeight: 'bold'}}>
-            <span>{`${type} :`}</span>
+        <div style={{backgroundColor: getTypeColor(type, isRow), fontWeight: 'bold', padding: '1px 2px',   fontSize: '11px' }}>
+            <span>{`${type}`}</span>
         </div>
     );
 }   

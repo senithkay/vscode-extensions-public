@@ -22,15 +22,16 @@ const variablesList = [
 ]
 
 export const Variables = () => {
-     const { params } = useSlidingPane();
+    const { getParams } = useSlidingPane();
+    const params = getParams();
     return(
         <ExpandableList>
             {variablesList.map((variable) => (
                 variable.isRow ?
                     <SlidingPaneNavContainer>
                         <ExpandableList.Item>
-                            <VariableTypeIndifcator type={variable.type}/>
                         <span>{params}</span>
+                        <VariableTypeIndifcator type={variable.type}/>
                     </ExpandableList.Item>
                     </SlidingPaneNavContainer>
                     :

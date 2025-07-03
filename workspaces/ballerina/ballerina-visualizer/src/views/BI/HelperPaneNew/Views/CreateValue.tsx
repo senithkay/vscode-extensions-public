@@ -1,0 +1,78 @@
+import { GetRecordConfigRequest, GetRecordConfigResponse, PropertyTypeMemberInfo, RecordSourceGenRequest, RecordSourceGenResponse, RecordTypeField, TypeField } from "@wso2/ballerina-core";
+import { useRpcContext } from "@wso2/ballerina-rpc-client";
+import { useSlidingPane } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane/context";
+import { useEffect, useState } from "react";
+import { RecordConfigView } from "../../HelperPane/RecordConfigView";
+
+type CreateValuePageProps = {
+    fileName: string
+}
+
+const passPackageInfoIfExists = (recordTypeMember: PropertyTypeMemberInfo) => {
+    let org = "";
+    let module = "";
+    let version = "";
+    if (recordTypeMember.packageInfo) {
+        const parts = recordTypeMember.packageInfo.split(':');
+        if (parts.length === 3) {
+            [org, module, version] = parts;
+        }
+    }
+    return {org,module,version}
+}
+
+const getPropertyMember = (field: RecordTypeField) => {
+    return field?.recordTypeMembers.at(0);
+}
+
+export const CreateValue = ({fileName}: CreateValuePageProps) => {
+    const [recordModel, setRecordModel] = useState<TypeField[]>([]);
+    //remove this
+    const [show, setShow] = useState(false);
+
+    const { rpcClient } = useRpcContext();
+
+    const { getParams } = useSlidingPane();
+    const params = getParams() as RecordTypeField;
+    //RCD
+    const propertyMember = getPropertyMember(params)
+
+    const fetchRecordModel = async () => {
+        const packageInfo = passPackageInfoIfExists(params?.recordTypeMembers.at(0))
+        const request: GetRecordConfigRequest = {
+            filePath: fileName,
+            codedata: {
+                org: packageInfo.org,
+                module: packageInfo.module,
+                version: packageInfo.version,
+                packageName: propertyMember?.packageName,
+            },
+            typeConstraint: propertyMember?.type,
+        }
+        const typeFieldResponse: GetRecordConfigResponse = await rpcClient.getBIDiagramRpcClient().getRecordConfig(request);
+        if (typeFieldResponse.recordConfig) {
+            const recordConfig: TypeField = {
+                name: propertyMember?.type,
+                ...typeFieldResponse.recordConfig
+            }
+
+            setRecordModel([recordConfig]);
+        }
+    }
+
+
+    useEffect( () => {
+        fetchRecordModel()
+    },[]);
+
+    const handleShow = () => {
+        console.log("awd")
+        setShow(true)
+    }
+    return(
+      <RecordConfigView
+            recordModel={recordModel}
+            onModelChange={()=>{}}
+        />
+    )
+}
