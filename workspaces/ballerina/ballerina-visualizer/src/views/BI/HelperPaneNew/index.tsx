@@ -11,11 +11,10 @@ import { RefObject, useLayoutEffect, useRef, useState } from 'react';
 
 import { ExpandableList } from './Components/ExpandableList';
 import { Variables } from './Views/Variables';
-import { LineRange, RecordTypeField } from '@wso2/ballerina-core';
+import { CompletionInsertText, LineRange, RecordTypeField } from '@wso2/ballerina-core';
 import { Codicon, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight } from '@wso2/ui-toolkit';
 import { CopilotFooter, SlidingPane, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
 import { CreateValue } from './Views/CreateValue';
-
 
 const getRecordType = (recordTypeField: RecordTypeField) => {
     return recordTypeField;
@@ -33,7 +32,7 @@ export type HelperPaneNewProps = {
     onChange: (value: string, updatedCursorPosition: number) => void;
     helperPaneHeight: HelperPaneHeight;
     recordTypeField?: RecordTypeField;
-    updateImports: (key: string, imports: {[key: string]: string}) => void;
+    updateImports: (key: string, imports: { [key: string]: string }) => void;
     isAssignIdentifier?: boolean;
 };
 
@@ -53,7 +52,7 @@ const HelperPaneNewEl = ({
     isAssignIdentifier
 }: HelperPaneNewProps) => {
 
-    const [position, setPosition] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [position, setPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
     const paneRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
@@ -69,10 +68,27 @@ const HelperPaneNewEl = ({
             }
         }
     }, [anchorRef]);
-    
-    const handleChange = (value: string, isRecordConfigureChange?: boolean) => {
+
+    const getInsertText = (insertText: string | CompletionInsertText): string => {
+        if (typeof insertText === 'string') {
+            return insertText;
+        }
+        return insertText.value;
+    };
+
+    const getCursorOffset = (insertText: string | CompletionInsertText): number => {
+        if (typeof insertText === 'string') {
+            return 0;
+        }
+        return insertText.cursorOffset ?? 0;
+    };
+
+
+    const handleChange = (insertText: string | CompletionInsertText, isRecordConfigureChange?: boolean) => {
+        const value = getInsertText(insertText);
+        const cursorOffset = getCursorOffset(insertText);
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        const updatedCursorPosition = cursorPosition + value.length;
+        const updatedCursorPosition = cursorPosition + value.length + cursorOffset;
         let updatedValue = value;
 
         if (!isRecordConfigureChange) {
@@ -92,12 +108,11 @@ const HelperPaneNewEl = ({
     };
 
 
-     return (
+    return (
         <HelperPaneCustom>
             <HelperPaneCustom.Body >
                 <SlidingWindow>
                     <SlidingPane paneHeight='200px' name="PAGE1">
-                        <SlidingPaneHeader> Categories</SlidingPaneHeader>
                         <ExpandableList>
                             <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
                                 <ExpandableList.Item>
@@ -107,8 +122,8 @@ const HelperPaneNewEl = ({
                             </SlidingPaneNavContainer>
                             <SlidingPaneNavContainer to="PAGE2" data={10}>
                                 <ExpandableList.Item>
-                                    <Codicon name="lightbulb" />
-                                    <span>Suggestions</span>
+                                    <Codicon name="variable-group" />
+                                    <span>Variables</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
                             <SlidingPaneNavContainer to="PAGE_FUNCTIONS">
@@ -128,24 +143,24 @@ const HelperPaneNewEl = ({
                             <CopilotFooter>
                                 <Codicon name="add" /> <span>Generate with BI Copilot</span>
                             </CopilotFooter>
-                        </SlidingPaneNavContainer>   
+                        </SlidingPaneNavContainer>
                     </SlidingPane>
 
                     {/* Variables Page */}
                     <SlidingPane name="PAGE2">
                         <SlidingPaneHeader> Variables</SlidingPaneHeader>
-                        <Variables/>
+                        <Variables />
                     </SlidingPane>
 
                     <SlidingPane name="CREATE_VALUE" paneHeight='400px'>
                         <SlidingPaneHeader> Create Value</SlidingPaneHeader>
-                        <CreateValue fileName={fileName}/>
+                        <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue}/>
                     </SlidingPane>
 
 
                     <SlidingPane name="PAGE3">
                         <SlidingPaneHeader> This is Page 3</SlidingPaneHeader>
-                            Page3
+                        Page3
                         {/* <CopilotFooter >
                                 <Codicon name="add"/> <span>Generate with BI Copilot</span>
                         </CopilotFooter> */}

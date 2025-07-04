@@ -470,6 +470,11 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
             ? field.documentation
             : `${field.documentation}.`
         : '';
+
+    const supressHeplerPane = () => {
+        if (!isHelperPaneOpen) return;
+        handleChangeHelperPaneState(false);
+    }
     
     return (
         <S.Container id={id}>
@@ -525,6 +530,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                                         getPropertyFromFormField(field)
                                     );
                                 }
+                                
 
                                 // Check if the current character is a trigger character
                                 const triggerCharacter =
@@ -538,12 +544,14 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                                         updatedCursorPosition,
                                         triggerCharacter
                                     );
+                                    // supressHeplerPane()
                                 } else {
                                     await retrieveCompletions(
                                         rawValue,
                                         getPropertyFromFormField(field),
                                         updatedCursorPosition
                                     );
+                                    // supressHeplerPane()
                                 }
                             }}
                             extractArgsFromFunction={handleExtractArgsFromFunction}

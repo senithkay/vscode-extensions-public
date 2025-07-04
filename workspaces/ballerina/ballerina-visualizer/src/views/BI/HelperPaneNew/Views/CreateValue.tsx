@@ -1,11 +1,13 @@
 import { GetRecordConfigRequest, GetRecordConfigResponse, PropertyTypeMemberInfo, RecordSourceGenRequest, RecordSourceGenResponse, RecordTypeField, TypeField } from "@wso2/ballerina-core";
 import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { useSlidingPane } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane/context";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RecordConfigView } from "../../HelperPane/RecordConfigView";
 
 type CreateValuePageProps = {
-    fileName: string
+    fileName: string;
+    currentValue: string;
+    onChange: (value: string, isRecordConfigureChange: boolean) => void;
 }
 
 const passPackageInfoIfExists = (recordTypeMember: PropertyTypeMemberInfo) => {
@@ -25,7 +27,8 @@ const getPropertyMember = (field: RecordTypeField) => {
     return field?.recordTypeMembers.at(0);
 }
 
-export const CreateValue = ({fileName}: CreateValuePageProps) => {
+export const CreateValue = (props: CreateValuePageProps) => {
+    const { fileName, currentValue, onChange } = props;
     const [recordModel, setRecordModel] = useState<TypeField[]>([]);
     //remove this
     const [show, setShow] = useState(false);
@@ -36,6 +39,8 @@ export const CreateValue = ({fileName}: CreateValuePageProps) => {
     const params = getParams() as RecordTypeField;
     //RCD
     const propertyMember = getPropertyMember(params)
+
+    const sourceCode = useRef<string>(currentValue);
 
     const fetchRecordModel = async () => {
         const packageInfo = passPackageInfoIfExists(params?.recordTypeMembers.at(0))
@@ -60,6 +65,21 @@ export const CreateValue = ({fileName}: CreateValuePageProps) => {
         }
     }
 
+    const handleModelChange = async (updatedModel: TypeField[]) => {
+        const request: RecordSourceGenRequest = {
+            filePath: fileName,
+            type: updatedModel[0]
+        }
+        const recordSourceResponse: RecordSourceGenResponse = await rpcClient.getBIDiagramRpcClient().getRecordSource(request);
+        console.log(">>> recordSourceResponse", recordSourceResponse);
+
+        if (recordSourceResponse.recordValue !== undefined) {
+            const content = recordSourceResponse.recordValue;
+            sourceCode.current = content;
+            onChange(content, true);
+        }
+    }
+
 
     useEffect( () => {
         fetchRecordModel()
@@ -72,7 +92,7 @@ export const CreateValue = ({fileName}: CreateValuePageProps) => {
     return(
       <RecordConfigView
             recordModel={recordModel}
-            onModelChange={()=>{}}
+            onModelChange={handleModelChange}
         />
     )
 }
