@@ -78,6 +78,7 @@ export type HelperPaneCompletionItem = {
     insertText: string;
     kind?: string;
     codedata?: any;
+    isRow?:boolean;
 }
 
 export type HelperPaneCompletionCategory = {

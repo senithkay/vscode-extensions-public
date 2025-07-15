@@ -267,6 +267,7 @@ export function PanelManager(props: PanelManagerProps) {
                         openSubPanel={onSubPanel}
                         updatedExpressionField={updatedExpressionField}
                         resetUpdatedExpressionField={onResetUpdatedExpressionField}
+                        handleOnFormSubmit={onSubmitForm}
                     />
                 );
 

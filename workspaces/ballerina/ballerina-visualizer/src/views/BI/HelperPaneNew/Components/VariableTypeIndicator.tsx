@@ -12,7 +12,7 @@ type VariableTypeIndifcatorProps = {
 }
 export const VariableTypeIndifcator = ({type, isRow = true}: VariableTypeIndifcatorProps) => {
     return (
-        <div style={{backgroundColor: getTypeColor(type, isRow), fontWeight: 'bold', padding: '1px 2px',   fontSize: '11px' }}>
+        <div style={{backgroundColor: getTypeColor(type, isRow), fontWeight: 'bold', padding: '2px 5px',   fontSize: '11px' , borderRadius: '4px'}}>
             <span>{`${type}`}</span>
         </div>
     );

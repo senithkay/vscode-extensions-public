@@ -61,7 +61,7 @@ export const StyledTextArea = styled(AutoResizeTextArea)`
 
 export const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
-    z-index: 2001;
+    z-index: 40001;
     filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
     ${(props: StyleBase) => props.sx}
 
@@ -517,6 +517,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     }));
 
+    const isInsideModal = (element: Element) => {
+        return element.closest('.unq-modal-overlay') !== null;
+    };
+
     useEffect(() => {
         // Prevent blur event when clicking on the dropdown
         const handleOutsideClick = async (e: any) => {
@@ -526,7 +530,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target) &&
                 !anchorRef?.current?.contains(e.target) &&
-                !fnSignatureElRef.current?.contains(e.target)
+                !fnSignatureElRef.current?.contains(e.target) &&
+                !isInsideModal(e.target)
             ) {
                 // Additional actions to be performed when the expression editor loses focus
                 setIsFocused(false);

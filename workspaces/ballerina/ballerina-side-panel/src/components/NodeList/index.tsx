@@ -236,6 +236,8 @@ export function NodeList(props: NodeListProps) {
     const { rpcClient } = useRpcContext();
     const [isNPSupported, setIsNPSupported] = useState(false);
 
+    console.log(">>> categories", categories);
+
     useEffect(() => {
         rpcClient.getCommonRpcClient().isNPSupported().then((supported) => {
             setIsNPSupported(supported);

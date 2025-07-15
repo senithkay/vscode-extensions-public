@@ -77,7 +77,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
                 <>
                     {optionalParams.length > 0 && (
                         <div className={helperStyleClass.listOptionalWrapper}>
-                            <div className={helperStyleClass.listOptionalHeader}>Optional fields </div>
+                            {/* <div className={helperStyleClass.listOptionalHeader}>Optional fields </div> */}
                             <Button
                                 data-testid="optional-toggle-button"
                                 className={helperStyleClass.listOptionalBtn}

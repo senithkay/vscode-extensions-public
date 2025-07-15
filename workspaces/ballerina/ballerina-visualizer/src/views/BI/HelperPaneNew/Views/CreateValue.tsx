@@ -90,7 +90,7 @@ export const CreateValue = (props: CreateValuePageProps) => {
         setShow(true)
     }
     return(
-      <RecordConfigView
+        <RecordConfigView
             recordModel={recordModel}
             onModelChange={handleModelChange}
         />

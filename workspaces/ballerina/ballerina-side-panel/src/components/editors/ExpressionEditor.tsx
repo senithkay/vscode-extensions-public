@@ -564,7 +564,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                             enableExIcon={false}
                             isHelperPaneOpen={isHelperPaneOpen}
                             changeHelperPaneState={handleChangeHelperPaneState}
-                            helperPaneOrigin="bottom"
+                            helperPaneOrigin="vertical"
                             getHelperPane={handleGetHelperPane}
                             helperPaneHeight={helperPaneHeight}
                             helperPaneWidth={recordTypeField ? 400 : undefined}

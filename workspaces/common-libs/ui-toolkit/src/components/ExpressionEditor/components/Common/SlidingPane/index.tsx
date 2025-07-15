@@ -3,8 +3,10 @@ import { SlidingPaneContext, useSlidingPane } from "./context";
 import styled from '@emotion/styled';
 import { Codicon } from "../../../../Codicon/Codicon";
 import { Divider } from "../../../../Divider/Divider";
+import {  VERTICAL_HELPERPANE_HEIGHT } from "../../../constants";
+import { ThemeColors } from "../../../../../styles";
 
-const DEFAULT_SLIDING_WINDOW_HEIGHT = '200px';
+const DEFAULT_SLIDING_WINDOW_HEIGHT = `${VERTICAL_HELPERPANE_HEIGHT}px`;
 const DEFAULT_SLIDING_WINDOW_WIDTH = 370;
 
 type SlidingWindowProps = {
@@ -86,7 +88,7 @@ export const SlidingPaneContainer = styled.div<{ index: number; isCurrent?: bool
   top: 0;
   left: 0;
   width: 100%;
-  padding: 8px;
+  padding: 0 8px 8px 8px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -138,7 +140,6 @@ const InvisibleButton = styled.button`
     border: none;
     padding: 0;
     margin: 0;
-    width: 100%;
     text-align: inherit;
     color: inherit;
     font: inherit;
@@ -154,7 +155,7 @@ const SlidingPaneNavContainerElm = styled.div`
     width: 100%;
     padding: 8px;
     &:hover {
-        background-color:rgb(29, 29, 29);
+        background-color: ${ThemeColors.SURFACE_DIM};
         cursor: pointer;
     }
 `
@@ -185,7 +186,7 @@ export const SlidingPaneNavContainer = ({children, to, data}: SlidingPaneNavCont
 
     return (
         <SlidingPaneNavContainerElm>
-            <InvisibleButton onClick={handleNavigation}>
+            <InvisibleButton style={{width: '100%'}} onClick={handleNavigation}>
                 <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
                     <div>
                         {children}
@@ -223,7 +224,8 @@ export const SlidingPaneBackButton = ({children}:{children:ReactNode}) => {
 }
 
 const StickyHeader = styled.div`
-    position: sticky;
+    position: relative;
+    padding: 8px;
     top: 0;
     z-index: 2;
     background: var(--vscode-dropdown-background, #1e1e1e);
@@ -233,7 +235,7 @@ const StickyHeader = styled.div`
 export const SlidingPaneHeader = ({children}: {children:ReactNode}) => {
     return (
         <StickyHeader>
-            <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+            <div style={{display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-start'}}>
                 <SlidingPaneBackButton>
                     <Codicon name="chevron-left" />
                 </SlidingPaneBackButton>

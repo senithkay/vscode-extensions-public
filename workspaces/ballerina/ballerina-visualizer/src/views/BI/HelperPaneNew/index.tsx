@@ -11,11 +11,15 @@ import { RefObject, useLayoutEffect, useRef, useState } from 'react';
 
 import { ExpandableList } from './Components/ExpandableList';
 import { Variables } from './Views/Variables';
-import { CompletionInsertText, LineRange, RecordTypeField } from '@wso2/ballerina-core';
-import { Codicon, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight } from '@wso2/ui-toolkit';
+import { CompletionInsertText, ExpressionProperty, FlowNode, LineRange, RecordTypeField } from '@wso2/ballerina-core';
+import { Codicon, CompletionItem, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight, Modal } from '@wso2/ui-toolkit';
 import { CopilotFooter, SlidingPane, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
 import { CreateValue } from './Views/CreateValue';
-
+import DynamicModal from './Components/Modal';
+import FooterButtons from './Components/FooterButtons';
+import { FunctionsPage } from './Views/Functions';
+import { Divider } from '@wso2/ui-toolkit';
+import { GenerateBICopilot } from './Views/GenerateBICopilot';
 const getRecordType = (recordTypeField: RecordTypeField) => {
     return recordTypeField;
 }
@@ -34,6 +38,10 @@ export type HelperPaneNewProps = {
     recordTypeField?: RecordTypeField;
     updateImports: (key: string, imports: { [key: string]: string }) => void;
     isAssignIdentifier?: boolean;
+    completions: CompletionItem[],
+    projectPath?: string,
+    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => void
+    helperPaneZIndex?: number;
 };
 
 const HelperPaneNewEl = ({
@@ -49,11 +57,16 @@ const HelperPaneNewEl = ({
     helperPaneHeight,
     recordTypeField,
     updateImports,
-    isAssignIdentifier
+    isAssignIdentifier,
+    completions,
+    projectPath,
+    handleOnFormSubmit,
+    helperPaneZIndex
 }: HelperPaneNewProps) => {
-
     const [position, setPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
     const paneRef = useRef<HTMLDivElement>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
 
     useLayoutEffect(() => {
         if (anchorRef.current) {
@@ -83,7 +96,6 @@ const HelperPaneNewEl = ({
         return insertText.cursorOffset ?? 0;
     };
 
-
     const handleChange = (insertText: string | CompletionInsertText, isRecordConfigureChange?: boolean) => {
         const value = getInsertText(insertText);
         const cursorOffset = getCursorOffset(insertText);
@@ -107,26 +119,25 @@ const HelperPaneNewEl = ({
         }
     };
 
-
     return (
-        <HelperPaneCustom>
+        <HelperPaneCustom sx={{zIndex: helperPaneZIndex}}>
             <HelperPaneCustom.Body >
                 <SlidingWindow>
-                    <SlidingPane paneHeight='200px' name="PAGE1">
-                        <ExpandableList>
+                    <SlidingPane name="PAGE1">
+                        <ExpandableList sx={{paddingTop: '10px'}}>
                             <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
                                 <ExpandableList.Item>
-                                    <Codicon name="bracket-dot" />
+                                    <Codicon name="new-file" />
                                     <span>Create Value</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
-                            <SlidingPaneNavContainer to="PAGE2" data={10}>
+                            <SlidingPaneNavContainer to="VARIABLES">
                                 <ExpandableList.Item>
-                                    <Codicon name="variable-group" />
+                                    <Codicon name="json" />
                                     <span>Variables</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
-                            <SlidingPaneNavContainer to="PAGE_FUNCTIONS">
+                            <SlidingPaneNavContainer to="FUNCTIONS">
                                 <ExpandableList.Item>
                                     <Codicon name="variable-group" />
                                     <span>Functions</span>
@@ -139,24 +150,56 @@ const HelperPaneNewEl = ({
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
                         </ExpandableList>
-                        <SlidingPaneNavContainer to="PAGE2">
-                            <CopilotFooter>
-                                <Codicon name="add" /> <span>Generate with BI Copilot</span>
-                            </CopilotFooter>
-                        </SlidingPaneNavContainer>
+
+                        <div style={{ marginTop: "auto", gap: '10px' }}>
+                            <Divider />
+                            <DynamicModal width={600} height={400} anchorRef={anchorRef} title="Build Expression with BI Copilot">
+                            <DynamicModal.Trigger>
+                                <FooterButtons 
+                                sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto' }} 
+                                startIcon='copilot' 
+                                title="Generate with BI Copilot" />
+                            </DynamicModal.Trigger>
+                           <GenerateBICopilot />
+                        </DynamicModal>
+
+                        </div>
                     </SlidingPane>
 
                     {/* Variables Page */}
-                    <SlidingPane name="PAGE2">
-                        <SlidingPaneHeader> Variables</SlidingPaneHeader>
-                        <Variables />
+                    <SlidingPane name="VARIABLES">
+                        <SlidingPaneHeader>
+                            Variables
+                        </SlidingPaneHeader>
+                        <Variables
+                            anchorRef={anchorRef}
+                            fileName={fileName}
+                            onChange={handleChange}
+                            targetLineRange={targetLineRange}
+                            projectPath={projectPath}
+                            handleOnFormSubmit={handleOnFormSubmit}
+                        />
                     </SlidingPane>
 
                     <SlidingPane name="CREATE_VALUE" paneHeight='400px'>
                         <SlidingPaneHeader> Create Value</SlidingPaneHeader>
-                        <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue}/>
+                        <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue} />
                     </SlidingPane>
 
+                    <SlidingPane name="FUNCTIONS" paneHeight='400px'>
+                        <SlidingPaneHeader>
+                            Functions
+                        </SlidingPaneHeader>
+                        <FunctionsPage
+                            fieldKey={fieldKey}
+                            anchorRef={anchorRef}
+                            projectPath={projectPath}
+                            fileName={fileName}
+                            targetLineRange={targetLineRange}
+                            onClose={onClose}
+                            onChange={handleChange}
+                            updateImports={updateImports} />
+                    </SlidingPane>
 
                     <SlidingPane name="PAGE3">
                         <SlidingPaneHeader> This is Page 3</SlidingPaneHeader>
@@ -185,6 +228,8 @@ const HelperPaneNewEl = ({
  * @param onChange Function to handle changes in the expression editor
  * @param helperPaneHeight Height of the helper pane
  * @param recordTypeField Record type field
+ * @param projectPath Project path of the expression editor
+ * @param handleOnFormSubmit Function to handle form submission
  * @param updateImports Function to update the import statements of the expression editor
  * @param isAssignIdentifier Boolean indicating whether the expression is an assignment LV_EXPRESSION
  * @returns JSX.Element Helper pane element
@@ -203,7 +248,11 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
         helperPaneHeight,
         recordTypeField,
         updateImports,
-        isAssignIdentifier
+        isAssignIdentifier,
+        completions,
+        projectPath,
+        handleOnFormSubmit,
+        helperPaneZIndex
     } = props;
 
     return (
@@ -221,6 +270,10 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
             recordTypeField={recordTypeField}
             updateImports={updateImports}
             isAssignIdentifier={isAssignIdentifier}
+            completions={completions}
+            projectPath={projectPath}
+            handleOnFormSubmit={handleOnFormSubmit}
+            helperPaneZIndex={helperPaneZIndex}
         />
     );
 };

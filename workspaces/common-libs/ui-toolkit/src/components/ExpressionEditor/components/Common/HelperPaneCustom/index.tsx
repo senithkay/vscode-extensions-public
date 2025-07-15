@@ -325,7 +325,22 @@ const DropdownBody = styled.div<{  sx?: CSSProperties }>`
     padding: 2px;
     border-radius: 2px;
     color: var(--input-foreground);
-    ${({ sx }: { sx?: CSSProperties }) => sx}
+    ${({ sx }: { sx?: CSSProperties }) => {
+        let style = '';
+        if (sx) {
+            const sxObj = sx as Record<string, any>;
+            for (const key in sxObj) {
+                if (key === 'zIndex' && sxObj[key] !== undefined) {
+                    style += `z-index: ${sxObj[key]} !important;`;
+                } else if (sxObj[key] !== undefined) {
+                    // Convert camelCase to kebab-case
+                    const kebabKey = key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                    style += `${kebabKey}: ${sxObj[key]};`;
+                }
+            }
+        }
+        return style;
+    }}
 `;
 
 const Loader: React.FC<LoadingSectionProps> = ({ columns, rows, sections }) => {

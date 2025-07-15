@@ -773,6 +773,7 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
                     label: item.name,
                     type: item.type.typeName,
                     insertText: item.name,
+                    isRow: item.type.typeName === 'record'
                 })),
             })),
     };
