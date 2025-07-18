@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import { Codicon } from "../../../../Codicon/Codicon";
 import { Divider } from "../../../../Divider/Divider";
 import {  VERTICAL_HELPERPANE_HEIGHT } from "../../../constants";
-import { ThemeColors } from "../../../../../styles";
 
 const DEFAULT_SLIDING_WINDOW_HEIGHT = `${VERTICAL_HELPERPANE_HEIGHT}px`;
 const DEFAULT_SLIDING_WINDOW_WIDTH = 370;
@@ -155,7 +154,7 @@ const SlidingPaneNavContainerElm = styled.div`
     width: 100%;
     padding: 8px;
     &:hover {
-        background-color: ${ThemeColors.SURFACE_DIM};
+        background-color:  var(--vscode-list-hoverBackground);
         cursor: pointer;
     }
 `

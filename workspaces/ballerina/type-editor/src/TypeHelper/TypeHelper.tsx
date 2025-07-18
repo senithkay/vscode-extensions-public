@@ -260,7 +260,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                     {/* Type helper panel views */}
                     <HelperPane.PanelView id={PANEL_TABS.TYPES}>
                         {loading ? (
-                            <HelperPane.Loader rows={3} columns={2} sections={3} />
+                            <HelperPane.Loader rows={3} columns={1} sections={3} />
                         ) : (
                             basicTypes?.length > 0 && (
                                 <>
@@ -269,7 +269,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                                             key={category.category}
                                             title={category.category}
                                             titleSx={{ fontFamily: 'GilmerMedium' }}
-                                            columns={2}
+                                            columns={1}
                                         >
                                             {category.items.map((item) => (
                                                 <HelperPane.CompletionItem
@@ -293,7 +293,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                                                         <HelperPane.SubSection
                                                             key={subCategory.category}
                                                             title={subCategory.category}
-                                                            columns={2}
+                                                            columns={1}
                                                         >
                                                             {subCategory.items?.map((item) => (
                                                                 <HelperPane.CompletionItem
