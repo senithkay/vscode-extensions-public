@@ -83,6 +83,7 @@ import { getTypeHelper } from "../../TypeHelper";
 import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 import MatchForm from "../MatchForm";
 import { getHelperPaneNew } from "../../HelperPaneNew";
+import { FormSubmitOptions } from "../../FlowDiagram";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -113,7 +114,7 @@ interface FormProps {
         description?: string; // Optional description explaining what the action button does
         callback: () => void;
     };
-    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => void;
+    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void;
     helperPaneZIndex?: number;
 }
 
@@ -179,6 +180,9 @@ export function FormGenerator(props: FormProps) {
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
+
+    const [selectedType, setSelectedType] = useState<CompletionItem | null>(null);
+    const [targetLineRangeState, setTargetLineRangeState] = useState(targetLineRange);
 
     useEffect(() => {
         if (rpcClient) {
@@ -289,13 +293,19 @@ export function FormGenerator(props: FormProps) {
     const handleOnSubmit = (data: FormValues, dirtyFields: any) => {
         console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
-            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange, dirtyFields);
+            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRangeState, dirtyFields);
             console.log(">>> Updated node", updatedNode);
 
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
             onSubmit(updatedNode, isDataMapperFormUpdate, formImports);
         }
     };
+
+    const getManuallyUpdatedNode = (data: FormValues, dirtyFields: any) => {
+        if (node && targetLineRange) {
+            return mergeFormDataWithFlowNode(data, targetLineRange, dirtyFields);
+        }
+    }
 
     const mergeFormDataWithFlowNode = (data: FormValues, targetLineRange: LineRange, dirtyFields?: any): FlowNode => {
         const clonedNode = cloneDeep(node);
@@ -641,7 +651,9 @@ export function FormGenerator(props: FormProps) {
             completions:completions,
             projectPath: projectPath,
             handleOnFormSubmit: handleOnFormSubmit,
-            helperPaneZIndex: helperPaneZIndex
+            helperPaneZIndex: helperPaneZIndex,
+            selectedType: selectedType,
+            setTargetLineRange: setTargetLineRangeState
         });
     };
 
@@ -727,6 +739,10 @@ export function FormGenerator(props: FormProps) {
     const handleTypeCreate = (typeName?: string) => {
         setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: typeEditorState.fieldKey });
     };
+
+    const handleSelectedTypeChange = (type: CompletionItem) => {
+        setSelectedType(type);  
+    }
 
     // handle if node form
     if (node?.codedata.node === "IF") {
@@ -826,6 +842,7 @@ export function FormGenerator(props: FormProps) {
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
                     handleVisualizableFields={fetchVisualizableFields}
+                    handleSelectedTypeChange={handleSelectedTypeChange}
                     visualizableFields={visualizableFields}
                     infoLabel={infoLabel}
                     disableSaveButton={disableSaveButton}

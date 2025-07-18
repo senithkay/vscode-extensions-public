@@ -20,6 +20,7 @@ import FooterButtons from './Components/FooterButtons';
 import { FunctionsPage } from './Views/Functions';
 import { Divider } from '@wso2/ui-toolkit';
 import { GenerateBICopilot } from './Views/GenerateBICopilot';
+import { FormSubmitOptions } from '../FlowDiagram';
 const getRecordType = (recordTypeField: RecordTypeField) => {
     return recordTypeField;
 }
@@ -40,8 +41,10 @@ export type HelperPaneNewProps = {
     isAssignIdentifier?: boolean;
     completions: CompletionItem[],
     projectPath?: string,
-    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => void
+    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void
     helperPaneZIndex?: number;
+    selectedType?: CompletionItem;
+    setTargetLineRange?: (targetLineRange: LineRange) => void;
 };
 
 const HelperPaneNewEl = ({
@@ -61,12 +64,13 @@ const HelperPaneNewEl = ({
     completions,
     projectPath,
     handleOnFormSubmit,
-    helperPaneZIndex
+    helperPaneZIndex,
+    selectedType,
+    setTargetLineRange
 }: HelperPaneNewProps) => {
     const [position, setPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
     const paneRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
 
     useLayoutEffect(() => {
         if (anchorRef.current) {
@@ -125,13 +129,15 @@ const HelperPaneNewEl = ({
                 <SlidingWindow>
                     <SlidingPane name="PAGE1">
                         <ExpandableList sx={{paddingTop: '10px'}}>
+                            {selectedType && (
                             <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
                                 <ExpandableList.Item>
                                     <Codicon name="new-file" />
                                     <span>Create Value</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
-                            <SlidingPaneNavContainer to="VARIABLES">
+                            )}
+                            <SlidingPaneNavContainer to="VARIABLES" data={recordTypeField}>
                                 <ExpandableList.Item>
                                     <Codicon name="json" />
                                     <span>Variables</span>
@@ -178,12 +184,14 @@ const HelperPaneNewEl = ({
                             targetLineRange={targetLineRange}
                             projectPath={projectPath}
                             handleOnFormSubmit={handleOnFormSubmit}
+                            selectedType={selectedType}
+                            setTargetLineRange={setTargetLineRange}
                         />
                     </SlidingPane>
 
                     <SlidingPane name="CREATE_VALUE" paneHeight='400px'>
                         <SlidingPaneHeader> Create Value</SlidingPaneHeader>
-                        <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue} />
+                        <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue} selectedType={selectedType} />
                     </SlidingPane>
 
                     <SlidingPane name="FUNCTIONS" paneHeight='400px'>
@@ -252,7 +260,9 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
         completions,
         projectPath,
         handleOnFormSubmit,
-        helperPaneZIndex
+        helperPaneZIndex,
+        selectedType,
+        setTargetLineRange
     } = props;
 
     return (
@@ -274,6 +284,8 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
             projectPath={projectPath}
             handleOnFormSubmit={handleOnFormSubmit}
             helperPaneZIndex={helperPaneZIndex}
+            selectedType={selectedType}
+            setTargetLineRange={setTargetLineRange}
         />
     );
 };

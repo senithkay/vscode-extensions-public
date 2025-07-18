@@ -27,6 +27,7 @@ import {
     SidePanelBody,
     CheckBox,
     Typography,
+    CompletionItem,
 } from "@wso2/ui-toolkit";
 import styled from "@emotion/styled";
 
@@ -45,6 +46,7 @@ import {
     LinePosition,
     ExpressionProperty,
     RecordTypeField,
+    Type,
 } from "@wso2/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import {
@@ -344,6 +346,7 @@ export interface FormProps {
     concertRequired?: boolean;
     concertMessage?: string;
     formImports?: FormImports;
+    handleSelectedTypeChange?: (type: CompletionItem) => void;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -370,6 +373,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         resetUpdatedExpressionField,
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
+        handleSelectedTypeChange,
         visualizableFields,
         recordTypeFields,
         nestedForm,
@@ -541,11 +545,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openSubPanel(updatedSubPanel);
     };
 
-    const handleOnTypeChange = () => {
+    const handleOnTypeChange = (value?: string) => {
         if (mergeFormDataWithFlowNode) {
             getVisualiableFields();
         }
     };
+
+    const handleNewTypeSelected = (type: CompletionItem) => {
+        if (type) {
+            handleSelectedTypeChange && handleSelectedTypeChange(type);
+        }
+    }
 
     const getVisualiableFields = () => {
         if (mergeFormDataWithFlowNode) {
@@ -715,6 +725,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
+                                handleNewTypeSelected={handleNewTypeSelected}
                                 visualizableFields={visualizableFields}
                                 recordTypeFields={recordTypeFields}
                                 onIdentifierEditingStateChange={handleIdentifierEditingStateChange}

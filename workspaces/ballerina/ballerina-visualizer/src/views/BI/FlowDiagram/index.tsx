@@ -80,6 +80,11 @@ export interface BIFlowDiagramProps {
     onReady: (fileName: string) => void;
 }
 
+export type FormSubmitOptions = {
+    shouldCloseSidePanel?: boolean;
+    updateLineRangeForRecursiveInserts?: (nodes: FlowNode[]) => void;
+};
+
 export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const { syntaxTree, projectPath, onUpdate, onReady } = props;
     const { rpcClient } = useRpcContext();
@@ -106,6 +111,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const showEditForm = useRef<boolean>(false);
     const selectedNodeMetadata = useRef<{ nodeId: string, metadata: any, fileName: string }>();
     const selectedModel = useRef<Flow>();
+    const onRerenderRef = useRef<((nodes: FlowNode[]) => void) | null>(null);
 
     useEffect(() => {
         getFlowModel();
@@ -142,6 +148,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         if (model?.flowModel) {
                             setModel(model.flowModel);
                             onReady(model.flowModel.fileName);
+                            if (onRerenderRef.current) {
+                                onRerenderRef.current(model.flowModel.nodes);
+                            }
                         }
                     })
                     .finally(() => {
@@ -524,7 +533,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
-    const handleOnFormSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
+    const handleOnFormSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => {
         if (!updatedNode) {
             console.log(">>> No updated node found");
             updatedNode = selectedNodeRef.current;
@@ -540,8 +549,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .then((response) => {
                 console.log(">>> Updated source code", response);
                 if (response.artifacts.length > 0) {
-                    selectedNodeRef.current = undefined;
-                    handleOnCloseSidePanel();
+                    if (options?.shouldCloseSidePanel) {
+                        selectedNodeRef.current = undefined;
+                        handleOnCloseSidePanel();
+                    }
+                    if (options?.updateLineRangeForRecursiveInserts) {
+                        onRerenderRef.current = options.updateLineRangeForRecursiveInserts;
+                    }
                 } else {
                     console.error(">>> Error updating source code", response);
                 }

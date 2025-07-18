@@ -19,6 +19,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
     Codicon,
+    CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
@@ -42,8 +43,9 @@ interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
     handleOnFieldFocus?: (key: string) => void;
-    handleOnTypeChange?: () => void;
+    handleOnTypeChange?: (value?: string) => void;
     autoFocus?: boolean;
+    handleNewTypeSelected?: (type: CompletionItem) => void;
 }
 
 const Ribbon = styled.div({
@@ -89,7 +91,7 @@ const getDefaultCompletion = (newType: string) => {
 }
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus } = props;
+    const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus, handleNewTypeSelected } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
@@ -154,7 +156,8 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const handleTypeEdit = (value: string) => {
-        handleOnTypeChange && handleOnTypeChange();
+        console.log("value", value)
+        handleOnTypeChange && handleOnTypeChange(value);
     };
 
     const debouncedTypeEdit = debounce(handleTypeEdit, 300);
@@ -265,6 +268,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
                                 // Set show default completion
                                 const typeExists = referenceTypes.find((type) => type.label === updatedValue);
+                                handleNewTypeSelected && handleNewTypeSelected(typeExists)
                                 const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
                                 if (updatedValue && !typeExists && validTypeForCreation) {
                                     setShowDefaultCompletion(true);

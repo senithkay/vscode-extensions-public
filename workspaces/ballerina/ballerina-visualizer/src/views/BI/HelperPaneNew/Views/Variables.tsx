@@ -3,16 +3,18 @@ import { ExpandableList } from "../Components/ExpandableList"
 import { VariableTypeIndifcator } from "../Components/VariableTypeIndicator"
 import { SlidingPaneNavContainer } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane"
 import { useRpcContext } from "@wso2/ballerina-rpc-client"
-import { ExpressionProperty, FlowNode, LineRange, TriggerCharacter } from "@wso2/ballerina-core"
-import { Divider, HelperPaneCustom, SearchBox } from "@wso2/ui-toolkit"
+import { ELineRange, ExpressionProperty, FlowNode, LinePosition, LineRange, TriggerCharacter } from "@wso2/ballerina-core"
+import { CompletionItem, Divider, HelperPaneCustom, SearchBox } from "@wso2/ui-toolkit"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { HelperPaneCompletionItem, HelperPaneVariableInfo } from "@wso2/ballerina-side-panel"
-import { debounce } from "lodash"
+import { debounce, find } from "lodash"
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../../utils/bi"
 import FooterButtons from "../Components/FooterButtons"
 import DynamicModal from "../Components/Modal"
 import { FormGenerator } from "../../Forms/FormGenerator"
 import { ScrollableContainer } from "../Components/ScrollableContainer"
+import { isUnionType } from "../Utils/types"
+import { FormSubmitOptions } from "../../FlowDiagram"
 
 type VariablesPageProps = {
     fileName: string;
@@ -21,12 +23,14 @@ type VariablesPageProps = {
     targetLineRange: LineRange;
     anchorRef: React.RefObject<HTMLDivElement>; 
     projectPath?: string;
-    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => void;
+    handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void;
+    selectedType?: CompletionItem;
+    setTargetLineRange?: (targetLineRange: LineRange) => void;
 }
 
 
 export const Variables = (props: VariablesPageProps) => {
-    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit } = props;
+    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType ,  setTargetLineRange} = props;
     const [searchValue, setSearchValue] = useState<string>("");
     const { rpcClient } = useRpcContext();
     const { getParams } = useSlidingPane();
@@ -37,6 +41,9 @@ export const Variables = (props: VariablesPageProps) => {
     const [filteredVariableInfo, setFilteredVariableInfo] = useState<HelperPaneVariableInfo | undefined>(undefined);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fieldsOfRecordTYpe, setFieldsOfRecordType] = useState<any[] | undefined>(undefined);
+    const newNodeNameRef = useRef<string>("");
+
+    console.log("recordFieldType", data)
 
     const getVariableInfo = useCallback(() => {
         setIsLoading(true);
@@ -60,6 +67,20 @@ export const Variables = (props: VariablesPageProps) => {
                 .then(() => setIsLoading(false));
         }, 150);
     }, [rpcClient, fileName, targetLineRange]);
+
+    const updateLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
+        setTargetLineRange(getUpdatedTargetLineRangeForRecursiveInserts(nodes));
+    }
+
+    const handleSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
+        newNodeNameRef.current = "";
+        // Safely extract the variable name as a string, fallback to empty string if not available
+        const varName = typeof updatedNode?.properties?.variable?.value === "string"
+            ? updatedNode.properties.variable.value
+            : "";
+        newNodeNameRef.current = varName;
+        handleOnFormSubmit?.(updatedNode, isDataMapperFormUpdate, { shouldCloseSidePanel: false, updateLineRangeForRecursiveInserts });
+    };
 
     useEffect(() => {
         if (firstRender.current) {
@@ -154,6 +175,44 @@ export const Variables = (props: VariablesPageProps) => {
         )
     }
 
+
+    const getTypeDef = () => {
+        if (isUnionType(selectedType)) {
+            return ({
+                metadata: {
+                    label: "Type",
+                    description: "Type of the variable",
+                },
+                valueType: "SINGLE_SELECT",
+                value: selectedType?.label || "",
+                placeholder: "var",
+                optional: false,
+                editable: true,
+                advanced: false,
+                hidden: false,
+                valueTypeConstraint: ["int", "float", "string", "boolean", "record"],
+            })
+        }
+
+        return (
+            {
+                metadata: {
+                    label: "Type",
+                    description: "Type of the variable",
+                },
+                valueType: "TYPE",
+                value: data?.property?.valueTypeConstraint,
+                placeholder: "var",
+                optional: false,
+                editable: false,
+                advanced: false,
+                hidden: false,
+            }
+        )
+        
+    }
+
+
     const selectedNode: FlowNode = {
         codedata: {
             node: 'VARIABLE',
@@ -178,19 +237,7 @@ export const Variables = (props: VariablesPageProps) => {
                 advanced: false,
                 hidden: false,
             },
-            type: {
-                metadata: {
-                    label: "Type",
-                    description: "Type of the variable",
-                },
-                valueType: "TYPE",
-                value: "",
-                placeholder: "var",
-                optional: false,
-                editable: true,
-                advanced: false,
-                hidden: false,
-            },
+            type: getTypeDef(),
             expression: {
                 metadata: {
                     label: "Expression",
@@ -211,6 +258,47 @@ export const Variables = (props: VariablesPageProps) => {
     const testSubmit = () => {
         console.log(">>> Test submit");
         handleOnFormSubmit(selectedNode, false);
+    }
+
+    const findNodeWithName = (node: FlowNode, name: string) => {
+        return node?.properties?.variable?.value === name;
+    }
+
+    const searchNodes = (nodes: FlowNode[], name: string): FlowNode | undefined => {
+        for (const node of nodes) {
+            if (findNodeWithName(node, name)) {
+                return node;
+            }
+            if (node.branches && node.branches.length > 0) {
+                for (const branch of node.branches) {
+                    if (branch.children && branch.children.length > 0) {
+                        const foundNode = searchNodes(branch.children, name);
+                        if (foundNode) {
+                            return foundNode;
+                        }
+                    }
+                }
+            }
+        }
+        return undefined;
+    };
+
+    const getUpdatedTargetLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
+        const insertedNode = searchNodes(nodes, newNodeNameRef.current);
+        if (!insertedNode) return ;
+
+        const updatedTargetLineRange: ELineRange = {
+            startLine: {
+                line: insertedNode.codedata.lineRange.endLine.line,
+                offset: insertedNode.codedata.lineRange.endLine.offset
+            },
+            endLine: {
+                line: insertedNode.codedata.lineRange.endLine.line,
+                offset: insertedNode.codedata.lineRange.endLine.offset
+            },
+            fileName: insertedNode.codedata.lineRange.fileName
+        }
+        return updatedTargetLineRange;
     }
 
     return (
@@ -247,7 +335,7 @@ export const Variables = (props: VariablesPageProps) => {
                         targetLineRange={targetLineRange}
                         projectPath={projectPath}
                         editForm={false}
-                        onSubmit={handleOnFormSubmit}
+                        onSubmit={handleSubmit}
                         showProgressIndicator={false}
                         resetUpdatedExpressionField={()=>{}}
                         helperPaneZIndex={40000}
@@ -256,77 +344,4 @@ export const Variables = (props: VariablesPageProps) => {
             </div>
         </div>
     )
-
-    // return (
-    //     <ExpandableList>
-    //         { filteredVariableInfo?.category.map((variable) => (
-    //             variable.kind !== "type-parameter" ?
-    //                 <SlidingPaneNavContainer>
-    //                     <ExpandableList.Item>
-    //                         <span>{params}</span>
-    //                         <VariableTypeIndifcator type={variable.kind} />
-    //                     </ExpandableList.Item>
-    //                 </SlidingPaneNavContainer>
-    //                 :
-    //                 <SlidingPaneNavContainer to="PAGE3" data>
-    //                     <ExpandableList.Item>
-    //                         <VariableTypeIndifcator type={variable.kind} />
-    //                         <span>{variable.label}</span>
-    //                     </ExpandableList.Item>
-    //                 </SlidingPaneNavContainer>
-    //         ))}
-    //     </ExpandableList>
-    // )
-
-
-    // return (
-    //     <>
-    //         <HelperPane.Header
-    //             searchValue={searchValue}
-    //             onSearch={handleSearch}
-    //             titleSx={{ fontFamily: "GilmerRegular" }}
-    //         />
-    //         <HelperPane.Body>
-    //             {defaultValue && (
-    //                 <HelperPane.Section
-    //                     title="Suggestions"
-    //                     titleSx={{ fontFamily: "GilmerMedium" }}
-    //                 >
-    //                     <HelperPane.CompletionItem
-    //                         label={defaultValue}
-    //                         onClick={() => onChange(defaultValue)}
-    //                         getIcon={() => getIcon(COMPLETION_ITEM_KIND.Snippet)}
-    //                     />
-    //                 </HelperPane.Section>
-    //             )}
-    //             {isLoading ? (
-    //                 <HelperPane.Loader />
-    //             ) : (
-    //                 filteredVariableInfo?.category.map((category) => {
-    //                     if (category.items.length === 0) {
-    //                         return null;
-    //                     }
-
-    //                     return (
-    //                         <HelperPaneCustom.Section
-    //                             key={category.label}
-    //                             title={category.label}
-    //                             titleSx={{ fontFamily: 'GilmerMedium' }}
-    //                         >
-    //                             {category.items.map((item) => (
-    //                                 <HelperPaneCustom.CompletionItem
-    //                                     key={`${category.label}-${item.label}`}
-    //                                     label={item.label}
-    //                                     type={item.type}
-    //                                     onClick={() => onChange(item.label)}
-    //                                     getIcon={() => getIcon(item.type as CompletionItemKind)}
-    //                                 />
-    //                             ))}
-    //                         </HelperPaneCustom.Section>
-    //                     );
-    //                 })
-    //             )}
-    //         </HelperPane.Body>
-    //     </>
-    // );
 }

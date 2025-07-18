@@ -24,7 +24,7 @@ interface ExpandableListItemProps {
 
 const Item = ({ children, onClick, sx }: ExpandableListItemProps) => {
     return (
-        <HorizontalListItem onClick={onClick} style={sx}>
+        <HorizontalListItem onClick={onClick} style={sx} className="expandable-list-item">
             <HorizontalListItemLeftContent>
                 {children}
             </HorizontalListItemLeftContent>

@@ -2,12 +2,17 @@ import { GetRecordConfigRequest, GetRecordConfigResponse, PropertyTypeMemberInfo
 import { useRpcContext } from "@wso2/ballerina-rpc-client";
 import { useSlidingPane } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane/context";
 import { useEffect, useRef, useState } from "react";
-import { RecordConfigView } from "../../HelperPane/RecordConfigView";
+import { RecordConfig } from "./RecordConfigView";
+import { CompletionItem } from "@wso2/ui-toolkit";
+import { getDefaultValue, isRowType } from "../Utils/types";
+import ExpandableList from "../Components/ExpandableList";
+import SelectableItem from "../Components/SelectableItem";
 
 type CreateValuePageProps = {
     fileName: string;
     currentValue: string;
     onChange: (value: string, isRecordConfigureChange: boolean) => void;
+    selectedType?: CompletionItem;
 }
 
 const passPackageInfoIfExists = (recordTypeMember: PropertyTypeMemberInfo) => {
@@ -20,7 +25,7 @@ const passPackageInfoIfExists = (recordTypeMember: PropertyTypeMemberInfo) => {
             [org, module, version] = parts;
         }
     }
-    return {org,module,version}
+    return { org, module, version }
 }
 
 const getPropertyMember = (field: RecordTypeField) => {
@@ -28,7 +33,7 @@ const getPropertyMember = (field: RecordTypeField) => {
 }
 
 export const CreateValue = (props: CreateValuePageProps) => {
-    const { fileName, currentValue, onChange } = props;
+    const { fileName, currentValue, onChange, selectedType } = props;
     const [recordModel, setRecordModel] = useState<TypeField[]>([]);
     //remove this
     const [show, setShow] = useState(false);
@@ -81,18 +86,42 @@ export const CreateValue = (props: CreateValuePageProps) => {
     }
 
 
-    useEffect( () => {
+    useEffect(() => {
         fetchRecordModel()
-    },[]);
+    }, []);
 
-    const handleShow = () => {
-        console.log("awd")
-        setShow(true)
-    }
-    return(
-        <RecordConfigView
+    return (
+        isRowType(selectedType) ? <RecordConfig
             recordModel={recordModel}
             onModelChange={handleModelChange}
+        /> : <NonRecordCreateValue
+            fileName={fileName}
+            currentValue={currentValue}
+            onChange={onChange}
+            selectedType={selectedType}
         />
     )
+}
+
+const NonRecordCreateValue = (props: CreateValuePageProps) => {
+    const { fileName, currentValue, onChange, selectedType } = props;
+
+    const handleValueSelect = (value: string) => {
+        console.log("value", value)
+    }
+
+    const defaultValue = getDefaultValue(selectedType);
+    return (
+        <>
+            {defaultValue  && (
+                <ExpandableList>
+                    <SelectableItem onClick={() => { handleValueSelect(defaultValue) }} className="selectable-list-item">
+                        <ExpandableList.Item sx={{ width: "100%" }}>
+                            {defaultValue}
+                        </ExpandableList.Item>
+                    </SelectableItem>
+                </ExpandableList>
+            )}
+        </>
+    );
 }
