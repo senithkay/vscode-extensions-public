@@ -139,7 +139,7 @@ export const Variables = (props: VariablesPageProps) => {
     const handleNoFunctionsGoBack = () => {
         const parts = currentValue.split(".");
         if (parts.length <= 2) return "";
-        parts.splice(parts.length - 2, 1); 
+        parts.splice(parts.length - 2, 1);
         onChange(parts.join("."), true);
     }
 
@@ -151,7 +151,7 @@ export const Variables = (props: VariablesPageProps) => {
         if (!isSelectedYypesMatches(currentlyVisitingItemType) && !isObjectFieldsExists(objectFields) && !isMainVariablesRef.current) {
             return (
                 <div>
-                    <p style={{color: ThemeColors.ON_SURFACE_VARIANT}}>
+                    <p style={{ color: ThemeColors.ON_SURFACE_VARIANT }}>
                         This variable type is not compatible with the{" "}
                         <span style={{ color: ThemeColors.HIGHLIGHT }}>
                             {selectedType?.label}
@@ -165,18 +165,18 @@ export const Variables = (props: VariablesPageProps) => {
                         value using the helpers below?
                     </p>
                     {
-                        !objectMethods || objectMethods.length === 0 ? 
-                        <><span style={{color: ThemeColors.ON_SURFACE_VARIANT}}>No helpers to show </span> <span onClick={handleNoFunctionsGoBack} style={{color: ThemeColors.HIGHLIGHT, cursor: 'pointer'}}> Go Back</span></> : <>
-                            {
-                                objectMethods.map((item) => (
-                                    <SlidingPaneNavContainer data>
-                                        <ExpandableList.Item sx={{ height: '10px' }} onClick={() => handleFunctionItemClicked(item.label)}>
-                                            {getIcon(COMPLETION_ITEM_KIND.Function)} <p>{item.label} </p>
-                                        </ExpandableList.Item>
-                                    </SlidingPaneNavContainer>
-                                ))
-                            }
-                        </>
+                        !objectMethods || objectMethods.length === 0 ?
+                            <><span style={{ color: ThemeColors.ON_SURFACE_VARIANT }}>No helpers to show </span> <span onClick={handleNoFunctionsGoBack} style={{ color: ThemeColors.HIGHLIGHT, cursor: 'pointer' }}> Go Back</span></> : <>
+                                {
+                                    objectMethods.map((item) => (
+                                        <SlidingPaneNavContainer data>
+                                            <ExpandableList.Item sx={{ height: '10px' }} onClick={() => handleFunctionItemClicked(item.label)}>
+                                                {getIcon(COMPLETION_ITEM_KIND.Function)} <p>{item.label} </p>
+                                            </ExpandableList.Item>
+                                        </SlidingPaneNavContainer>
+                                    ))
+                                }
+                            </>
                     }
                 </div>
             )
@@ -191,7 +191,7 @@ export const Variables = (props: VariablesPageProps) => {
                                 cat.items.map((item) => (
                                     <SlidingPaneNavContainer data>
                                         <ExpandableList.Item onClick={() => handleItemSelect(item.label, item.type)}>
-                                            <p style={{ margin: '0px'}}>{item.label} </p>
+                                            <p style={{ margin: '0px' }}>{item.label} </p>
                                             <VariableTypeIndifcator type={item.type} />
                                             {!isSelectedYypesMatches(item.type) &&
                                                 <>

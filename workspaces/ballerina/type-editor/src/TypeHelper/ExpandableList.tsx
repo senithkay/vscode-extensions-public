@@ -42,8 +42,8 @@ interface ExpandableListSectionProps {
 
 const Section = ({ children, title, level = 0, sx }: ExpandableListSectionProps) => {
     return (
-        <ExpandableListSection level={level} style={{ ...sx , display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <ExpandableListSectionTitle>{title}</ExpandableListSectionTitle>
+        <ExpandableListSection style={{ ...sx , display: 'flex', flexDirection: 'column'}}>
+            <ExpandableListSectionTitle level={level}>{title}</ExpandableListSectionTitle>
             {children}
         </ExpandableListSection>
     );
@@ -58,12 +58,12 @@ ExpandableList.Section = Section;
 export default ExpandableList;
 
 
-const ExpandableListSection = styled.div<{ level?: number }>`
-    padding-left: ${({ level = 0 }) => (level * 5) + 10}px;
+const ExpandableListSection = styled.div`
+      
 `;
 
 
-const ExpandableListSectionTitle = styled.span`
-    font-size: 18px;
+const ExpandableListSectionTitle = styled.span<{ level?: number }>`
+    font-size: ${({ level = 0 }) => (level * 2) + 13}px;
     font-weight: 600;
 `;

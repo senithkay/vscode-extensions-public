@@ -150,6 +150,12 @@ const InvisibleButton = styled.button`
     align-items: center;
 `;
 
+export const ScrollableContainer = styled.div`
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+`;
+
 const SlidingPaneNavContainerElm = styled.div`
     width: 100%;
     padding: 8px;
