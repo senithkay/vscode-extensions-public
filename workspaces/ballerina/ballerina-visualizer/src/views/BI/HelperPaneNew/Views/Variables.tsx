@@ -5,7 +5,7 @@ import { SlidingPaneNavContainer } from "@wso2/ui-toolkit/lib/components/Express
 import { useRpcContext } from "@wso2/ballerina-rpc-client"
 import { ELineRange, ExpressionProperty, FlowNode, LinePosition, LineRange, TriggerCharacter } from "@wso2/ballerina-core"
 import { Button, Codicon, COMPLETION_ITEM_KIND, CompletionItem, Divider, getIcon, HelperPaneCustom, SearchBox, ThemeColors } from "@wso2/ui-toolkit"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { HelperPaneCompletionItem, HelperPaneVariableInfo } from "@wso2/ballerina-side-panel"
 import { debounce, find } from "lodash"
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../../utils/bi"
@@ -141,6 +141,13 @@ export const Variables = (props: VariablesPageProps) => {
         if (parts.length <= 2) return "";
         parts.splice(parts.length - 2, 1);
         onChange(parts.join("."), true);
+    }
+
+    const handleBreadCrumbItemClicked = (variableName: string) => {
+        const patternStartIndex = currentValue.indexOf(variableName);
+        if (patternStartIndex === -1) return;
+        const newValue = currentValue.slice(0, patternStartIndex + variableName.length) + '.';
+        onChange(newValue, true);
     }
 
     const objectFields = filteredCompletions.filter((completion) => completion.kind === "field")
@@ -342,6 +349,13 @@ export const Variables = (props: VariablesPageProps) => {
         return undefined;
     };
 
+    const breadCrumSteps = useMemo(() => {
+        const variableNames = currentValue.split('.');
+        if (variableNames.length<3) return [];
+        variableNames.pop();
+        return variableNames;
+    }, [currentValue])
+
 
     const getUpdatedTargetLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
         const insertedNode = searchNodes(nodes, newNodeNameRef.current);
@@ -368,8 +382,28 @@ export const Variables = (props: VariablesPageProps) => {
             height: "100%",
             overflow: "hidden"
         }}>
+            <div style={{ display: 'flex', color: ThemeColors.HIGHLIGHT , marginBottom: '10px'}}>
+                {
+                    breadCrumSteps.map((item, index) => {
+                        if (index === 0) {
+                            return (
+                                <div style={{ display: 'flex' }}>
+                                    <span onClick={() => handleBreadCrumbItemClicked(item)}>{`${item}`}</span>
+                                </div>
+                            )
+                        }
+                        else {
+                            return (
+                                <div style={{ display: 'flex', gap: '3px' }}>
+                                    <Codicon name={"chevron-right"}></Codicon>
+                                    <span onClick={() => handleBreadCrumbItemClicked(item)}>{`${item}`}</span>
+                                </div>)
+                        }
+                    })
+                }
+            </div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "10px", gap: '5px' }}>
-                <Button onClick={handleNoFunctionsGoBack} appearance="icon"> <Codicon name="chevron-left" /></Button><SearchBox sx={{ width: "100%" }} placeholder='Search' autoFocus={true} value={searchValue} onChange={handleSearch} />
+               <SearchBox sx={{ width: "100%" }} placeholder='Search' autoFocus={true} value={searchValue} onChange={handleSearch} />
             </div>
 
             <ScrollableContainer>
