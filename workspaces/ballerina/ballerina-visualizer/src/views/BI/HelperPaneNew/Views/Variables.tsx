@@ -4,7 +4,7 @@ import { VariableTypeIndifcator } from "../Components/VariableTypeIndicator"
 import { SlidingPaneNavContainer } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane"
 import { useRpcContext } from "@wso2/ballerina-rpc-client"
 import { ELineRange, ExpressionProperty, FlowNode, LinePosition, LineRange, TriggerCharacter } from "@wso2/ballerina-core"
-import { CompletionItem, Divider, HelperPaneCustom, SearchBox } from "@wso2/ui-toolkit"
+import { Button, Codicon, COMPLETION_ITEM_KIND, CompletionItem, Divider, getIcon, HelperPaneCustom, SearchBox, ThemeColors } from "@wso2/ui-toolkit"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { HelperPaneCompletionItem, HelperPaneVariableInfo } from "@wso2/ballerina-side-panel"
 import { debounce, find } from "lodash"
@@ -15,22 +15,26 @@ import { FormGenerator } from "../../Forms/FormGenerator"
 import { ScrollableContainer } from "../Components/ScrollableContainer"
 import { isUnionType } from "../Utils/types"
 import { FormSubmitOptions } from "../../FlowDiagram"
+import styled from "@emotion/styled"
 
 type VariablesPageProps = {
     fileName: string;
     debouncedRetrieveCompletions?: (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string) => Promise<void>;
     onChange: (value: string, isRecordConfigureChange: boolean) => void;
     targetLineRange: LineRange;
-    anchorRef: React.RefObject<HTMLDivElement>; 
+    anchorRef: React.RefObject<HTMLDivElement>;
     projectPath?: string;
     handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void;
     selectedType?: CompletionItem;
     setTargetLineRange?: (targetLineRange: LineRange) => void;
+    filteredCompletions: CompletionItem[];
+    currentValue: string;
+    variables: CompletionItem[]
 }
 
 
 export const Variables = (props: VariablesPageProps) => {
-    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType ,  setTargetLineRange} = props;
+    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType, setTargetLineRange, filteredCompletions, currentValue, variables } = props;
     const [searchValue, setSearchValue] = useState<string>("");
     const { rpcClient } = useRpcContext();
     const { getParams } = useSlidingPane();
@@ -42,8 +46,9 @@ export const Variables = (props: VariablesPageProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fieldsOfRecordTYpe, setFieldsOfRecordType] = useState<any[] | undefined>(undefined);
     const newNodeNameRef = useRef<string>("");
+    const isMainVariablesRef = useRef<boolean>(true)
+    const [currentlyVisitingItemType, setCurrentlyVisitingItemType] = useState<string>("")
 
-    console.log("recordFieldType", data)
 
     const getVariableInfo = useCallback(() => {
         setIsLoading(true);
@@ -103,74 +108,133 @@ export const Variables = (props: VariablesPageProps) => {
         debounceFilterVariables(searchText);
     };
 
-    const getFieldsOfRecordTypes = async () => {
-        return [
-            {
-                "label": "var1",
-                "type": "record"
-            },
-        ]
+    const isSelectedYypesMatches = (type: string) => {
+        return selectedType?.label === type
     }
 
-    const handleRecordTypeSelect = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        const fieldsOfRecordTypeFetched = await getFieldsOfRecordTypes();
-        setFieldsOfRecordType(fieldsOfRecordTypeFetched)
+    const isObjectFieldsExists = (objectFields: CompletionItem[]) => {
+        return objectFields && objectFields.length > 0
     }
+
+    const handleItemSelect = (value: string, type: string) => {
+        setCurrentlyVisitingItemType(type)
+        if (isSelectedYypesMatches(type)) {
+            onChange(value, false)
+        }
+        else {
+            const insertValue = currentValue + value + '.'
+            onChange(insertValue, true)
+        }
+        isMainVariablesRef.current = false
+    }
+
+    const handleFunctionItemClicked = (value: string) => {
+        onChange(value, false)
+    }
+
+    const handleUseAnywayClicked = (type: string) => {
+        onChange(type, false)
+    }
+
+    const handleNoFunctionsGoBack = () => {
+        const parts = currentValue.split(".");
+        if (parts.length <= 2) return "";
+        parts.splice(parts.length - 2, 1); 
+        onChange(parts.join("."), true);
+    }
+
+    const objectFields = filteredCompletions.filter((completion) => completion.kind === "field")
+    const objectMethods = filteredCompletions.filter((completion) => completion.kind === "function" && completion.description === selectedType?.label)
+
 
     const ExpandableListItems = () => {
-        if (data && fieldsOfRecordTYpe && Array.isArray(fieldsOfRecordTYpe)) {
+        if (!isSelectedYypesMatches(currentlyVisitingItemType) && !isObjectFieldsExists(objectFields) && !isMainVariablesRef.current) {
             return (
-                <>
+                <div>
+                    <p style={{color: ThemeColors.ON_SURFACE_VARIANT}}>
+                        This variable type is not compatible with the{" "}
+                        <span style={{ color: ThemeColors.HIGHLIGHT }}>
+                            {selectedType?.label}
+                        </span>{" "}
+                        type. Do you wish to add it in the same type, or would you prefer to convert
+                        it to a
+                        {" "}
+                        <span style={{ color: ThemeColors.HIGHLIGHT }}>
+                            {selectedType?.label}
+                        </span>{" "}
+                        value using the helpers below?
+                    </p>
                     {
-                        fieldsOfRecordTYpe.map((item: HelperPaneCompletionItem) => (
-                            item.isRow ?
-                                <SlidingPaneNavContainer to="VARIABLES" data={fieldsOfRecordTYpe}>
-                                    <ExpandableList.Item onClick={handleRecordTypeSelect}>
-                                        <span>{item.label}</span>
-                                        <VariableTypeIndifcator type={item.type} />
-                                    </ExpandableList.Item>
-                                </SlidingPaneNavContainer>
-                                :
-                                <SlidingPaneNavContainer>
-
-                                    <ExpandableList.Item>
-                                        <span>{item.label}</span>
-                                        <VariableTypeIndifcator type={item.type} />
-                                    </ExpandableList.Item>
-
-                                </SlidingPaneNavContainer>
-                        ))
+                        !objectMethods || objectMethods.length === 0 ? 
+                        <><span style={{color: ThemeColors.ON_SURFACE_VARIANT}}>No helpers to show </span> <span onClick={handleNoFunctionsGoBack} style={{color: ThemeColors.HIGHLIGHT, cursor: 'pointer'}}> Go Back</span></> : <>
+                            {
+                                objectMethods.map((item) => (
+                                    <SlidingPaneNavContainer data>
+                                        <ExpandableList.Item sx={{ height: '10px' }} onClick={() => handleFunctionItemClicked(item.label)}>
+                                            {getIcon(COMPLETION_ITEM_KIND.Function)} <p>{item.label} </p>
+                                        </ExpandableList.Item>
+                                    </SlidingPaneNavContainer>
+                                ))
+                            }
+                        </>
                     }
-                </>
+                </div>
             )
         }
 
         return (
             <>
-                {filteredVariableInfo?.category.map((cat) => (
-                    <>
-                        {
-                            cat.items.map((item) => (
-                                item.isRow ?
-                                    <SlidingPaneNavContainer to="VARIABLES" data>
-                                        <ExpandableList.Item onClick={handleRecordTypeSelect}>
-                                            <span>{item.label}</span>
+                {
+                    !isObjectFieldsExists(objectFields) ? (<>{filteredVariableInfo?.category.map((cat) => (
+                        <>
+                            {
+                                cat.items.map((item) => (
+                                    <SlidingPaneNavContainer data>
+                                        <ExpandableList.Item onClick={() => handleItemSelect(item.label, item.type)}>
+                                            <p style={{ margin: '0px'}}>{item.label} </p>
                                             <VariableTypeIndifcator type={item.type} />
+                                            {!isSelectedYypesMatches(item.type) &&
+                                                <>
+                                                    <span style={{ color: ThemeColors.ON_SURFACE_VARIANT }}> Not assignable</span>
+                                                    <span onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleUseAnywayClicked(item.label)
+                                                    }} style={{ color: ThemeColors.HIGHLIGHT, marginLeft: "auto" }}>
+                                                        Use anyway
+                                                    </span>
+                                                </>}
                                         </ExpandableList.Item>
                                     </SlidingPaneNavContainer>
-                                    :
-                                    <SlidingPaneNavContainer>
+                                ))
+                            }
+                        </>
+                    ))}</>) :
+                        (
+                            <>
+                                {
+                                    objectFields.map((item) => (
+                                        <SlidingPaneNavContainer data>
+                                            <ExpandableList.Item onClick={() => handleItemSelect(item.label, item.description)}>
+                                                <span>{item.label}</span>
+                                                <VariableTypeIndifcator type={item.description} />
+                                                {!isSelectedYypesMatches(item.description) &&
+                                                    <>
+                                                        <span style={{ color: ThemeColors.ON_SURFACE_VARIANT }}> Not assignable</span>
+                                                        <span onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleUseAnywayClicked(item.label)
+                                                        }} style={{ color: ThemeColors.HIGHLIGHT, marginLeft: "auto" }}>
+                                                            Use anyway
+                                                        </span>
+                                                    </>}
+                                            </ExpandableList.Item>
+                                        </SlidingPaneNavContainer>
+                                    ))
+                                }
+                            </>
+                        )
+                }
 
-                                        <ExpandableList.Item>
-                                            <span>{item.label}</span>
-                                            <VariableTypeIndifcator type={item.type} />
-                                        </ExpandableList.Item>
-
-                                    </SlidingPaneNavContainer>
-                            ))
-                        }
-                    </>
-                ))}
             </>
         )
     }
@@ -209,7 +273,7 @@ export const Variables = (props: VariablesPageProps) => {
                 hidden: false,
             }
         )
-        
+
     }
 
 
@@ -255,11 +319,6 @@ export const Variables = (props: VariablesPageProps) => {
         branches: []
     };
 
-    const testSubmit = () => {
-        console.log(">>> Test submit");
-        handleOnFormSubmit(selectedNode, false);
-    }
-
     const findNodeWithName = (node: FlowNode, name: string) => {
         return node?.properties?.variable?.value === name;
     }
@@ -283,9 +342,10 @@ export const Variables = (props: VariablesPageProps) => {
         return undefined;
     };
 
+
     const getUpdatedTargetLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
         const insertedNode = searchNodes(nodes, newNodeNameRef.current);
-        if (!insertedNode) return ;
+        if (!insertedNode) return;
 
         const updatedTargetLineRange: ELineRange = {
             startLine: {
@@ -308,8 +368,8 @@ export const Variables = (props: VariablesPageProps) => {
             height: "100%",
             overflow: "hidden"
         }}>
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "10px" }}>
-                <SearchBox sx={{ width: "100%" }} placeholder='Search' autoFocus={true} value={searchValue} onChange={handleSearch} />
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "10px", gap: '5px' }}>
+                <Button onClick={handleNoFunctionsGoBack} appearance="icon"> <Codicon name="chevron-left" /></Button><SearchBox sx={{ width: "100%" }} placeholder='Search' autoFocus={true} value={searchValue} onChange={handleSearch} />
             </div>
 
             <ScrollableContainer>
@@ -337,7 +397,7 @@ export const Variables = (props: VariablesPageProps) => {
                         editForm={false}
                         onSubmit={handleSubmit}
                         showProgressIndicator={false}
-                        resetUpdatedExpressionField={()=>{}}
+                        resetUpdatedExpressionField={() => { }}
                         helperPaneZIndex={40000}
                     />
                 </DynamicModal>

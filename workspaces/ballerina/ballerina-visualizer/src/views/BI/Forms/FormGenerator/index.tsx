@@ -184,6 +184,8 @@ export function FormGenerator(props: FormProps) {
     const [selectedType, setSelectedType] = useState<CompletionItem | null>(null);
     const [targetLineRangeState, setTargetLineRangeState] = useState(targetLineRange);
 
+    const variables = completions.filter((completion)=> completion.kind === 'variable')
+
     useEffect(() => {
         if (rpcClient) {
             // Set current theme
@@ -653,7 +655,9 @@ export function FormGenerator(props: FormProps) {
             handleOnFormSubmit: handleOnFormSubmit,
             helperPaneZIndex: helperPaneZIndex,
             selectedType: selectedType,
-            setTargetLineRange: setTargetLineRangeState
+            setTargetLineRange: setTargetLineRangeState,
+            filteredCompletions: filteredCompletions,
+            variables: variables
         });
     };
 

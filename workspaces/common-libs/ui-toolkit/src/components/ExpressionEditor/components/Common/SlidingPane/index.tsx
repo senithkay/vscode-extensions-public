@@ -153,6 +153,8 @@ const InvisibleButton = styled.button`
 const SlidingPaneNavContainerElm = styled.div`
     width: 100%;
     padding: 8px;
+    display: flex;
+    align-items: center;
     &:hover {
         background-color:  var(--vscode-list-hoverBackground);
         cursor: pointer;

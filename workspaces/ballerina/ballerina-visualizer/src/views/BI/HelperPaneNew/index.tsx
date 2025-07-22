@@ -45,6 +45,8 @@ export type HelperPaneNewProps = {
     helperPaneZIndex?: number;
     selectedType?: CompletionItem;
     setTargetLineRange?: (targetLineRange: LineRange) => void;
+    filteredCompletions?: CompletionItem[];
+    variables:CompletionItem[]
 };
 
 const HelperPaneNewEl = ({
@@ -66,7 +68,9 @@ const HelperPaneNewEl = ({
     handleOnFormSubmit,
     helperPaneZIndex,
     selectedType,
-    setTargetLineRange
+    setTargetLineRange,
+    filteredCompletions,
+    variables
 }: HelperPaneNewProps) => {
     const [position, setPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
     const paneRef = useRef<HTMLDivElement>(null);
@@ -186,6 +190,9 @@ const HelperPaneNewEl = ({
                             handleOnFormSubmit={handleOnFormSubmit}
                             selectedType={selectedType}
                             setTargetLineRange={setTargetLineRange}
+                            filteredCompletions={filteredCompletions}
+                            currentValue={currentValue}
+                            variables={variables}
                         />
                     </SlidingPane>
 
@@ -262,7 +269,9 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
         handleOnFormSubmit,
         helperPaneZIndex,
         selectedType,
-        setTargetLineRange
+        setTargetLineRange,
+        filteredCompletions,
+        variables
     } = props;
 
     return (
@@ -286,6 +295,8 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
             helperPaneZIndex={helperPaneZIndex}
             selectedType={selectedType}
             setTargetLineRange={setTargetLineRange}
+            filteredCompletions={filteredCompletions}
+            variables={variables}
         />
     );
 };
