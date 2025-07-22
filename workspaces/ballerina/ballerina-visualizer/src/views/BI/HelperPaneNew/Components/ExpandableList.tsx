@@ -42,7 +42,7 @@ interface ExpandableListSectionProps {
 
 const Section = ({ children, title, level = 0, sx }: ExpandableListSectionProps) => {
     return (
-        <ExpandableListSection level={level} style={{ ...sx , display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <ExpandableListSection level={level} style={{ ...sx , display: 'flex', flexDirection: 'column'}}>
             <ExpandableListSectionTitle>{title}</ExpandableListSectionTitle>
             {children}
         </ExpandableListSection>

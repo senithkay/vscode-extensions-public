@@ -51,7 +51,7 @@ export const FunctionsPage = ({
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
 
-    
+
     //TODO: get the correct filepath
     let defaultFunctionsFile = Utils.joinPath(URI.file(projectPath), 'functions.bal').fsPath;
 
@@ -166,15 +166,23 @@ export const FunctionsPage = ({
                                             }
 
                                             return (
-                                                <ExpandableList sx={{ marginTop: '20px' }}>
-
-                                                    {category.items.map((item) => (
-                                                        <SlidingPaneNavContainer>
-                                                            <ExpandableList.Item key={item.label}>
-                                                                <FunctionItemLabel>{item.label}</FunctionItemLabel>
-                                                            </ExpandableList.Item>
-                                                        </SlidingPaneNavContainer>
-                                                    ))}
+                                                <ExpandableList>
+                                                    <ExpandableList.Section sx={{ marginTop: '20px' }} key={category.label} title={category.label} level={0}>
+                                                        <div style={{ marginTop: '10px' }}>
+                                                            {category.items.map((item) => (
+                                                                <SlidingPaneNavContainer>
+                                                                   <ExpandableList.Item
+                                                                        key={item.label}
+                                                                        sx={{ color: ThemeColors.ON_SURFACE }}
+                                                                        onClick={async () => await handleFunctionItemSelect(item)}
+                                                                    >
+                                                                        {getIcon(COMPLETION_ITEM_KIND.Function)}
+                                                                        <FunctionItemLabel>{`${item.label}()`}</FunctionItemLabel>
+                                                                    </ExpandableList.Item>
+                                                                </SlidingPaneNavContainer>
+                                                            ))}
+                                                        </div>
+                                                    </ExpandableList.Section>
                                                 </ExpandableList>
                                             )
                                         }
@@ -188,18 +196,20 @@ export const FunctionsPage = ({
                                             <ExpandableList>
                                                 {category.subCategory.map((subCategory) => (
                                                     <ExpandableList.Section sx={{ marginTop: '20px' }} key={subCategory.label} title={subCategory.label} level={0}>
-                                                        {subCategory.items.map((item) => (
-                                                            <SlidingPaneNavContainer>
-                                                                <ExpandableList.Item
-                                                                    key={item.label}
-                                                                    sx={{ color: ThemeColors.ON_SURFACE }}
-                                                                    onClick={async () => await handleFunctionItemSelect(item)}
-                                                                >
-                                                                    {getIcon(COMPLETION_ITEM_KIND.Function)}
-                                                                    <FunctionItemLabel>{`${item.label}()`}</FunctionItemLabel>
-                                                                </ExpandableList.Item>
-                                                            </SlidingPaneNavContainer>
-                                                        ))}
+                                                        <div style={{ marginTop: '10px' }}>
+                                                            {subCategory.items.map((item) => (
+                                                                <SlidingPaneNavContainer>
+                                                                    <ExpandableList.Item
+                                                                        key={item.label}
+                                                                        sx={{ color: ThemeColors.ON_SURFACE }}
+                                                                        onClick={async () => await handleFunctionItemSelect(item)}
+                                                                    >
+                                                                        {getIcon(COMPLETION_ITEM_KIND.Function)}
+                                                                        <FunctionItemLabel>{`${item.label}()`}</FunctionItemLabel>
+                                                                    </ExpandableList.Item>
+                                                                </SlidingPaneNavContainer>
+                                                            ))}
+                                                        </div>
                                                     </ExpandableList.Section>
                                                 ))}
                                             </ExpandableList>
