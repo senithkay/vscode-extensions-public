@@ -756,9 +756,9 @@ const HelperPaneCustom: React.FC<HelperPaneCustomProps> & {
     PanelView: typeof PanelView;
     Arrow: typeof Arrow;
     Loader: typeof Loader;
-} = ({ children, sx }: HelperPaneCustomProps) => {
+} = ({ children, sx, anchorRef }: HelperPaneCustomProps) => {
     return (
-        <DropdownBody sx={sx}>
+        <DropdownBody sx={sx} ref={anchorRef} className='unq-modal-overlay'>
             {children}
         </DropdownBody>
     );

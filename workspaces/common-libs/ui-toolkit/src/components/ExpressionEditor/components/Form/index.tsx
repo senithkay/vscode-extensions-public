@@ -29,6 +29,9 @@ import { Icon } from '../../../Icon/Icon';
 
 import { ThemeColors } from '../../../../styles';
 
+export const EXPR_ICON_WIDTH = 26;
+export const EXPR_ICON_HEIGHT = 26;
+
 // Styled Components
 namespace Ex {
     export const Container = styled.div`
@@ -137,8 +140,8 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    width: "26px",
-                                    height: "26px",
+                                    width: `${EXPR_ICON_WIDTH}px`,
+                                    height: `${EXPR_ICON_HEIGHT}px`,
                                     ...(props.isHelperPaneOpen && State.Selected.Button),
                                 }}
                                 buttonSx={{ width: "26px", height: "26px" }}

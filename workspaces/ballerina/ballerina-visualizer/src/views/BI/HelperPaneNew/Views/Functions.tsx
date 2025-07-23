@@ -29,7 +29,6 @@ type FunctionsPageProps = {
     onClose: () => void;
     onChange: (insertText: CompletionInsertText) => void;
     updateImports: (key: string, imports: { [key: string]: string }) => void;
-    projectPath: string;
 };
 
 export const FunctionsPage = ({
@@ -40,7 +39,6 @@ export const FunctionsPage = ({
     onClose,
     onChange,
     updateImports,
-    projectPath,
 }: FunctionsPageProps) => {
 
     const { rpcClient } = useRpcContext();
@@ -50,10 +48,13 @@ export const FunctionsPage = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
+    const [projectUri, setProjectUri] = useState<string>('');
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
 
 
     //TODO: get the correct filepath
-    let defaultFunctionsFile = Utils.joinPath(URI.file(projectPath), 'functions.bal').fsPath;
+    let defaultFunctionsFile = Utils.joinPath(URI.file(projectUri), 'functions.bal').fsPath;
 
     const debounceFetchFunctionInfo = useCallback(
         debounce((searchText: string, includeAvailableFunctions?: string) => {
@@ -124,7 +125,15 @@ export const FunctionsPage = ({
             firstRender.current = false;
             fetchFunctionInfo('');
         }
+
+        setDefaultFunctionsPath()
     }, []);
+
+    const setDefaultFunctionsPath = () => {
+        rpcClient.getVisualizerLocation().then((location)=> {
+            setProjectUri(location?.projectUri || '')
+        })
+    }
 
     const handleFunctionSearch = (searchText: string) => {
         setSearchValue(searchText);
@@ -146,7 +155,7 @@ export const FunctionsPage = ({
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "10px" }}>
-                <SearchBox sx={{ width: "100%" }} placeholder='Search' autoFocus={true} value={searchValue} onChange={handleFunctionSearch} />
+                <SearchBox sx={{ width: "100%" }} placeholder='Search' value={searchValue} onChange={handleFunctionSearch} />
             </div>
             <ScrollableContainer>
                 {
@@ -223,12 +232,12 @@ export const FunctionsPage = ({
             </ScrollableContainer>
             <div style={{ marginTop: "auto", gap: '10px' }}>
                 <Divider />
-                <DynamicModal width={500} height={600} anchorRef={anchorRef} title="Dynamic Modal">
+                <DynamicModal width={500} height={600} anchorRef={anchorRef} title="Dynamic Modal" openState={isModalOpen} setOpenState={setIsModalOpen}>
                     <DynamicModal.Trigger>
                         <FooterButtons sx={{ display: 'flex', justifyContent: 'space-between' }} startIcon='add' title="New Function" />
                     </DynamicModal.Trigger>
                     <FunctionFormStatic
-                        projectPath={projectPath}
+                        projectPath={projectUri}
                         filePath={defaultFunctionsFile}
                         functionName={undefined}
                         isDataMapper={false}

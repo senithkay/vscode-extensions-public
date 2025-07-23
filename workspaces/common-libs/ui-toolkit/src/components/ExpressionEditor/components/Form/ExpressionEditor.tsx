@@ -60,16 +60,15 @@ export const StyledTextArea = styled(AutoResizeTextArea)`
 `;
 
 export const DropdownContainer = styled.div<StyleBase>`
-    position: absolute;
-    z-index: 2001;
-    filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
+ position: absolute;
+  z-index: ${(props: StyleBase) => props.zIndex ?? 2001};
+  filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
     ${(props: StyleBase) => props.sx}
-
-    *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
-    }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 `;
 
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorElProps>((props, ref) => {
@@ -90,6 +89,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         helperPaneWidth,
         helperPaneSx,
         actionButtons,
+        helperPaneZIndex,
         resize = 'vertical',
         growRange = { start: 1, offset: 7 },
         changeHelperPaneState,
@@ -354,7 +354,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const arrowPosition = getHelperPaneArrowPosition(containerRef, calculatedHelperPaneOrigin, helperPanePosition);
 
         return (
-            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition, ...helperPaneSx }}>
+            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition, ...helperPaneSx }} zIndex={helperPaneZIndex}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
                     {getHelperPane(value, handleChange, helperPaneHeight)}
                     {arrowPosition && (
@@ -366,6 +366,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     };
 
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
+        changeHelperPaneState?.(false);
         if (dropdownContainerRef.current) {
             const hoveredEl = dropdownContainerRef.current.querySelector('.hovered');
             if (dropdownRef.current) {
@@ -585,7 +586,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: '100%' }} />}
             {isFocused &&
                 createPortal(
-                    <DropdownContainer ref={dropdownContainerRef} sx={dropdownElPosition}>
+                    <DropdownContainer ref={dropdownContainerRef} sx={dropdownElPosition} zIndex={helperPaneZIndex}>
                         <Transition show={showCompletions} {...ANIMATION_SCALE_DOWN}>
                             <Codicon
                                 id="expression-editor-close"
@@ -622,7 +623,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             {isFocused && getHelperPane && createPortal(getHelperPaneComponent(), document.body)}
             {isFocused &&
                 createPortal(
-                    <DropdownContainer sx={fnSignatureElPosition}>
+                    <DropdownContainer sx={fnSignatureElPosition} zIndex={helperPaneZIndex}>
                         <Transition show={!!fnSignature} {...ANIMATION_SCALE_UP}>
                             <FnSignatureEl
                                 ref={fnSignatureElRef}

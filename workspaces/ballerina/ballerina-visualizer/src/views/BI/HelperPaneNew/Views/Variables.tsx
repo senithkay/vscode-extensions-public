@@ -48,6 +48,7 @@ export const Variables = (props: VariablesPageProps) => {
     const newNodeNameRef = useRef<string>("");
     const isMainVariablesRef = useRef<boolean>(true)
     const [currentlyVisitingItemType, setCurrentlyVisitingItemType] = useState<string>("")
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
 
     const getVariableInfo = useCallback(() => {
@@ -85,6 +86,10 @@ export const Variables = (props: VariablesPageProps) => {
             : "";
         newNodeNameRef.current = varName;
         handleOnFormSubmit?.(updatedNode, isDataMapperFormUpdate, { shouldCloseSidePanel: false, updateLineRangeForRecursiveInserts });
+        if(isModalOpen){
+            setIsModalOpen(false)
+            getVariableInfo();
+        }
     };
 
     useEffect(() => {
@@ -403,7 +408,7 @@ export const Variables = (props: VariablesPageProps) => {
                 }
             </div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "10px", gap: '5px' }}>
-               <SearchBox sx={{ width: "100%" }} placeholder='Search' autoFocus={true} value={searchValue} onChange={handleSearch} />
+               <SearchBox sx={{ width: "100%" }} placeholder='Search' value={searchValue} onChange={handleSearch} />
             </div>
 
             <ScrollableContainer>
@@ -418,7 +423,7 @@ export const Variables = (props: VariablesPageProps) => {
 
             <div style={{ marginTop: "auto" }}>
                 <Divider />
-                <DynamicModal width={400} height={600} anchorRef={anchorRef} title="Dynamic Modal">
+                <DynamicModal width={400} height={600} anchorRef={anchorRef} title="Dynamic Modal" openState={isModalOpen} setOpenState={setIsModalOpen}>
                     <DynamicModal.Trigger>
                         <FooterButtons startIcon='add' title="New Variable" />
                     </DynamicModal.Trigger>
@@ -432,7 +437,7 @@ export const Variables = (props: VariablesPageProps) => {
                         onSubmit={handleSubmit}
                         showProgressIndicator={false}
                         resetUpdatedExpressionField={() => { }}
-                        helperPaneZIndex={40000}
+                        helperPaneZIndex={40001}
                     />
                 </DynamicModal>
             </div>

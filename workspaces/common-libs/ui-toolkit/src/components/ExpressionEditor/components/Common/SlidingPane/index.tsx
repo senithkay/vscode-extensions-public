@@ -102,7 +102,8 @@ type SlidingPaneProps = {
     paneWidth?: number,
     nextView?: string,
     prevView?: string,
-    children: React.ReactNode
+    children: React.ReactNode,
+    disableAnimation?: boolean
 }
 
 export const SlidingPane = ({  children, name, paneHeight, paneWidth}:SlidingPaneProps) => {
@@ -128,7 +129,7 @@ export const SlidingPane = ({  children, name, paneHeight, paneWidth}:SlidingPan
 
     if (name !== currentPage.name) return;
     return (
-        <SlidingPaneContainer index={index} clearAnimations={clearAnimations}>
+        <SlidingPaneContainer index={index} clearAnimations={clearAnimations} >
             {children}
         </SlidingPaneContainer>
     );

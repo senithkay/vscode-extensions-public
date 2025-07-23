@@ -1,4 +1,4 @@
-import React, { useState, cloneElement, isValidElement, ReactNode, ReactElement } from "react";
+import React, { useState, cloneElement, isValidElement, ReactNode, ReactElement, useEffect } from "react";
 import { createPortal } from "react-dom";
 import styled from "@emotion/styled";
 import { Codicon, Divider, ThemeColors } from "@wso2/ui-toolkit";
@@ -10,6 +10,8 @@ export type DynamicModalProps = {
     anchorRef: React.RefObject<HTMLDivElement>;
     width?: number;
     height?: number;
+    openState: boolean;
+    setOpenState: (state: boolean)=>void 
 };
 
 const Overlay = styled.div`
@@ -70,9 +72,10 @@ const DynamicModal: React.FC<DynamicModalProps> & { Trigger: typeof Trigger } = 
     title,
     anchorRef,
     width,
-    height
+    height,
+    openState,
+    setOpenState,
 }) => {
-    const [isOpen, setIsOpen] = useState(false);
 
     let trigger: ReactElement | null = null;
     const content: ReactNode[] = [];
@@ -80,7 +83,7 @@ const DynamicModal: React.FC<DynamicModalProps> & { Trigger: typeof Trigger } = 
     React.Children.forEach(children, child => {
         if (isValidElement(child) && child.type === DynamicModal.Trigger) {
             trigger = cloneElement(child as React.ReactElement, {
-                onClick: () => setIsOpen(true)
+                onClick: () => setOpenState(true)
             });
         } else {
             content.push(child);
@@ -88,14 +91,19 @@ const DynamicModal: React.FC<DynamicModalProps> & { Trigger: typeof Trigger } = 
     });
 
     const handleClose = () => {
-        setIsOpen(false);
+        setOpenState(false);
         onClose && onClose();
     };
+
+    useEffect(()=>{
+        console.log("inside")
+        setOpenState(openState)
+    }, [openState]);
 
     return (
         <>
             {trigger}
-            {isOpen && createPortal(
+            {openState && createPortal(
                 <Overlay className="unq-modal-overlay" ref={anchorRef}>
                     <ModalBox width={width} height={height}>
                         <InvisibleButton onClick={handleClose} style={{ position: "absolute", top: 8, right: 8 }}>

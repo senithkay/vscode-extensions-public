@@ -347,6 +347,7 @@ export interface FormProps {
     concertMessage?: string;
     formImports?: FormImports;
     handleSelectedTypeChange?: (type: CompletionItem) => void;
+    helperPaneZIndex?:number;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -382,6 +383,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         concertRequired = true,
         concertMessage,
         formImports,
+        helperPaneZIndex,
     } = props;
 
     const {

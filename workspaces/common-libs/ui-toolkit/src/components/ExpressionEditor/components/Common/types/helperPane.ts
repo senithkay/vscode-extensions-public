@@ -129,4 +129,5 @@ export type HelperPaneProps = PropsWithChildren<{
 
 export type HelperPaneCustomProps = PropsWithChildren<{
     sx?: CSSProperties;
+    anchorRef?:RefObject<HTMLDivElement>
 }>;

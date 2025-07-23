@@ -718,6 +718,7 @@ export function FormGenerator(props: FormProps) {
             onCancel: handleExpressionEditorCancel,
             helperPaneOrigin: "vertical",
             helperPaneHeight: "default",
+            helperPaneZIndex: helperPaneZIndex
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
@@ -854,6 +855,7 @@ export function FormGenerator(props: FormProps) {
                     recordTypeFields={recordTypeFields}
                     isInferredReturnType={!!node.codedata?.inferredReturnType}
                     formImports={formImports}
+                    helperPaneZIndex={helperPaneZIndex}
                 />
             )}
             {typeEditorState.isOpen && (

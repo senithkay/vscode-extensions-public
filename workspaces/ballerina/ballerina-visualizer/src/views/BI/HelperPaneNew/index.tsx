@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject, useLayoutEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { ExpandableList } from './Components/ExpandableList';
 import { Variables } from './Views/Variables';
@@ -21,6 +21,7 @@ import { FunctionsPage } from './Views/Functions';
 import { Divider } from '@wso2/ui-toolkit';
 import { GenerateBICopilot } from './Views/GenerateBICopilot';
 import { FormSubmitOptions } from '../FlowDiagram';
+import { EXPR_ICON_WIDTH } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Form';
 const getRecordType = (recordTypeField: RecordTypeField) => {
     return recordTypeField;
 }
@@ -46,7 +47,7 @@ export type HelperPaneNewProps = {
     selectedType?: CompletionItem;
     setTargetLineRange?: (targetLineRange: LineRange) => void;
     filteredCompletions?: CompletionItem[];
-    variables:CompletionItem[]
+    variables: CompletionItem[]
 };
 
 const HelperPaneNewEl = ({
@@ -75,6 +76,22 @@ const HelperPaneNewEl = ({
     const [position, setPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
     const paneRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [paneWidth, setPaneWidth] = useState<number>(0);
+
+    useLayoutEffect(() => {
+        const trySetWidth = () => {
+          const inputEl = exprRef.current?.parentElement;
+          if (inputEl) {
+            const rect = inputEl.getBoundingClientRect();
+            setPaneWidth(rect.width + EXPR_ICON_WIDTH -6);
+          } else {
+            // Try again on next frame if it's not ready yet
+            requestAnimationFrame(trySetWidth);
+          }
+        };
+      
+        trySetWidth();
+      }, []);
 
     useLayoutEffect(() => {
         if (anchorRef.current) {
@@ -128,18 +145,18 @@ const HelperPaneNewEl = ({
     };
 
     return (
-        <HelperPaneCustom sx={{zIndex: helperPaneZIndex}}>
-            <HelperPaneCustom.Body >
+        <HelperPaneCustom sx={{ zIndex: helperPaneZIndex }} anchorRef={anchorRef}>
+            <HelperPaneCustom.Body>
                 <SlidingWindow>
-                    <SlidingPane name="PAGE1">
-                        <ExpandableList sx={{paddingTop: '10px'}}>
+                    <SlidingPane name="PAGE1" paneWidth={paneWidth}>
+                        <ExpandableList sx={{ paddingTop: '10px' }}>
                             {selectedType && (
-                            <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
-                                <ExpandableList.Item>
-                                    <Codicon name="new-file" />
-                                    <span>Create Value</span>
-                                </ExpandableList.Item>
-                            </SlidingPaneNavContainer>
+                                <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
+                                    <ExpandableList.Item>
+                                        <Codicon name="new-file" />
+                                        <span>Create Value</span>
+                                    </ExpandableList.Item>
+                                </SlidingPaneNavContainer>
                             )}
                             <SlidingPaneNavContainer to="VARIABLES" data={recordTypeField}>
                                 <ExpandableList.Item>
@@ -163,21 +180,21 @@ const HelperPaneNewEl = ({
 
                         <div style={{ marginTop: "auto", gap: '10px' }}>
                             <Divider />
-                            <DynamicModal width={600} height={400} anchorRef={anchorRef} title="Build Expression with BI Copilot">
-                            <DynamicModal.Trigger>
-                                <FooterButtons 
-                                sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto' }} 
-                                startIcon='copilot' 
-                                title="Generate with BI Copilot" />
-                            </DynamicModal.Trigger>
-                           <GenerateBICopilot />
-                        </DynamicModal>
+                            <DynamicModal width={600} height={400} anchorRef={anchorRef} title="Build Expression with BI Copilot" openState={isModalOpen} setOpenState={setIsModalOpen}>
+                                <DynamicModal.Trigger>
+                                    <FooterButtons
+                                        sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto' }}
+                                        startIcon='copilot'
+                                        title="Generate with BI Copilot" />
+                                </DynamicModal.Trigger>
+                                <GenerateBICopilot />
+                            </DynamicModal>
 
                         </div>
                     </SlidingPane>
 
                     {/* Variables Page */}
-                    <SlidingPane name="VARIABLES">
+                    <SlidingPane name="VARIABLES"  paneWidth={paneWidth}>
                         <SlidingPaneHeader>
                             Variables
                         </SlidingPaneHeader>
@@ -196,32 +213,23 @@ const HelperPaneNewEl = ({
                         />
                     </SlidingPane>
 
-                    <SlidingPane name="CREATE_VALUE" paneHeight='400px'>
+                    <SlidingPane name="CREATE_VALUE" paneHeight='400px' paneWidth={paneWidth}>
                         <SlidingPaneHeader> Create Value</SlidingPaneHeader>
                         <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue} selectedType={selectedType} />
                     </SlidingPane>
 
-                    <SlidingPane name="FUNCTIONS" paneHeight='400px'>
+                    <SlidingPane name="FUNCTIONS" paneHeight='400px' paneWidth={paneWidth}>
                         <SlidingPaneHeader>
                             Functions
                         </SlidingPaneHeader>
                         <FunctionsPage
                             fieldKey={fieldKey}
                             anchorRef={anchorRef}
-                            projectPath={projectPath}
                             fileName={fileName}
                             targetLineRange={targetLineRange}
                             onClose={onClose}
                             onChange={handleChange}
                             updateImports={updateImports} />
-                    </SlidingPane>
-
-                    <SlidingPane name="PAGE3">
-                        <SlidingPaneHeader> This is Page 3</SlidingPaneHeader>
-                        Page3
-                        {/* <CopilotFooter >
-                                <Codicon name="add"/> <span>Generate with BI Copilot</span>
-                        </CopilotFooter> */}
                     </SlidingPane>
                 </SlidingWindow>
             </HelperPaneCustom.Body>
