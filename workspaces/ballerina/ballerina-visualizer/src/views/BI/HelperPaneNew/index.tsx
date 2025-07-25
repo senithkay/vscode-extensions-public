@@ -45,7 +45,6 @@ export type HelperPaneNewProps = {
     handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void
     helperPaneZIndex?: number;
     selectedType?: CompletionItem;
-    setTargetLineRange?: (targetLineRange: LineRange) => void;
     filteredCompletions?: CompletionItem[];
     variables: CompletionItem[]
 };
@@ -69,7 +68,6 @@ const HelperPaneNewEl = ({
     handleOnFormSubmit,
     helperPaneZIndex,
     selectedType,
-    setTargetLineRange,
     filteredCompletions,
     variables
 }: HelperPaneNewProps) => {
@@ -206,7 +204,6 @@ const HelperPaneNewEl = ({
                             projectPath={projectPath}
                             handleOnFormSubmit={handleOnFormSubmit}
                             selectedType={selectedType}
-                            setTargetLineRange={setTargetLineRange}
                             filteredCompletions={filteredCompletions}
                             currentValue={currentValue}
                             variables={variables}
@@ -277,7 +274,6 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
         handleOnFormSubmit,
         helperPaneZIndex,
         selectedType,
-        setTargetLineRange,
         filteredCompletions,
         variables
     } = props;
@@ -302,7 +298,6 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
             handleOnFormSubmit={handleOnFormSubmit}
             helperPaneZIndex={helperPaneZIndex}
             selectedType={selectedType}
-            setTargetLineRange={setTargetLineRange}
             filteredCompletions={filteredCompletions}
             variables={variables}
         />

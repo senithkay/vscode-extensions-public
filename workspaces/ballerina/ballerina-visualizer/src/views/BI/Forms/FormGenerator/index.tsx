@@ -182,7 +182,6 @@ export function FormGenerator(props: FormProps) {
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [selectedType, setSelectedType] = useState<CompletionItem | null>(null);
-    const [targetLineRangeState, setTargetLineRangeState] = useState(targetLineRange);
 
     const variables = completions.filter((completion)=> completion.kind === 'variable')
 
@@ -217,6 +216,10 @@ export function FormGenerator(props: FormProps) {
             handleFormClose();
         };
     }, [node]);
+
+    useEffect(()=>{
+        console.log(targetLineRange)
+    }, [targetLineRange])
 
     const handleFormOpen = () => {
         rpcClient
@@ -295,7 +298,7 @@ export function FormGenerator(props: FormProps) {
     const handleOnSubmit = (data: FormValues, dirtyFields: any) => {
         console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
-            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRangeState, dirtyFields);
+            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange, dirtyFields);
             console.log(">>> Updated node", updatedNode);
 
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
@@ -655,7 +658,6 @@ export function FormGenerator(props: FormProps) {
             handleOnFormSubmit: handleOnFormSubmit,
             helperPaneZIndex: helperPaneZIndex,
             selectedType: selectedType,
-            setTargetLineRange: setTargetLineRangeState,
             filteredCompletions: filteredCompletions,
             variables: variables
         });

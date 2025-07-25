@@ -26,7 +26,6 @@ type VariablesPageProps = {
     projectPath?: string;
     handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void;
     selectedType?: CompletionItem;
-    setTargetLineRange?: (targetLineRange: LineRange) => void;
     filteredCompletions: CompletionItem[];
     currentValue: string;
     variables: CompletionItem[]
@@ -34,7 +33,7 @@ type VariablesPageProps = {
 
 
 export const Variables = (props: VariablesPageProps) => {
-    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType, setTargetLineRange, filteredCompletions, currentValue, variables } = props;
+    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType, filteredCompletions, currentValue, variables } = props;
     const [searchValue, setSearchValue] = useState<string>("");
     const { rpcClient } = useRpcContext();
     const { getParams } = useSlidingPane();
@@ -53,29 +52,31 @@ export const Variables = (props: VariablesPageProps) => {
 
     const getVariableInfo = useCallback(() => {
         setIsLoading(true);
-        setTimeout(() => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getVisibleVariableTypes({
-                    filePath: fileName,
-                    position: {
-                        line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset
-                    }
-                })
-                .then((response) => {
-                    if (response.categories?.length) {
-                        const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
-                        setVariableInfo(convertedHelperPaneVariable);
-                        setFilteredVariableInfo(convertedHelperPaneVariable);
-                    }
-                })
-                .then(() => setIsLoading(false));
-        }, 150);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getVisibleVariableTypes({
+                filePath: fileName,
+                position: {
+                    line: targetLineRange.startLine.line,
+                    offset: targetLineRange.startLine.offset
+                }
+            })
+            .then((response) => {
+                if (response.categories?.length) {
+                    const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
+                    setVariableInfo(convertedHelperPaneVariable);
+                    setFilteredVariableInfo(convertedHelperPaneVariable);
+                }
+            })
+            .then(() => setIsLoading(false));
     }, [rpcClient, fileName, targetLineRange]);
 
+    useEffect(() => {
+        getVariableInfo()
+    }, [targetLineRange])
+
     const updateLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
-        setTargetLineRange(getUpdatedTargetLineRangeForRecursiveInserts(nodes));
+        // setTargetLineRange(getUpdatedTargetLineRangeForRecursiveInserts(nodes));
     }
 
     const handleSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
@@ -85,8 +86,8 @@ export const Variables = (props: VariablesPageProps) => {
             ? updatedNode.properties.variable.value
             : "";
         newNodeNameRef.current = varName;
-        handleOnFormSubmit?.(updatedNode, isDataMapperFormUpdate, { shouldCloseSidePanel: false, updateLineRangeForRecursiveInserts });
-        if(isModalOpen){
+        handleOnFormSubmit?.(updatedNode, isDataMapperFormUpdate, { shouldCloseSidePanel: false, updateLineRangeForRecursiveInserts, shouldUpdateTargetLine: true });
+        if (isModalOpen) {
             setIsModalOpen(false)
             getVariableInfo();
         }
@@ -356,7 +357,7 @@ export const Variables = (props: VariablesPageProps) => {
 
     const breadCrumSteps = useMemo(() => {
         const variableNames = currentValue.split('.');
-        if (variableNames.length<3) return [];
+        if (variableNames.length < 3) return [];
         variableNames.pop();
         return variableNames;
     }, [currentValue])
@@ -387,7 +388,7 @@ export const Variables = (props: VariablesPageProps) => {
             height: "100%",
             overflow: "hidden"
         }}>
-            <div style={{ display: 'flex', color: ThemeColors.HIGHLIGHT , marginBottom: '10px'}}>
+            <div style={{ display: 'flex', color: ThemeColors.HIGHLIGHT, marginBottom: '10px' }}>
                 {
                     breadCrumSteps.map((item, index) => {
                         if (index === 0) {
@@ -408,7 +409,7 @@ export const Variables = (props: VariablesPageProps) => {
                 }
             </div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "10px", gap: '5px' }}>
-               <SearchBox sx={{ width: "100%" }} placeholder='Search' value={searchValue} onChange={handleSearch} />
+                <SearchBox sx={{ width: "100%" }} placeholder='Search' value={searchValue} onChange={handleSearch} />
             </div>
 
             <ScrollableContainer>
