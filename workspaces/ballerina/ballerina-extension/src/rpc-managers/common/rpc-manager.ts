@@ -47,7 +47,9 @@ import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { askFilePath, askProjectPath, BALLERINA_INTEGRATOR_ISSUES_URL, getUpdatedSource } from "./utils";
-import path from 'path';
+import { parse } from 'toml';
+import * as fs from 'fs';
+import path from "path";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypeCompletions(): Promise<TypeResponse> {
@@ -228,5 +230,34 @@ export class CommonRpcManager implements CommonRPCAPI {
 
     async isNPSupported(): Promise<boolean> {
         return ballerinaExtInstance.isNPSupported;
+    }
+
+    async getBallerinaProjectRoot(): Promise<string | null> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error("No workspaces found.");
+        }
+        const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
+        // Check if workspaceFolderPath is a Ballerina project
+        // Assuming a Ballerina project must contain a 'Ballerina.toml' file
+        const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
+        if (fs.existsSync(ballerinaProjectFile)) {
+            return workspaceFolderPath;
+        }
+        return null;
+    }
+    
+
+    async getCurrentProjectTomlValues() {
+        const projectRoot = await this.getBallerinaProjectRoot();
+        const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
+        if (fs.existsSync(ballerinaTomlPath)) {
+            const tomlContent = await fs.promises.readFile(ballerinaTomlPath, 'utf-8');
+            try {
+                return parse(tomlContent);
+            } catch (error) {
+                return {};
+            }
+        }
     }
 }

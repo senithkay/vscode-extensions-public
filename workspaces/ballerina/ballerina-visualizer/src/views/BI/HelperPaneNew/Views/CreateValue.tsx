@@ -13,14 +13,15 @@ type CreateValuePageProps = {
     currentValue: string;
     onChange: (value: string, isRecordConfigureChange: boolean) => void;
     selectedType?: CompletionItem;
+    recordTypeField?: RecordTypeField;
 }
 
 const passPackageInfoIfExists = (recordTypeMember: PropertyTypeMemberInfo) => {
     let org = "";
     let module = "";
     let version = "";
-    if (recordTypeMember.packageInfo) {
-        const parts = recordTypeMember.packageInfo.split(':');
+    if (recordTypeMember?.packageInfo) {
+        const parts = recordTypeMember?.packageInfo.split(':');
         if (parts.length === 3) {
             [org, module, version] = parts;
         }
@@ -33,32 +34,45 @@ const getPropertyMember = (field: RecordTypeField) => {
 }
 
 export const CreateValue = (props: CreateValuePageProps) => {
-    const { fileName, currentValue, onChange, selectedType } = props;
+    const { fileName, currentValue, onChange, selectedType, recordTypeField } = props;
     const [recordModel, setRecordModel] = useState<TypeField[]>([]);
-    //remove this
-    const [show, setShow] = useState(false);
 
     const { rpcClient } = useRpcContext();
-
-    const { getParams } = useSlidingPane();
-    const params = getParams() as RecordTypeField;
-    //RCD
-    const propertyMember = getPropertyMember(params)
+    const propertyMember = getPropertyMember(recordTypeField)
 
     const sourceCode = useRef<string>(currentValue);
 
-    const fetchRecordModel = async () => {
-        const packageInfo = passPackageInfoIfExists(params?.recordTypeMembers.at(0))
-        const request: GetRecordConfigRequest = {
-            filePath: fileName,
-            codedata: {
-                org: packageInfo.org,
-                module: packageInfo.module,
-                version: packageInfo.version,
-                packageName: propertyMember?.packageName,
-            },
-            typeConstraint: propertyMember?.type,
+    const getRecordConfigRequest = async () => {
+        if (recordTypeField) {
+            const packageInfo = passPackageInfoIfExists(recordTypeField?.recordTypeMembers.at(0))
+            return {
+                filePath: fileName,
+                codedata: {
+                    org: packageInfo.org,
+                    module: packageInfo.module,
+                    version: packageInfo.version,
+                    packageName: propertyMember?.packageName,
+                },
+                typeConstraint: propertyMember?.type,
+            }
         }
+        else{
+            const tomValues = await rpcClient.getCommonRpcClient().getCurrentProjectTomlValues();
+            return {
+                filePath: fileName,
+                codedata: {
+                    org: tomValues.package.org,
+                    module: tomValues.package.name,
+                    version: tomValues.package.version,
+                    packageName: propertyMember?.packageName,
+                },
+                typeConstraint: propertyMember?.type || selectedType.label,
+            }
+        }
+    }
+
+    const fetchRecordModel = async () => {
+        const request = await getRecordConfigRequest();
         const typeFieldResponse: GetRecordConfigResponse = await rpcClient.getBIDiagramRpcClient().getRecordConfig(request);
         if (typeFieldResponse.recordConfig) {
             const recordConfig: TypeField = {
@@ -91,7 +105,7 @@ export const CreateValue = (props: CreateValuePageProps) => {
     }, []);
 
     return (
-        isRowType(selectedType) ? <RecordConfig
+        (isRowType(selectedType)) || recordTypeField ? <RecordConfig
             recordModel={recordModel}
             onModelChange={handleModelChange}
         /> : <NonRecordCreateValue
@@ -113,7 +127,7 @@ const NonRecordCreateValue = (props: CreateValuePageProps) => {
     const defaultValue = getDefaultValue(selectedType);
     return (
         <>
-            {defaultValue  && (
+            {defaultValue && (
                 <ExpandableList>
                     <SelectableItem onClick={() => { handleValueSelect(defaultValue) }} className="selectable-list-item">
                         <ExpandableList.Item sx={{ width: "100%" }}>

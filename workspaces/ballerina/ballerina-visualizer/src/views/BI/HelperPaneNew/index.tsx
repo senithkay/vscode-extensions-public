@@ -46,7 +46,8 @@ export type HelperPaneNewProps = {
     helperPaneZIndex?: number;
     selectedType?: CompletionItem;
     filteredCompletions?: CompletionItem[];
-    variables: CompletionItem[]
+    variables: CompletionItem[];
+    isInModal?: boolean;
 };
 
 const HelperPaneNewEl = ({
@@ -69,7 +70,8 @@ const HelperPaneNewEl = ({
     helperPaneZIndex,
     selectedType,
     filteredCompletions,
-    variables
+    variables,
+    isInModal
 }: HelperPaneNewProps) => {
     const [position, setPosition] = useState<{ top: number, left: number }>({ top: 0, left: 0 });
     const paneRef = useRef<HTMLDivElement>(null);
@@ -148,7 +150,7 @@ const HelperPaneNewEl = ({
                 <SlidingWindow>
                     <SlidingPane name="PAGE1" paneWidth={paneWidth}>
                         <ExpandableList sx={{ paddingTop: '10px' }}>
-                            {selectedType && (
+                            {(selectedType || recordTypeField) && (
                                 <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
                                     <ExpandableList.Item>
                                         <Codicon name="new-file" />
@@ -156,7 +158,7 @@ const HelperPaneNewEl = ({
                                     </ExpandableList.Item>
                                 </SlidingPaneNavContainer>
                             )}
-                            <SlidingPaneNavContainer to="VARIABLES" data={recordTypeField}>
+                            <SlidingPaneNavContainer to="VARIABLES">
                                 <ExpandableList.Item>
                                     <Codicon name="json" />
                                     <span>Variables</span>
@@ -207,12 +209,19 @@ const HelperPaneNewEl = ({
                             filteredCompletions={filteredCompletions}
                             currentValue={currentValue}
                             variables={variables}
+                            recordTypeField={recordTypeField}
+                            isInModal={isInModal}
                         />
                     </SlidingPane>
 
                     <SlidingPane name="CREATE_VALUE" paneHeight='400px' paneWidth={paneWidth}>
                         <SlidingPaneHeader> Create Value</SlidingPaneHeader>
-                        <CreateValue fileName={fileName} onChange={handleChange} currentValue={currentValue} selectedType={selectedType} />
+                        <CreateValue 
+                        fileName={fileName} 
+                        onChange={handleChange} 
+                        currentValue={currentValue} 
+                        selectedType={selectedType} 
+                        recordTypeField={recordTypeField}/>
                     </SlidingPane>
 
                     <SlidingPane name="FUNCTIONS" paneHeight='400px' paneWidth={paneWidth}>
@@ -275,7 +284,8 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
         helperPaneZIndex,
         selectedType,
         filteredCompletions,
-        variables
+        variables,
+        isInModal
     } = props;
 
     return (
@@ -300,6 +310,7 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
             selectedType={selectedType}
             filteredCompletions={filteredCompletions}
             variables={variables}
+            isInModal={isInModal}
         />
     );
 };

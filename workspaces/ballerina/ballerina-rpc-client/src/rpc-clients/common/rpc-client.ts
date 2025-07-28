@@ -37,6 +37,7 @@ import {
     executeCommand,
     experimentalEnabled,
     getBallerinaDiagnostics,
+    getCurrentProjectTomlValues,
     getTypeCompletions,
     getWorkspaceFiles,
     getWorkspaceRoot,
@@ -103,5 +104,8 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     showErrorMessage(params: ShowErrorMessageRequest): void {
         return this._messenger.sendNotification(showErrorMessage, HOST_EXTENSION, params);
+    }
+    getCurrentProjectTomlValues(): Promise<Record<string, any>> {
+        return this._messenger.sendRequest(getCurrentProjectTomlValues, HOST_EXTENSION);
     }
 }

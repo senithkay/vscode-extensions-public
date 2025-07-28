@@ -115,7 +115,7 @@ interface FormProps {
         callback: () => void;
     };
     handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void;
-    helperPaneZIndex?: number;
+    isInModal?: boolean;
 }
 
 // Styled component for the action button description
@@ -162,7 +162,7 @@ export function FormGenerator(props: FormProps) {
         actionButtonConfig,
         submitText,
         handleOnFormSubmit,
-        helperPaneZIndex,
+        isInModal,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -656,10 +656,11 @@ export function FormGenerator(props: FormProps) {
             completions:completions,
             projectPath: projectPath,
             handleOnFormSubmit: handleOnFormSubmit,
-            helperPaneZIndex: helperPaneZIndex,
+            helperPaneZIndex: isInModal? 40001: undefined,
             selectedType: selectedType,
             filteredCompletions: filteredCompletions,
-            variables: variables
+            variables: variables,
+            isInModal: isInModal
         });
     };
 
@@ -720,7 +721,7 @@ export function FormGenerator(props: FormProps) {
             onCancel: handleExpressionEditorCancel,
             helperPaneOrigin: "vertical",
             helperPaneHeight: "default",
-            helperPaneZIndex: helperPaneZIndex
+            helperPaneZIndex: isInModal? 40001: undefined,
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
@@ -857,7 +858,7 @@ export function FormGenerator(props: FormProps) {
                     recordTypeFields={recordTypeFields}
                     isInferredReturnType={!!node.codedata?.inferredReturnType}
                     formImports={formImports}
-                    helperPaneZIndex={helperPaneZIndex}
+                    helperPaneZIndex={isInModal? 40001: undefined}
                 />
             )}
             {typeEditorState.isOpen && (

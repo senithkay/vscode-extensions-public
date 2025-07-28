@@ -11,7 +11,7 @@ export type DynamicModalProps = {
     width?: number;
     height?: number;
     openState: boolean;
-    setOpenState: (state: boolean)=>void 
+    setOpenState: (state: boolean)=>void;
 };
 
 const Overlay = styled.div`

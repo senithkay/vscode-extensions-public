@@ -1,21 +1,18 @@
-import { useSlidingPane } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane/context"
 import { ExpandableList } from "../Components/ExpandableList"
 import { VariableTypeIndifcator } from "../Components/VariableTypeIndicator"
 import { SlidingPaneNavContainer } from "@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane"
 import { useRpcContext } from "@wso2/ballerina-rpc-client"
-import { ELineRange, ExpressionProperty, FlowNode, LinePosition, LineRange, TriggerCharacter } from "@wso2/ballerina-core"
-import { Button, Codicon, COMPLETION_ITEM_KIND, CompletionItem, Divider, getIcon, HelperPaneCustom, SearchBox, ThemeColors } from "@wso2/ui-toolkit"
+import { ExpressionProperty, FlowNode, LineRange, RecordTypeField } from "@wso2/ballerina-core"
+import {  Codicon, COMPLETION_ITEM_KIND, CompletionItem, Divider, getIcon, HelperPaneCustom, SearchBox, ThemeColors } from "@wso2/ui-toolkit"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { HelperPaneCompletionItem, HelperPaneVariableInfo } from "@wso2/ballerina-side-panel"
-import { debounce, find } from "lodash"
+import {  HelperPaneVariableInfo } from "@wso2/ballerina-side-panel"
+import { debounce } from "lodash"
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../../utils/bi"
 import FooterButtons from "../Components/FooterButtons"
 import DynamicModal from "../Components/Modal"
 import { FormGenerator } from "../../Forms/FormGenerator"
 import { ScrollableContainer } from "../Components/ScrollableContainer"
-import { isUnionType } from "../Utils/types"
 import { FormSubmitOptions } from "../../FlowDiagram"
-import styled from "@emotion/styled"
 
 type VariablesPageProps = {
     fileName: string;
@@ -29,21 +26,19 @@ type VariablesPageProps = {
     filteredCompletions: CompletionItem[];
     currentValue: string;
     variables: CompletionItem[]
+    recordTypeField?:RecordTypeField;
+    isInModal?:boolean;
 }
 
 
 export const Variables = (props: VariablesPageProps) => {
-    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType, filteredCompletions, currentValue, variables } = props;
+    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType, filteredCompletions, currentValue, recordTypeField, isInModal } = props;
     const [searchValue, setSearchValue] = useState<string>("");
     const { rpcClient } = useRpcContext();
-    const { getParams } = useSlidingPane();
-    const [showProgressIndicator, setShowProgressIndicator] = useState(false);
-    const data = getParams();
     const firstRender = useRef<boolean>(true);
     const [variableInfo, setVariableInfo] = useState<HelperPaneVariableInfo | undefined>(undefined);
     const [filteredVariableInfo, setFilteredVariableInfo] = useState<HelperPaneVariableInfo | undefined>(undefined);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [fieldsOfRecordTYpe, setFieldsOfRecordType] = useState<any[] | undefined>(undefined);
     const newNodeNameRef = useRef<string>("");
     const isMainVariablesRef = useRef<boolean>(true)
     const [currentlyVisitingItemType, setCurrentlyVisitingItemType] = useState<string>("")
@@ -63,7 +58,7 @@ export const Variables = (props: VariablesPageProps) => {
             })
             .then((response) => {
                 if (response.categories?.length) {
-                    const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
+                    const convertedHelperPaneVariable: HelperPaneVariableInfo = convertToHelperPaneVariable(response.categories);
                     setVariableInfo(convertedHelperPaneVariable);
                     setFilteredVariableInfo(convertedHelperPaneVariable);
                 }
@@ -75,10 +70,6 @@ export const Variables = (props: VariablesPageProps) => {
         getVariableInfo()
     }, [targetLineRange])
 
-    const updateLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
-        // setTargetLineRange(getUpdatedTargetLineRangeForRecursiveInserts(nodes));
-    }
-
     const handleSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
         newNodeNameRef.current = "";
         // Safely extract the variable name as a string, fallback to empty string if not available
@@ -86,7 +77,7 @@ export const Variables = (props: VariablesPageProps) => {
             ? updatedNode.properties.variable.value
             : "";
         newNodeNameRef.current = varName;
-        handleOnFormSubmit?.(updatedNode, isDataMapperFormUpdate, { shouldCloseSidePanel: false, updateLineRangeForRecursiveInserts, shouldUpdateTargetLine: true });
+        handleOnFormSubmit?.(updatedNode, isDataMapperFormUpdate, { shouldCloseSidePanel: false, shouldUpdateTargetLine: true });
         if (isModalOpen) {
             setIsModalOpen(false)
             getVariableInfo();
@@ -254,23 +245,6 @@ export const Variables = (props: VariablesPageProps) => {
 
 
     const getTypeDef = () => {
-        if (isUnionType(selectedType)) {
-            return ({
-                metadata: {
-                    label: "Type",
-                    description: "Type of the variable",
-                },
-                valueType: "SINGLE_SELECT",
-                value: selectedType?.label || "",
-                placeholder: "var",
-                optional: false,
-                editable: true,
-                advanced: false,
-                hidden: false,
-                valueTypeConstraint: ["int", "float", "string", "boolean", "record"],
-            })
-        }
-
         return (
             {
                 metadata: {
@@ -278,7 +252,7 @@ export const Variables = (props: VariablesPageProps) => {
                     description: "Type of the variable",
                 },
                 valueType: "TYPE",
-                value: data?.property?.valueTypeConstraint,
+                value: selectedType?.label,
                 placeholder: "var",
                 optional: false,
                 editable: false,
@@ -362,25 +336,6 @@ export const Variables = (props: VariablesPageProps) => {
         return variableNames;
     }, [currentValue])
 
-
-    const getUpdatedTargetLineRangeForRecursiveInserts = (nodes: FlowNode[]) => {
-        const insertedNode = searchNodes(nodes, newNodeNameRef.current);
-        if (!insertedNode) return;
-
-        const updatedTargetLineRange: ELineRange = {
-            startLine: {
-                line: insertedNode.codedata.lineRange.endLine.line,
-                offset: insertedNode.codedata.lineRange.endLine.offset
-            },
-            endLine: {
-                line: insertedNode.codedata.lineRange.endLine.line,
-                offset: insertedNode.codedata.lineRange.endLine.offset
-            },
-            fileName: insertedNode.codedata.lineRange.fileName
-        }
-        return updatedTargetLineRange;
-    }
-
     return (
         <div style={{
             display: "flex",
@@ -422,9 +377,15 @@ export const Variables = (props: VariablesPageProps) => {
                 )}
             </ScrollableContainer>
 
-            <div style={{ marginTop: "auto" }}>
+           {!isInModal &&  <div style={{ marginTop: "auto" }}>
                 <Divider />
-                <DynamicModal width={400} height={600} anchorRef={anchorRef} title="Dynamic Modal" openState={isModalOpen} setOpenState={setIsModalOpen}>
+                <DynamicModal 
+                width={400} 
+                height={600} 
+                anchorRef={anchorRef} 
+                title="Declare Variable" 
+                openState={isModalOpen} 
+                setOpenState={setIsModalOpen}>
                     <DynamicModal.Trigger>
                         <FooterButtons startIcon='add' title="New Variable" />
                     </DynamicModal.Trigger>
@@ -438,10 +399,10 @@ export const Variables = (props: VariablesPageProps) => {
                         onSubmit={handleSubmit}
                         showProgressIndicator={false}
                         resetUpdatedExpressionField={() => { }}
-                        helperPaneZIndex={40001}
+                        isInModal={true}
                     />
                 </DynamicModal>
-            </div>
+            </div>}
         </div>
     )
 }
