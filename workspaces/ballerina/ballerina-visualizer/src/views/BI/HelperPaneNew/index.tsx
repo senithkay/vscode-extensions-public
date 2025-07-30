@@ -12,7 +12,7 @@ import { RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ExpandableList } from './Components/ExpandableList';
 import { Variables } from './Views/Variables';
 import { CompletionInsertText, ExpressionProperty, FlowNode, LineRange, RecordTypeField } from '@wso2/ballerina-core';
-import { Codicon, CompletionItem, FormExpressionEditorRef, HelperPaneCustom, HelperPaneHeight, Modal } from '@wso2/ui-toolkit';
+import { Codicon, COMPLETION_ITEM_KIND, CompletionItem, FormExpressionEditorRef, getIcon, HelperPaneCustom, HelperPaneHeight, Modal } from '@wso2/ui-toolkit';
 import { CopilotFooter, SlidingPane, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
 import { CreateValue } from './Views/CreateValue';
 import DynamicModal from './Components/Modal';
@@ -81,18 +81,18 @@ const HelperPaneNewEl = ({
 
     useLayoutEffect(() => {
         const trySetWidth = () => {
-          const inputEl = exprRef.current?.parentElement;
-          if (inputEl) {
-            const rect = inputEl.getBoundingClientRect();
-            setPaneWidth(rect.width + EXPR_ICON_WIDTH -6);
-          } else {
-            // Try again on next frame if it's not ready yet
-            requestAnimationFrame(trySetWidth);
-          }
+            const inputEl = exprRef.current?.parentElement;
+            if (inputEl) {
+                const rect = inputEl.getBoundingClientRect();
+                setPaneWidth(rect.width + EXPR_ICON_WIDTH - 6);
+            } else {
+                // Try again on next frame if it's not ready yet
+                requestAnimationFrame(trySetWidth);
+            }
         };
-      
+
         trySetWidth();
-      }, []);
+    }, []);
 
     useLayoutEffect(() => {
         if (anchorRef.current) {
@@ -154,27 +154,27 @@ const HelperPaneNewEl = ({
                             {(selectedType || recordTypeField) && (
                                 <SlidingPaneNavContainer to="CREATE_VALUE" data={recordTypeField}>
                                     <ExpandableList.Item>
-                                        <Codicon name="new-file" />
+                                        {getIcon(COMPLETION_ITEM_KIND.Value)}
                                         <span>Create Value</span>
                                     </ExpandableList.Item>
                                 </SlidingPaneNavContainer>
                             )}
                             <SlidingPaneNavContainer to="VARIABLES">
                                 <ExpandableList.Item>
-                                    <Codicon name="json" />
+                                    {getIcon(COMPLETION_ITEM_KIND.Variable)}
                                     <span>Variables</span>
-                                </ExpandableList.Item>
-                            </SlidingPaneNavContainer>
-                            <SlidingPaneNavContainer to="FUNCTIONS">
-                                <ExpandableList.Item>
-                                    <Codicon name="variable-group" />
-                                    <span>Functions</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
                             <SlidingPaneNavContainer to="CONFIGURABLES">
                                 <ExpandableList.Item>
-                                    <Codicon name="settings" />
+                                    {getIcon(COMPLETION_ITEM_KIND.Constant)}
                                     <span>Configurables</span>
+                                </ExpandableList.Item>
+                            </SlidingPaneNavContainer>
+                            <SlidingPaneNavContainer to="FUNCTIONS">
+                                <ExpandableList.Item>
+                                    {getIcon(COMPLETION_ITEM_KIND.Function)}
+                                    <span>Functions</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
                         </ExpandableList>
@@ -195,7 +195,7 @@ const HelperPaneNewEl = ({
                     </SlidingPane>
 
                     {/* Variables Page */}
-                    <SlidingPane name="VARIABLES"  paneWidth={paneWidth}>
+                    <SlidingPane name="VARIABLES" paneWidth={paneWidth}>
                         <SlidingPaneHeader>
                             Variables
                         </SlidingPaneHeader>
@@ -217,12 +217,12 @@ const HelperPaneNewEl = ({
 
                     <SlidingPane name="CREATE_VALUE" paneHeight='400px' paneWidth={paneWidth}>
                         <SlidingPaneHeader> Create Value</SlidingPaneHeader>
-                        <CreateValue 
-                        fileName={fileName} 
-                        onChange={handleChange} 
-                        currentValue={currentValue} 
-                        selectedType={selectedType} 
-                        recordTypeField={recordTypeField}/>
+                        <CreateValue
+                            fileName={fileName}
+                            onChange={handleChange}
+                            currentValue={currentValue}
+                            selectedType={selectedType}
+                            recordTypeField={recordTypeField} />
                     </SlidingPane>
 
                     <SlidingPane name="FUNCTIONS" paneHeight='400px' paneWidth={paneWidth}>
@@ -244,13 +244,13 @@ const HelperPaneNewEl = ({
                             Configurables
                         </SlidingPaneHeader>
                         <Configurables
-                         anchorRef={anchorRef}
-                         fileName={fileName}
-                         onChange={handleChange}
-                         targetLineRange={targetLineRange}
-                         projectPath={projectPath}
-                         isInModal={isInModal}
-                         />
+                            anchorRef={anchorRef}
+                            fileName={fileName}
+                            onChange={handleChange}
+                            targetLineRange={targetLineRange}
+                            projectPath={projectPath}
+                            isInModal={isInModal}
+                        />
                     </SlidingPane>
                 </SlidingWindow>
             </HelperPaneCustom.Body>

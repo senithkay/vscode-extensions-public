@@ -127,7 +127,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/
     };
-    const showCompletions = showDefaultCompletion || completions?.length > 0;
+    const showCompletions = (showDefaultCompletion || completions?.length > 0) && !isHelperPaneOpen;
 
     const editorWidth = useMemo(() => {
         if (textAreaRef.current) {

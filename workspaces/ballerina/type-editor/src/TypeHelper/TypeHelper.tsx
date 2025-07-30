@@ -317,7 +317,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                                 onClick={() => setIsTypeBrowserOpen(true)}
                             />
                         </S.FooterContainer>
-                    </div>`
+                    </div>
                 </HelperPane.Body>
             </SlidingWindow>
 
