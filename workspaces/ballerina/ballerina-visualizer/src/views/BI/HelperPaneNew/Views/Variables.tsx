@@ -255,7 +255,7 @@ export const Variables = (props: VariablesPageProps) => {
                 value: selectedType?.label,
                 placeholder: "var",
                 optional: false,
-                editable: false,
+                editable: true,
                 advanced: false,
                 hidden: false,
             }

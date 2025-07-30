@@ -64,6 +64,5 @@ const ExpandableListSection = styled.div<{ level?: number }>`
 
 
 const ExpandableListSectionTitle = styled.span`
-    font-size: 18px;
     font-weight: 600;
 `;

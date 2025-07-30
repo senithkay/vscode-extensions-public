@@ -22,6 +22,7 @@ import { Divider } from '@wso2/ui-toolkit';
 import { GenerateBICopilot } from './Views/GenerateBICopilot';
 import { FormSubmitOptions } from '../FlowDiagram';
 import { EXPR_ICON_WIDTH } from '@wso2/ui-toolkit/lib/components/ExpressionEditor/components/Form';
+import { Configurables } from './Views/Configurables';
 const getRecordType = (recordTypeField: RecordTypeField) => {
     return recordTypeField;
 }
@@ -170,7 +171,7 @@ const HelperPaneNewEl = ({
                                     <span>Functions</span>
                                 </ExpandableList.Item>
                             </SlidingPaneNavContainer>
-                            <SlidingPaneNavContainer to="PAGE_CONFIGURABLES">
+                            <SlidingPaneNavContainer to="CONFIGURABLES">
                                 <ExpandableList.Item>
                                     <Codicon name="settings" />
                                     <span>Configurables</span>
@@ -236,6 +237,20 @@ const HelperPaneNewEl = ({
                             onClose={onClose}
                             onChange={handleChange}
                             updateImports={updateImports} />
+                    </SlidingPane>
+
+                    <SlidingPane name="CONFIGURABLES" paneHeight='400px' paneWidth={paneWidth}>
+                        <SlidingPaneHeader>
+                            Configurables
+                        </SlidingPaneHeader>
+                        <Configurables
+                         anchorRef={anchorRef}
+                         fileName={fileName}
+                         onChange={handleChange}
+                         targetLineRange={targetLineRange}
+                         projectPath={projectPath}
+                         isInModal={isInModal}
+                         />
                     </SlidingPane>
                 </SlidingWindow>
             </HelperPaneCustom.Body>

@@ -118,7 +118,7 @@ export const CreateValue = (props: CreateValuePageProps) => {
 }
 
 const NonRecordCreateValue = (props: CreateValuePageProps) => {
-    const { fileName, currentValue, onChange, selectedType } = props;
+    const {  selectedType } = props;
 
     const handleValueSelect = (value: string) => {
         console.log("value", value)
