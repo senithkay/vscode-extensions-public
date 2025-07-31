@@ -13,6 +13,7 @@ import DynamicModal from "../Components/Modal"
 import { FormGenerator } from "../../Forms/FormGenerator"
 import { ScrollableContainer } from "../Components/ScrollableContainer"
 import { FormSubmitOptions } from "../../FlowDiagram"
+import { URI } from "vscode-uri"
 
 type VariablesPageProps = {
     fileName: string;
@@ -20,7 +21,6 @@ type VariablesPageProps = {
     onChange: (value: string, isRecordConfigureChange: boolean) => void;
     targetLineRange: LineRange;
     anchorRef: React.RefObject<HTMLDivElement>;
-    projectPath?: string;
     handleOnFormSubmit?: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean, options?: FormSubmitOptions) => void;
     selectedType?: CompletionItem;
     filteredCompletions: CompletionItem[];
@@ -32,7 +32,7 @@ type VariablesPageProps = {
 
 
 export const Variables = (props: VariablesPageProps) => {
-    const { fileName, targetLineRange, onChange, anchorRef, projectPath, handleOnFormSubmit, selectedType, filteredCompletions, currentValue, recordTypeField, isInModal } = props;
+    const { fileName, targetLineRange, onChange, anchorRef, handleOnFormSubmit, selectedType, filteredCompletions, currentValue, recordTypeField, isInModal } = props;
     const [searchValue, setSearchValue] = useState<string>("");
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
@@ -43,7 +43,20 @@ export const Variables = (props: VariablesPageProps) => {
     const isMainVariablesRef = useRef<boolean>(true)
     const [currentlyVisitingItemType, setCurrentlyVisitingItemType] = useState<string>("")
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [projectPathUri, setProjectPathUri] = useState<string>();
 
+    useEffect(() => {
+        getVariableInfo()
+    }, [targetLineRange])
+
+    useEffect(()=>{
+        getProjectInfo()
+    },[]);
+
+    const getProjectInfo = async () => {
+        const projectPath = await rpcClient.getVisualizerLocation();
+        setProjectPathUri(URI.file(projectPath.projectUri).fsPath);
+    }
 
     const getVariableInfo = useCallback(() => {
         setIsLoading(true);
@@ -65,10 +78,6 @@ export const Variables = (props: VariablesPageProps) => {
             })
             .then(() => setIsLoading(false));
     }, [rpcClient, fileName, targetLineRange]);
-
-    useEffect(() => {
-        getVariableInfo()
-    }, [targetLineRange])
 
     const handleSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
         newNodeNameRef.current = "";
@@ -394,7 +403,7 @@ export const Variables = (props: VariablesPageProps) => {
                         node={selectedNode}
                         connections={[]}
                         targetLineRange={targetLineRange}
-                        projectPath={projectPath}
+                        projectPath={projectPathUri}
                         editForm={false}
                         onSubmit={handleSubmit}
                         showProgressIndicator={false}

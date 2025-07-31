@@ -22,13 +22,16 @@ type FooterButtonProps = {
     startIcon: string;
     title: string;
     sx?: React.CSSProperties;
+    disabled?:boolean;
 }
 
 const FooterButtons = (props: FooterButtonProps) => {
     const { onClick, startIcon, title, sx } = props;
     return (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "5px", ...sx }}>
-            <InvisibleButton onClick={onClick}>
+            <InvisibleButton 
+            disabled={props.disabled}
+            onClick={onClick}>
                 <Codicon name={startIcon} sx={{color: ThemeColors.PRIMARY}}/>
                 <span style={{color: ThemeColors.PRIMARY, marginLeft: "10px" }}>{title}</span>
             </InvisibleButton>

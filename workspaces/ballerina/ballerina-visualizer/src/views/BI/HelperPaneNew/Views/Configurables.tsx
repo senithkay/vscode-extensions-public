@@ -28,13 +28,17 @@ type ConfigurablesPageProps = {
     anchorRef: React.RefObject<HTMLDivElement>;
     fileName: string;
     targetLineRange: LineRange;
-    projectPath?: string;
+}
+
+type AddNewConfigFormProps = {
+    isImportEnv: boolean;
+    title: string;
 }
 
 
 
 export const Configurables = (props: ConfigurablesPageProps) => {
-    const { onChange, anchorRef, fileName, targetLineRange, projectPath } = props;
+    const { onChange, anchorRef, fileName, targetLineRange } = props;
 
     const { rpcClient } = useRpcContext();
     const [configVariables, setConfigVariables] = useState<ConfigVariablesState>({});
@@ -43,23 +47,30 @@ export const Configurables = (props: ConfigurablesPageProps) => {
     const [configVarNode, setCofigVarNode] = useState<FlowNode>();
     const [isSaving, setIsSaving] = useState(false);
     const [packageInfo, setPackageInfo] = useState<TomalPackage>();
+    const [isImportEnv, setIsImportEnv] = useState<boolean>(false);
+    const [projectPathUri, setProjectPathUri] = useState<string>();
 
 
     useEffect(() => {
         const fetchNode = async () => {
             const node = await rpcClient.getBIDiagramRpcClient().getConfigVariableNodeTemplate({
-                isNew: true
+                isNew: true,
+                isEnvVariable: isImportEnv
             });
             console.log("node: ", node)
             setCofigVarNode(node.flowNode);
         };
 
         fetchNode();
-    }, []);
+    }, [isImportEnv]);
 
     useEffect(() => {
         getConfigVariables()
     }, [])
+
+    useEffect(()=>{
+        getProjectInfo()
+    },[]);
 
     useEffect(() => {
         const fetchTomlValues = async () => {
@@ -79,6 +90,10 @@ export const Configurables = (props: ConfigurablesPageProps) => {
         fetchTomlValues();
     }, []);
 
+    const getProjectInfo = async () => {
+        const projectPath = await rpcClient.getVisualizerLocation();
+        setProjectPathUri(URI.file(projectPath.projectUri).fsPath);
+    }
 
     const getConfigVariables = async () => {
 
@@ -106,7 +121,7 @@ export const Configurables = (props: ConfigurablesPageProps) => {
     const handleSave = async (node: FlowNode) => {
         setIsSaving(true);
         await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
-            configFilePath: Utils.joinPath(URI.file(projectPath), 'config.bal').fsPath,
+            configFilePath: Utils.joinPath(URI.file(projectPathUri), 'config.bal').fsPath,
             configVariable: node,
             packageName: `${packageInfo.org}/${packageInfo.name}`,
             moduleName: "",
@@ -145,6 +160,38 @@ export const Configurables = (props: ConfigurablesPageProps) => {
 
     const handleItemClicked = (name: string) => {
         onChange(name, true)
+    }
+
+    const AddNewForms = (props: AddNewConfigFormProps) => {
+        return (<DynamicModal
+            width={400}
+            height={600}
+            anchorRef={anchorRef}
+            title={props.title}
+            openState={isModalOpen}
+            setOpenState={setIsModalOpen}>
+            <DynamicModal.Trigger>
+                <FooterButtons 
+                startIcon='add' 
+                title={props.title} 
+                onClick={() => {
+                    setIsImportEnv(props.isImportEnv)
+                }} 
+                />
+            </DynamicModal.Trigger>
+            <FormGenerator
+                fileName={fileName}
+                node={configVarNode}
+                connections={[]}
+                targetLineRange={targetLineRange}
+                projectPath={projectPathUri}
+                editForm={false}
+                onSubmit={handleSave}
+                showProgressIndicator={false}
+                resetUpdatedExpressionField={() => { }}
+                isInModal={true}
+            />
+        </DynamicModal>)
     }
     return (
         <div>
@@ -203,29 +250,8 @@ export const Configurables = (props: ConfigurablesPageProps) => {
             </ScrollableContainer>
             {<div style={{ marginTop: "auto", display: 'flex', flexDirection: 'column' }}>
                 <Divider />
-                <DynamicModal
-                    width={400}
-                    height={600}
-                    anchorRef={anchorRef}
-                    title="New Configurable"
-                    openState={isModalOpen}
-                    setOpenState={setIsModalOpen}>
-                    <DynamicModal.Trigger>
-                        <FooterButtons startIcon='add' title="New Configurable" />
-                    </DynamicModal.Trigger>
-                    <FormGenerator
-                        fileName={fileName}
-                        node={configVarNode}
-                        connections={[]}
-                        targetLineRange={targetLineRange}
-                        projectPath={projectPath}
-                        editForm={false}
-                        onSubmit={handleSave}
-                        showProgressIndicator={false}
-                        resetUpdatedExpressionField={() => { }}
-                        isInModal={true}
-                    />
-                </DynamicModal>
+                <AddNewForms isImportEnv={false} title="New Configurable"/>
+                <AddNewForms isImportEnv={true} title="Import from ENV variable"/>
                 {/* <DynamicModal
                     width={400}
                     height={600}

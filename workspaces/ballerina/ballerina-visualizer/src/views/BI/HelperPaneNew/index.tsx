@@ -204,7 +204,6 @@ const HelperPaneNewEl = ({
                             fileName={fileName}
                             onChange={handleChange}
                             targetLineRange={targetLineRange}
-                            projectPath={projectPath}
                             handleOnFormSubmit={handleOnFormSubmit}
                             selectedType={selectedType}
                             filteredCompletions={filteredCompletions}
@@ -248,7 +247,6 @@ const HelperPaneNewEl = ({
                             fileName={fileName}
                             onChange={handleChange}
                             targetLineRange={targetLineRange}
-                            projectPath={projectPath}
                             isInModal={isInModal}
                         />
                     </SlidingPane>
