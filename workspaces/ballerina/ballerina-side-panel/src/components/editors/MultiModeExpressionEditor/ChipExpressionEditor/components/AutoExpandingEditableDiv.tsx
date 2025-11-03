@@ -101,7 +101,6 @@ export const AutoExpandingEditableDiv = (props: AutoExpandingEditableDivProps) =
                 top={menuPosition.top}
                 left={adjustedLeft}
                 data-menu={CHIP_MENU_VALUE}
-                onMouseDown={(e) => e.preventDefault()}
             >
                 <Completions>
                     {props.completions.map((item, index) => (
@@ -131,7 +130,6 @@ export const AutoExpandingEditableDiv = (props: AutoExpandingEditableDivProps) =
                 top={menuPosition.top}
                 left={adjustedLeft}
                 data-menu={CHIP_MENU_VALUE}
-                onMouseDown={(e) => e.preventDefault()}
             >
                 {props.getHelperPane(
                     props.value,
