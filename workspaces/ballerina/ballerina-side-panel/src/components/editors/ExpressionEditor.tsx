@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Control, Controller, FieldValues, UseFormWatch, UseFormSetValue } from 'react-hook-form';
+import { Control, Controller, FieldValues, UseFormWatch, UseFormSetValue, useForm } from 'react-hook-form';
 import styled from '@emotion/styled';
 import {
     Button,
@@ -381,6 +381,8 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
     const targetInputModeRef = useRef<InputMode>(null);
 
+    const { getValues } = useForm();
+
     // Update formDiagnostics when field.diagnostics changes
     useEffect(() => {
         setFormDiagnostics(field.diagnostics);
@@ -557,7 +559,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     }
 
     const handleModeChange = (value: InputMode) => {
-        const raw = watch(key);
+        const raw = getValues(key);
         const currentValue = raw && typeof raw === "string" ? raw.trim() : "";
         if (inputMode !== InputMode.EXP) {
             setInputMode(value);
@@ -582,7 +584,8 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                 InputMode.NUMBER,
             ]
                 .includes(targetMode) && inputMode === InputMode.EXP;
-            if (shouldClearValue) {
+            const currentValue = getValues(key);
+            if (shouldClearValue && currentValue != null) {
                 setValue(key, "");
             }
             targetInputModeRef.current = null;

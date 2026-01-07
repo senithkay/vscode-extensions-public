@@ -492,6 +492,8 @@ export const Form = forwardRef((props: FormProps) => {
                     defaultValues[field.key] = field.value === "true" || (typeof field.value === "boolean" && field.value);
                 } else if (typeof field.value === "string") {
                     defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
+                } else if (field.types && field.types.length > 0) {
+                    defaultValues[field.key] = field.value;
                 } else {
                     defaultValues[field.key] = field.value ?? "";
                 }

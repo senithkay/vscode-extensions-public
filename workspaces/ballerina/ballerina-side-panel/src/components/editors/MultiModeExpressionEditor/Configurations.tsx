@@ -86,7 +86,7 @@ export class StringTemplateEditorConfig extends ChipExpressionEditorDefaultConfi
     deserializeValue(value: string): string {
         const suffix = this.getSerializationSuffix();
         const prefix = this.getSerializationPrefix();
-        if (value === '') {
+        if (value == null || value === '') {
             return value;
         }
         if (value.trim().startsWith(prefix) && value.trim().endsWith(suffix)) {
@@ -127,7 +127,7 @@ export class RawTemplateEditorConfig extends ChipExpressionEditorDefaultConfigur
     deserializeValue(value: string): string {
         const suffix = this.getSerializationSuffix();
         const prefix = this.getSerializationPrefix();
-        if (value === '') {
+        if (value == null || value === '') {
             return value;
         }
         if (value.trim().startsWith(prefix) && value.trim().endsWith(suffix)) {
@@ -165,7 +165,7 @@ export class SQLExpressionEditorConfig extends ChipExpressionEditorDefaultConfig
     deserializeValue(value: string): string {
         const suffix = this.getSerializationSuffix();
         const prefix = this.getSerializationPrefix();
-        if (value === '') {
+        if (value == null || value === '') {
             return value;
         }
         if (value.trim().startsWith(prefix) && value.trim().endsWith(suffix)) {
